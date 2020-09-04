@@ -34,7 +34,7 @@ While Winfetch does work in the majority of cases, things may break occasionally
 ## Quick Usage
 
 ```pwsh
-$> Install-Script posh-winfetch -Scope CurrentUser`
+$> Install-Script posh-winfetch -Scope CurrentUser
 $> posh-winfetch
 ```
 
