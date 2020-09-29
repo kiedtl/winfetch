@@ -299,20 +299,24 @@ $strings.uptime = if ($configuration.HasFlag([Configuration]::Show_Uptime)) {
 # current powershell instance.
 $strings.terminal = if ($configuration.HasFlag([Configuration]::Show_Terminal) -and $is_pscore) {
     $parent = (Get-Process -Id $PID).Parent
-    for () {
-        if ($parent.ProcessName -in 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash') {
-            $parent = (Get-Process -Id $parent.ID).Parent
-            continue
+    if(-not $parent -and $env:WT_SESSION) {
+        'Windows Terminal'
+    } else {
+        for () {
+            if ($parent.ProcessName -in 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash') {
+                $parent = (Get-Process -Id $parent.ID).Parent
+                continue
+            }
+            break
         }
-        break
-    }
-    try {
-        switch ($parent.ProcessName) {
-            'explorer' { 'Windows Console' }
-            default { $PSItem }
+        try {
+            switch ($parent.ProcessName) {
+                'explorer' { 'Windows Console' }
+                default { $PSItem }
+            }
+        } catch {
+            $parent.ProcessName
         }
-    } catch {
-        $parent.ProcessName
     }
 } else {
     $disabled
