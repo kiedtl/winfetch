@@ -114,6 +114,7 @@ $baseConfig = @(
     "os"
     "computer"
     "uptime"
+    "resolution"
     "pkgs"
     "pwsh"
     "terminal"
@@ -290,6 +291,21 @@ function info_uptime {
 }
 
 
+# ===== RESOLUTION =====
+function info_resolution {
+    Add-Type -AssemblyName System.Windows.Forms
+    $Displays = New-Object System.Collections.Generic.List[System.Object];
+    foreach ($monitor in [System.Windows.Forms.Screen]::AllScreens) {
+        $Displays.Add("$($monitor.WorkingArea.Size.Width)x$($monitor.WorkingArea.Size.Height)");
+    }
+
+    return @{
+        title   = "Resolution"
+        content = $Displays -join ' '
+    }
+}
+
+
 # ===== TERMINAL =====
 # this section works by getting
 # the parent processes of the
@@ -410,7 +426,7 @@ function info_disk {
     }
 
     return @{
-        title   = "Disk(s)"
+        title   = "Disk"
         content = $FormattedDisks -join ', '
     }
 }

@@ -21,13 +21,14 @@
     "computer"
     # "custom_time"  # use custom info line
     "uptime"
-    "pkgs"
+    "resolution"
+    # "pkgs" # might take slightly more time
     "pwsh"
     "terminal"
     "cpu"
     "gpu"
     "memory"
-    # "disk"
+    "disk"
     "blank"
     "colorbar"
 )
