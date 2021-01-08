@@ -296,7 +296,7 @@ function info_resolution {
     Add-Type -AssemblyName System.Windows.Forms
     $Displays = New-Object System.Collections.Generic.List[System.Object];
     foreach ($monitor in [System.Windows.Forms.Screen]::AllScreens) {
-        $Displays.Add("$($monitor.WorkingArea.Size.Width)x$($monitor.WorkingArea.Size.Height)");
+        $Displays.Add("$($monitor.Bounds.Size.Width)x$($monitor.Bounds.Size.Height)");
     }
 
     return @{
