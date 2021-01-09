@@ -371,63 +371,14 @@ function info_memory {
 
 # ===== DISK USAGE =====
 function info_disk {
-    $FormattedDisks = New-Object System.Collections.Generic.List[System.Object];
-    $DiskData = Get-CimInstance Win32_LogicalDisk -CimSession $cimSession
-    $NumDisks = $DiskData.Count;
-
-    if ($NumDisks) {
-        for ($i = 0; $i -lt $NumDisks; $i++) {
-            $DiskID = $DiskData[$i].DeviceId;
-
-            $DiskSize = $DiskData[$i].Size;
-
-            if ($DiskSize -gt 0) {
-                $FreeDiskSize = $DiskData[$i].FreeSpace
-                $FreeDiskSizeGB = $FreeDiskSize / 1gb;
-                $FreeDiskSizeGB = "{0:N0}" -f $FreeDiskSizeGB;
-
-                $DiskSizeGB = $DiskSize / 1gb;
-                $DiskSizeGB = "{0:N0}" -f $DiskSizeGB;
-
-                if ($DiskSizeGB -gt 0 -And $FreeDiskSizeGB -gt 0) {
-                    $UsedDiskSizeGB = $DiskSizeGB - $FreeDiskSizeGB;
-                } else {
-                    $UsedDiskSizeGB = 0;
-                }
-            } else {
-                $DiskSizeGB = 0;
-                $FreeDiskSizeGB = 0;
-                $UsedDiskSizeGB = 0;
-            }
-
-            $FormattedDisk = "$($UsedDiskSizeGB)GiB / $($DiskSizeGB)GiB ($DiskID)";
-            $FormattedDisks.Add($FormattedDisk);
-        }
-    } else {
-        $DiskID = $DiskData.DeviceId;
-
-        $FreeDiskSize = $DiskData.FreeSpace
-        $FreeDiskSizeGB = $FreeDiskSize / 1gb;
-        $FreeDiskSizeGB = "{0:N0}" -f $FreeDiskSizeGB;
-
-        $DiskSize = $DiskData.Size;
-        $DiskSizeGB = $DiskSize / 1gb;
-        $DiskSizeGB = "{0:N0}" -f $DiskSizeGB;
-
-        if ($DiskSize -gt 0 -And $FreeDiskSize -gt 0 ) {
-            $UsedDiskSizeGB = $DiskSizeGB - $FreeDiskSizeGB;
-
-            $FormattedDisk = "$($UsedDiskSizeGB)GiB / $($DiskSizeGB)GiB ($DiskID)";
-            $FormattedDisks.Add($FormattedDisk);
-        } else {
-            $FormattedDisk = "Empty ($DiskID)";
-            $FormattedDisks.Add($FormattedDisk);
-        }
-    }
-
+    $diskletter = $env:SystemDrive
+    $disk = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='$diskletter'" -Property Size,FreeSpace -CimSession $cimSession
+    $total = [math]::floor(($disk.Size / 1gb))
+    $used = [math]::floor(($total - $disk.FreeSpace / 1gb))
+    $usage = [math]::floor(($used / $total * 100))
     return @{
         title   = "Disk"
-        content = $FormattedDisks -join ', '
+        content = "[$diskletter] $used GiB / $total GiB ($usage%)"
     }
 }
 
