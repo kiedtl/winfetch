@@ -188,7 +188,12 @@ elseif (-not $noimage -and $image) {
         Write-Host 'ERROR: Specified image or wallpaper does not exist.' -f red
         exit 1
     }
-    $pixels = @((magick convert -thumbnail "${COLUMNS}x" -define txt:compliance=SVG $image txt:-).Split("`n"))
+
+    $tempImg = [IO.Path]::GetTempFileName()
+    magick convert $image -resize "${COLUMNS}x" $tempImg
+    $pixels = @((magick convert -thumbnail "${COLUMNS}x" -define txt:compliance=SVG $tempImg txt:-).Split("`n"))
+    Remove-Item $tempImg
+
     foreach ($pixel in $pixels) {
         $coord = [regex]::Match($pixel, "([0-9])+,([0-9])+:").Value.TrimEnd(":") -split ','
         $col, $row = $coord[0, 1]
@@ -360,6 +365,7 @@ function info_terminal {
     try {
         $terminal = switch ($parent.ProcessName) {
             'explorer' { 'Windows Console' }
+            'WindowsTerminal' { 'Windows Terminal' }
             'Code' { 'Visual Studio Code' }
             default { $PSItem }
         }
