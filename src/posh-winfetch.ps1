@@ -105,6 +105,7 @@ if ($genconf) {
 
 # ===== VARIABLES =====
 $cimSession = New-CimSession
+$showDisks = @($env:SystemDrive)
 
 
 # ===== CONFIGURATION =====
@@ -113,6 +114,8 @@ $baseConfig = @(
     "dashes"
     "os"
     "computer"
+    "kernel"
+    "motherboard"
     "uptime"
     "resolution"
     "pkgs"
@@ -122,6 +125,9 @@ $baseConfig = @(
     "gpu"
     "memory"
     "disk"
+    "battery"
+    "local_ip"
+    "public_ip"
     "blank"
     "colorbar"
 )
@@ -237,11 +243,21 @@ function info_os {
     return @{
         title   = "OS"
         content = if ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
-            $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,Version -CimSession $cimSession
-            "$($os.Caption.TrimStart('Microsoft ')) [$($os.OSArchitecture)] ($($os.Version))"
+            $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
+            "$($os.Caption.TrimStart('Microsoft ')) [$($os.OSArchitecture)]"
         } else {
             ($PSVersionTable.OS).TrimStart('Microsoft ')
         }
+    }
+}
+
+
+# ===== MOTHERBOARD =====
+function info_motherboard {
+    $motherboard = Get-CimInstance Win32_BaseBoard -CimSession $cimSession -Property Manufacturer,Product
+    return @{
+        title = "Motherboard"
+        content = "{0} {1}" -f $motherboard.Manufacturer, $motherboard.Product
     }
 }
 
@@ -271,6 +287,19 @@ function info_computer {
     return @{
         title   = "Host"
         content = '{0} {1}' -f $compsys.Manufacturer, $compsys.Model
+    }
+}
+
+
+# ===== KERNEL =====
+function info_kernel {
+    return @{
+        title   = "Kernel"
+        content = if ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
+            "$([System.Environment]::OSVersion.Version)"
+        } else {
+            "$(uname -r)"
+        }
     }
 }
 
@@ -307,27 +336,31 @@ function info_resolution {
 
 
 # ===== TERMINAL =====
-# this section works by getting
-# the parent processes of the
-# current powershell instance.
+# this section works by getting the parent processes of the current powershell instance.
 function info_terminal {
     if (-not $is_pscore) {
-        return @{
-            title   = "Terminal"
-            content = "Unknown"
+        $parent = Get-Process -Id (Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $PID" -Property ParentProcessId -CimSession $cimSession).ParentProcessId
+        for () {
+            if ($parent.ProcessName -in 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash') {
+                $parent = Get-Process -Id (Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $($parent.ID)" -Property ParentProcessId -CimSession $cimSession).ParentProcessId
+                continue
+            }
+            break
         }
-    }
-    $parent = (Get-Process -Id $PID).Parent
-    for () {
-        if ($parent.ProcessName -in 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash') {
-            $parent = (Get-Process -Id $parent.ID).Parent
-            continue
+    } else {
+        $parent = (Get-Process -Id $PID).Parent
+        for () {
+            if ($parent.ProcessName -in 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash') {
+                $parent = (Get-Process -Id $parent.ID).Parent
+                continue
+            }
+            break
         }
-        break
     }
     try {
         $terminal = switch ($parent.ProcessName) {
             'explorer' { 'Windows Console' }
+            'Code' { 'Visual Studio Code' }
             default { $PSItem }
         }
     } catch {
@@ -371,22 +404,41 @@ function info_memory {
 
 # ===== DISK USAGE =====
 function info_disk {
-    $diskletter = $env:SystemDrive
-    $disk = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='$diskletter'" -Property Size,FreeSpace -CimSession $cimSession
-    $total = [math]::floor(($disk.Size / 1gb))
-    $used = [math]::floor(($total - $disk.FreeSpace / 1gb))
-    $usage = [math]::floor(($used / $total * 100))
-    return @{
-        title   = "Disk"
-        content = "[$diskletter] $used GiB / $total GiB ($usage%)"
+    [System.Collections.ArrayList]$lines = @()
+
+    function to_units($value) {
+        if ($value -gt 1tb) {
+            return "$([math]::round($value / 1tb, 1))T"
+        } else {
+            return "$([math]::floor($value / 1gb))G"
+        }
     }
+
+    $disks = Get-CimInstance -ClassName Win32_LogicalDisk -Property Size,FreeSpace -CimSession $cimSession
+
+    foreach ($diskInfo in $disks) {
+        foreach ($diskLetter in $showDisks) {
+            if ($diskInfo.DeviceID -eq $diskLetter -or $diskLetter -eq "*") {
+                $total = $diskInfo.Size
+                $used = $total - $diskInfo.FreeSpace
+                $usage = [math]::floor(($used / $total * 100))
+                [void]$lines.Add(@{
+                    title   = "Disk ($($diskInfo.DeviceID))"
+                    content = "$(to_units $used) / $(to_units $total) ($usage%)"
+                })
+                break
+            }
+        }
+    }
+
+    return $lines
 }
 
 
 # ===== POWERSHELL VERSION =====
 function info_pwsh {
     return @{
-        title   = "PowerShell"
+        title   = "Shell"
         content = "PowerShell v$($PSVersionTable.PSVersion)"
     }
 }
@@ -418,6 +470,73 @@ function info_pkgs {
 }
 
 
+# ===== BATTERY =====
+function info_battery {
+    $battery = Get-CimInstance Win32_Battery -CimSession $cimSession -Property BatteryStatus,EstimatedChargeRemaining,EstimatedRunTime,TimeToFullCharge
+
+    if (-not $battery) {
+        return @{
+            title = "Battery"
+            content = "(none)"
+        }
+    }
+
+    $power = Get-CimInstance BatteryStatus -Namespace root\wmi -CimSession $cimSession -Property Charging,PowerOnline
+
+    $status = if ($power.Charging) {
+        "Charging"
+    } elseif ($power.PowerOnline) {
+        "Plugged in"
+    } else {
+        "Discharging"
+    }
+
+    $timeRemaining = if ($power.Charging) {
+        $battery.TimeToFullCharge
+    } else {
+        $battery.EstimatedRunTime
+    }
+
+    # don't show time remaining if windows hasn't properly reported it yet
+    $timeFormatted = if ($timeRemaining -and $timeRemaining -lt 71582788) {
+        $hours = [math]::floor($timeRemaining / 60)
+        $minutes = $timeRemaining % 60
+        ", ${hours}h ${minutes}m"
+    }
+
+    return @{
+        title = "Battery"
+        content = "$($battery.EstimatedChargeRemaining)% ($status$timeFormatted)"
+    }
+}
+
+
+# ===== IP =====
+function info_local_ip {
+    $indexDefault = Get-NetRoute -DestinationPrefix 0.0.0.0/0 | Sort-Object -Property RouteMetric | Select-Object -First 1 | Select-Object -ExpandProperty ifIndex
+    $local_ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $indexDefault | Select-Object -ExpandProperty IPAddress
+    return @{
+        title = "Local IP"
+        content = $local_ip
+    }
+}
+
+function info_public_ip {
+    try {
+        $public_ip = (Resolve-DnsName -Name myip.opendns.com -Server resolver1.opendns.com).IPAddress
+    } catch {}
+
+    if (-not $public_ip) {
+        $public_ip = Invoke-RestMethod -Uri https://ifconfig.me/ip
+    }
+
+    return @{
+        title = "Public IP"
+        content = $public_ip
+    }
+}
+
+
 # reset terminal sequences and display a newline
 Write-Host "$e[0m"
 
@@ -429,6 +548,7 @@ foreach ($line in $img) {
 # move cursor to top of image and to column 40
 if ($img) {
     Write-Host -NoNewLine "$e[$($img.Length)A$e[40G"
+    $writtenLines = 0
 }
 
 # write info
@@ -443,25 +563,32 @@ foreach ($item in $config) {
         continue
     }
 
-    $output = "$e[1;34m$($info.title)$e[0m"
-
-    if ($info.title -and $info.content) {
-        $output += ": "
+    if ($info -isnot [array]) {
+        $info = @($info)
     }
 
-    $output += "$($info.content)`n"
+    foreach ($line in $info) {
+        $output = "$e[1;34m$($line["title"])$e[0m"
 
-    # move cursor to column 40
-    if ($img) {
-        $output += "$e[40G"
+        if ($line["title"] -and $line["content"]) {
+            $output += ": "
+        }
+
+        $output += "$($line["content"])`n"
+
+        # move cursor to column 40
+        if ($img) {
+            $output += "$e[40G"
+            $writtenLines++
+        }
+
+        Write-Host -NoNewLine $output
     }
-
-    Write-Host -NoNewLine $output
 }
 
 # move cursor back to the bottom
 if ($img) {
-    Write-Host -NoNewLine "$e[$($img.Length - $config.Length)B"
+    Write-Host -NoNewLine "$e[$($img.Length - $writtenLines)B"
 }
 
 # print 2 newlines

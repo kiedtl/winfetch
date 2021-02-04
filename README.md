@@ -5,8 +5,6 @@
 <img alt="GitHub" src="https://img.shields.io/github/license/lptstr/winfetch.svg">
 <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/lptstr/winfetch.svg">
 <a href="https://www.codacy.com/app/lptstr/winfetch?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lptstr/winfetch&amp;utm_campaign=Badge_Grade"><img src="https://api.codacy.com/project/badge/Grade/cc3ea20a9c4e4ec8a441e84dd9baa241"/></a>
-<img alt="PSGallery" src="https://img.shields.io/powershellgallery/v/posh-winfetch.svg?label=posh-winfetch">
-  <a href="https://www.powershellgallery.com/packages/posh-winfetch/"></a>
 </p>
 
 
