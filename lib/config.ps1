@@ -3,6 +3,9 @@
 # $image = "~/winfetch.png"
 # $noimage = $true
 
+# Use legacy Windows logo
+# $legacylogo = $true
+
 # Add a custom info line
 # function info_custom_time {
 #     return @{

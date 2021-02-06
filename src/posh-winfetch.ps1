@@ -49,7 +49,7 @@
     Download a configuration template. Internet connection required.
 .PARAMETER noimage
     Do not display any image or logo; display information only.
-.PARAMETER legacy
+.PARAMETER legacylogo
     Use legacy Windows logo.
 .PARAMETER help
     Display this help message.
@@ -65,7 +65,7 @@ param(
     [string][alias('i')]$image,
     [switch][alias('g')]$genconf,
     [switch][alias('n')]$noimage,
-    [switch][alias('l')]$legacy,
+    [switch][alias('l')]$legacylogo,
     [switch][alias('h')]$help
 )
 
@@ -150,7 +150,7 @@ if ($config.GetType() -eq [string]) {
 
 
 # ===== IMAGE =====
-$img = if (-not $image -and -not $noimage -and $legacy) {
+$img = if (-not $image -and -not $noimage -and $legacylogo) {
     @(
         "${e}[5;31m        ,.=:!!t3Z3z.,               ${e}[0m"
         "${e}[5;31m       :tt:::tt333EE3               ${e}[0m"
@@ -170,7 +170,7 @@ $img = if (-not $image -and -not $noimage -and $legacy) {
         "${e}[5;33m                'VEzjt:;;z>*``       ${e}[0m"
     )
 }
-elseif (-not $image -and -not $noimage -and -not $legacy) {
+elseif (-not $image -and -not $noimage -and -not $legacylogo) {
     @(
         "${e}[1;34m                    ....,,:;+ccllll${e}[0m"
         "${e}[1;34m      ...,,+:;  cllllllllllllllllll${e}[0m"
