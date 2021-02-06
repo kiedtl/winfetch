@@ -49,6 +49,8 @@
     Download a configuration template. Internet connection required.
 .PARAMETER noimage
     Do not display any image or logo; display information only.
+.PARAMETER legacy
+    Use legacy Windows logo.
 .PARAMETER help
     Display this help message.
 .INPUTS
@@ -63,6 +65,7 @@ param(
     [string][alias('i')]$image,
     [switch][alias('g')]$genconf,
     [switch][alias('n')]$noimage,
+    [switch][alias('l')]$legacy,
     [switch][alias('h')]$help
 )
 
@@ -147,7 +150,27 @@ if ($config.GetType() -eq [string]) {
 
 
 # ===== IMAGE =====
-$img = if (-not $image -and -not $noimage) {
+$img = if (-not $image -and -not $noimage -and $legacy) {
+    @(
+        "${e}[5;31m        ,.=:!!t3Z3z.,               ${e}[0m"
+        "${e}[5;31m       :tt:::tt333EE3               ${e}[0m"
+        "${e}[5;31m       Et:::ztt33EEE  ${e}[5;32m@Ee.,      ..,${e}[0m"
+        "${e}[5;31m      ;tt:::tt333EE7 ${e}[5;32m;EEEEEEttttt33#${e}[0m"
+        "${e}[5;31m     :Et:::zt333EEQ. ${e}[5;32mSEEEEEttttt33QL${e}[0m"
+        "${e}[5;31m     it::::tt333EEF ${e}[5;32m@EEEEEEttttt33F ${e}[0m"
+        "${e}[5;31m    ;3=*^``````'*4EEV ${e}[5;32m:EEEEEEttttt33@. ${e}[0m"
+        "${e}[5;34m    ,.=::::it=., ${e}[5;31m`` ${e}[5;32m@EEEEEEtttz33QF  ${e}[0m"
+        "${e}[5;34m   ;::::::::zt33)   ${e}[5;32m'4EEEtttji3P*   ${e}[0m"
+        "${e}[5;34m  :t::::::::tt33 ${e}[5;33m:Z3z..  ${e}[5;32m```` ${e}[5;33m,..g.   ${e}[0m"
+        "${e}[5;34m  i::::::::zt33F ${e}[5;33mAEEEtttt::::ztF    ${e}[0m"
+        "${e}[5;34m ;:::::::::t33V ${e}[5;33m;EEEttttt::::t3     ${e}[0m"
+        "${e}[5;34m E::::::::zt33L ${e}[5;33m@EEEtttt::::z3F     ${e}[0m"
+        "${e}[5;34m{3=*^``````'*4E3) ${e}[5;33m;EEEtttt:::::tZ``     ${e}[0m"
+        "${e}[5;34m            `` ${e}[5;33m:EEEEtttt::::z7       ${e}[0m"
+        "${e}[5;33m                'VEzjt:;;z>*``       ${e}[0m"
+    )
+}
+elseif (-not $image -and -not $noimage -and -not $legacy) {
     @(
         "${e}[1;34m                    ....,,:;+ccllll${e}[0m"
         "${e}[1;34m      ...,,+:;  cllllllllllllllllll${e}[0m"
