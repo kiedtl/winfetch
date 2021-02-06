@@ -6,6 +6,9 @@
 # Use legacy Windows logo
 # $legacylogo = $true
 
+# Make the logo blink
+# $blink = $true
+
 # Add a custom info line
 # function info_custom_time {
 #     return @{
