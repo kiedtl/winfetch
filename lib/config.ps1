@@ -22,6 +22,10 @@
 # Show all available disks
 # $ShowDisks = @("*")
 
+# Configure which package managers are shown
+# disabling unused ones will improve speed
+# $ShowPkgs = @("scoop", "choco")
+
 
 # Remove the '#' from any of the lines in
 # the following to **enable** their output.

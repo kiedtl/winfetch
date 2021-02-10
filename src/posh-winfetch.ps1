@@ -112,6 +112,7 @@ if ($genconf) {
 # ===== VARIABLES =====
 $cimSession = New-CimSession
 $showDisks = @($env:SystemDrive)
+$showPkgs = @("scoop", "choco")
 $t = if ($blink) { "5" } else { "1" }
 
 
@@ -478,26 +479,40 @@ function info_pwsh {
 
 # ===== PACKAGES =====
 function info_pkgs {
-    $chocopkg = if (Get-Command -Name choco -ErrorAction Ignore) {
-        (& clist -l)[-1].Split(' ')[0] - 1
+    $pkgs = @()
+
+    if ("choco" -in $ShowPkgs -and (Get-Command -Name choco -ErrorAction Ignore)) {
+        $chocopkg = (& clist -l)[-1].Split(' ')[0] - 1
+
+        if ($chocopkg) {
+            $pkgs += "$chocopkg (choco)"
+        }
     }
 
-    $scooppkg = if (Get-Command -Name scoop -ErrorAction Ignore) {
-        $scoop = & scoop which scoop
-        $scoopdir = (Resolve-Path "$(Split-Path -Path $scoop)\..\..\..").Path
-        (Get-ChildItem -Path $scoopdir -Directory).Count - 1
+    if ("scoop" -in $ShowPkgs) {
+        if (Test-Path "~/scoop/apps") {
+            $scoopdir = "~/scoop/apps"
+        } elseif (Get-Command -Name scoop -ErrorAction Ignore) {
+            $scoop = & scoop which scoop
+            $scoopdir = (Resolve-Path "$(Split-Path -Path $scoop)\..\..\..").Path
+        }
+
+        if ($scoopdir) {
+            $scooppkg = (Get-ChildItem -Path $scoopdir -Directory).Count - 1
+        }
+
+        if ($scooppkg) {
+            $pkgs += "$scooppkg (scoop)"
+        }
     }
 
-    $pkgs = $(if ($scooppkg) {
-        "$scooppkg (scoop)"
+    if (-not $pkgs) {
+        $pkgs = "(none)"
     }
-    if ($chocopkg) {
-        "$chocopkg (choco)"
-    }) -join ', '
 
     return @{
         title   = "Packages"
-        content = $pkgs
+        content = $pkgs -join ', '
     }
 }
 
