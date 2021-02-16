@@ -54,6 +54,8 @@
     Use legacy Windows logo.
 .PARAMETER blink
     Make the logo blink.
+.PARAMETER stripansi
+    Output without any text effects or colors.
 .PARAMETER help
     Display this help message.
 .INPUTS
@@ -70,10 +72,12 @@ param(
     [switch][alias('n')]$noimage,
     [switch][alias('l')]$legacylogo,
     [switch][alias('b')]$blink,
+    [switch][alias('s')]$stripansi,
     [switch][alias('h')]$help
 )
 
 $e = [char]0x1B
+$ansiRegex = '[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))'
 
 $is_pscore = $PSVersionTable.PSEdition.ToString() -eq 'Core'
 
@@ -625,17 +629,27 @@ function info_public_ip {
 }
 
 
-# reset terminal sequences and display a newline
-Write-Host "$e[0m"
+if (-not $stripansi) {
+    # unhide the cursor after a terminating error
+    trap { "$e[?25h"; break }
+
+    # reset terminal sequences and display a newline
+    Write-Output "$e[0m$e[?25l"
+} else {
+    Write-Output ""
+}
 
 # write logo
 foreach ($line in $img) {
-    Write-Host " $line"
+    if ($stripansi) {
+        $line = $line -replace $ansiRegex, ''
+    }
+    Write-Output " $line"
 }
 
 # move cursor to top of image and to column 40
-if ($img) {
-    Write-Host -NoNewLine "$e[$($img.Length)A$e[40G"
+if ($img -and -not $stripansi) {
+    Write-Output "$e[$($img.Length + 1)A"
     $writtenLines = 0
 }
 
@@ -662,25 +676,33 @@ foreach ($item in $config) {
             $output += ": "
         }
 
-        $output += "$($line["content"])`n"
+        $output += "$($line["content"])"
 
         # move cursor to column 40
         if ($img) {
-            $output += "$e[40G"
+            $output = "$e[40G$output"
             $writtenLines++
         }
 
-        Write-Host -NoNewLine $output
+        if ($stripansi) {
+            $output = $output -replace $ansiRegex, ''
+        }
+
+        Write-Output $output
     }
 }
 
-# move cursor back to the bottom
-if ($img) {
-    Write-Host -NoNewLine "$e[$($img.Length - $writtenLines)B"
+# move cursor back to the bottom and print 2 newlines
+if (-not $stripansi) {
+    if ($img) {
+        Write-Output "$e[$( $img.Length - $writtenLines )B"
+    } else {
+        Write-Output ""
+    }
+    Write-Output "$e[?25h"
+} else {
+    Write-Output "`n"
 }
-
-# print 2 newlines
-Write-Host "`n"
 
 #  ___ ___  ___
 # | __/ _ \| __|
