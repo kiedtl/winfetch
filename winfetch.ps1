@@ -640,18 +640,18 @@ if (-not $stripansi) {
 }
 
 # write logo
-foreach ($line in $img) {
-    if ($stripansi) {
-        $line = $line -replace $ansiRegex, ''
+if (-not $stripansi) {
+    foreach ($line in $img) {
+        Write-Output " $line"
     }
-    Write-Output " $line"
 }
 
 # move cursor to top of image and to column 40
 if ($img -and -not $stripansi) {
     Write-Output "$e[$($img.Length + 1)A"
-    $writtenLines = 0
 }
+
+$writtenLines = 0
 
 # write info
 foreach ($item in $config) {
@@ -678,17 +678,31 @@ foreach ($item in $config) {
 
         $output += "$($line["content"])"
 
-        # move cursor to column 40
         if ($img) {
-            $output = "$e[40G$output"
-            $writtenLines++
+            if (-not $stripansi) {
+                # move cursor to column 40
+                $output = "$e[40G$output"
+            } else {
+                # write image progressively
+                $imgline = "$($img[$writtenLines])".PadRight(35) -replace $ansiRegex, ""
+                $output = " $imgline   $output"
+            }
         }
 
+        $writtenLines++
+
         if ($stripansi) {
-            $output = $output -replace $ansiRegex, ''
+            $output = $output -replace $ansiRegex, ""
         }
 
         Write-Output $output
+    }
+}
+
+if ($stripansi) {
+    # write out remaining image lines
+    for ($i = $writtenLines; $i -lt $img.Length; $i++) {
+        Write-Output (" $($img[$i])".PadRight(35) -replace $ansiRegex, "")
     }
 }
 
