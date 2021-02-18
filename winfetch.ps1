@@ -684,7 +684,7 @@ foreach ($item in $config) {
                 $output = "$e[40G$output"
             } else {
                 # write image progressively
-                $imgline = "$($img[$writtenLines])".PadRight(35) -replace $ansiRegex, ""
+                $imgline = "$($img[$writtenLines])".PadRight(35)
                 $output = " $imgline   $output"
             }
         }
