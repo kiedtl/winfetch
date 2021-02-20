@@ -148,9 +148,18 @@ $baseConfig = @(
     "colorbar"
 )
 
+# prevent config from overriding specified parameters
+foreach ($var in $PSBoundParameters.Keys) {
+    Set-Variable $var -Option ReadOnly
+}
+
 if ((Get-Item -Path $configPath).Length -gt 0) {
-    $config = . $configPath
-} else {
+    # load config and ignore readonly errors
+    $config = 'trap [System.Management.Automation.SessionStateUnauthorizedAccessException] { continue };' `
+        + (Get-Content $configPath | Out-String) | Invoke-Expression
+}
+
+if (-not $config) {
     $config = $baseConfig
 }
 
