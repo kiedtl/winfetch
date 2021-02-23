@@ -9,6 +9,9 @@
 # Make the logo blink
 # $blink = $true
 
+# Display all built-in info segments.
+# $all = $true
+
 # Add a custom info line
 # function info_custom_time {
 #     return @{
