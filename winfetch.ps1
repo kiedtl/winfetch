@@ -59,6 +59,8 @@
     Make the logo blink.
 .PARAMETER stripansi
     Output without any text effects or colors.
+.PARAMETER all
+    Display all built-in info segments.
 .PARAMETER help
     Display this help message.
 .PARAMETER showdisks
@@ -81,6 +83,7 @@ param(
     [switch][alias('l')]$legacylogo,
     [switch][alias('b')]$blink,
     [switch][alias('s')]$stripansi,
+    [switch][alias('a')]$all,
     [switch][alias('h')]$help,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
@@ -221,7 +224,7 @@ if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)
 # load config file
 $config = . $configPath
 
-if (-not $config) {
+if (-not $config -or $all) {
     $config = $baseConfig
 }
 
