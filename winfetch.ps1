@@ -118,17 +118,15 @@ if ($help) {
 }
 
 # ===== GENERATE CONFIGURATION =====
-if ($genconf) {
-    if ((Get-Item -Path $configPath).Length -gt 0) {
-        Write-Host 'ERROR: configuration file already exists!' -f red
-        exit 1
-    }
-    Write-Output "INFO: downloading default config to '$configPath'."
+if ((Get-Item -Path $configPath).Length -eq 0) {
+    Write-Host "INFO: downloading default config to '$configPath'."
     Invoke-WebRequest -Uri $defaultconfig -OutFile $configPath -UseBasicParsing
-    Write-Output 'INFO: successfully completed download.'
-    exit 0
+    Write-Host 'INFO: successfully completed download.'
+    if ($genconf) { exit 0 }
+} elseif ($genconf) {
+    Write-Host 'ERROR: configuration file already exists!' -f red
+    exit 1
 }
-
 
 # ===== VARIABLES =====
 $cimSession = New-CimSession
@@ -162,9 +160,8 @@ $baseConfig = @(
     "colorbar"
 )
 
-if ((Get-Item -Path $configPath).Length -gt 0) {
-    $config = . $configPath
-}
+# load config file
+$config = . $configPath
 
 if (-not $config) {
     $config = $baseConfig
