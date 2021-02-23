@@ -100,13 +100,6 @@ if (-not $configPath) {
     }
 }
 
-$defaultconfig = 'https://raw.githubusercontent.com/lptstr/winfetch/master/lib/config.ps1'
-
-# ensure configuration directory exists
-if (-not (Test-Path -Path $configPath)) {
-    [void](New-Item -Path $configPath -Force)
-}
-
 # ===== DISPLAY HELP =====
 if ($help) {
     if (Get-Command -Name less -ErrorAction Ignore) {
@@ -117,16 +110,6 @@ if ($help) {
     exit 0
 }
 
-# ===== GENERATE CONFIGURATION =====
-if ((Get-Item -Path $configPath).Length -eq 0) {
-    Write-Host "INFO: downloading default config to '$configPath'."
-    Invoke-WebRequest -Uri $defaultconfig -OutFile $configPath -UseBasicParsing
-    Write-Host 'INFO: successfully completed download.'
-    if ($genconf) { exit 0 }
-} elseif ($genconf) {
-    Write-Host 'ERROR: configuration file already exists!' -f red
-    exit 1
-}
 
 # ===== VARIABLES =====
 $cimSession = New-CimSession
@@ -159,6 +142,81 @@ $baseConfig = @(
     "blank"
     "colorbar"
 )
+
+$defaultConfig = @'
+# ===== WINFETCH CONFIGURATION =====
+
+# $image = "~/winfetch.png"
+# $noimage = $true
+
+# Use legacy Windows logo
+# $legacylogo = $true
+
+# Make the logo blink
+# $blink = $true
+
+# Display all built-in info segments.
+# $all = $true
+
+# Add a custom info line
+# function info_custom_time {
+#     return @{
+#         title = "Time"
+#         content = (Get-Date)
+#     }
+# }
+
+# Configure which disks are shown
+# $ShowDisks = @("C:", "D:")
+# Show all available disks
+# $ShowDisks = @("*")
+
+# Configure which package managers are shown
+# disabling unused ones will improve speed
+# $ShowPkgs = @("scoop", "choco")
+
+
+# Remove the '#' from any of the lines in
+# the following to **enable** their output.
+
+@(
+    "title"
+    "dashes"
+    "os"
+    "computer"
+    "kernel"
+    "motherboard"
+    # "custom_time"  # use custom info line
+    "uptime"
+    "pkgs"
+    "pwsh"
+    "resolution"
+    "terminal"
+    # "theme"
+    "cpu"
+    "gpu"
+    # "process"  # takes some time
+    "memory"
+    "disk"
+    # "battery"
+    # "locale"
+    # "local_ip"
+    # "public_ip"
+    "blank"
+    "colorbar"
+)
+
+'@
+
+# generate default config
+if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)) {
+    New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
+    Write-Host "INFO: saved default config to '$configPath'."
+    if ($genconf) { exit 0 }
+} elseif ($genconf) {
+    Write-Host 'ERROR: configuration file already exists!' -f red
+    exit 1
+}
 
 # load config file
 $config = . $configPath
