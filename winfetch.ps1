@@ -48,7 +48,7 @@
 .PARAMETER image
     Display a pixelated image instead of the usual logo. Imagemagick required.
 .PARAMETER genconf
-    Download a configuration template. Internet connection required.
+    Reset your configuration file to the default.
 .PARAMETER configpath
     Specify a path to a custom config file.
 .PARAMETER noimage
@@ -212,13 +212,16 @@ $defaultConfig = @'
 '@
 
 # generate default config
+if ($genconf -and (Test-Path $configPath)) {
+    $result = $Host.UI.PromptForChoice("Resetting your config to default will overwrite it.",
+            "Do you want to continue?", ("&Yes", "&No"), 1)
+    if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
+}
+
 if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)) {
     New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
     Write-Host "INFO: saved default config to '$configPath'."
     if ($genconf) { exit 0 }
-} elseif ($genconf) {
-    Write-Host 'ERROR: configuration file already exists!' -f red
-    exit 1
 }
 
 # load config file
