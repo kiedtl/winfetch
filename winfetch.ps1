@@ -213,8 +213,12 @@ $defaultConfig = @'
 
 # generate default config
 if ($genconf -and (Test-Path $configPath)) {
+    $choiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
+        "overwrite your configuration with the default"
+    $choiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", `
+        "do nothing and exit"
     $result = $Host.UI.PromptForChoice("Resetting your config to default will overwrite it.",
-            "Do you want to continue?", ("&Yes", "&No"), 1)
+            "Do you want to continue?", ($choiceYes, $choiceNo), 1)
     if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
 }
 
