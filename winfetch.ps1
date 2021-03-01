@@ -102,7 +102,7 @@ param(
 )
 
 $e = [char]0x1B
-$ansiRegex = '[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~]))'
+$ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
 
 $is_pscore = $PSVersionTable.PSEdition.ToString() -eq 'Core'
 
@@ -148,6 +148,36 @@ function get_level_info {
         'bartext' { return "$barprefix$(get_percent_bar $percentage) $text" }
         Default { return "$text ($percentage%)" }
     }
+}
+
+function truncate_line {
+    param (
+        [string]$text,
+        [int]$maxLength
+    )
+    $length = ($text -replace $ansiRegex, "").Length
+    if ($length -le $maxLength) {
+        return $text
+    }
+    $truncateAmt = $length - $maxLength
+    $trucatedOutput = ""
+    $parts = $text -split $ansiRegex
+
+    for ($i = $parts.Length - 1; $i -ge 0; $i--) {
+        $part = $parts[$i]
+        if (-not $part.StartsWith([char]27) -and $truncateAmt -gt 0) {
+            $num = if ($truncateAmt -gt $part.Length) {
+                $part.Length
+            } else {
+                $truncateAmt
+            }
+            $truncateAmt -= $num
+            $part = $part.Substring(0, $part.Length - $num)
+        }
+        $trucatedOutput = "$part$trucatedOutput"
+    }
+
+    return $trucatedOutput
 }
 
 # ===== DISPLAY HELP =====
@@ -792,12 +822,15 @@ if (-not $stripansi) {
     }
 }
 
+$writtenLines = 0
+$freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
+
 # move cursor to top of image and to column 40
 if ($img -and -not $stripansi) {
+    $freeSpace -= 1 + 35 + 3
     Write-Output "$e[$($img.Length + 1)A"
 }
 
-$writtenLines = 0
 
 # write info
 foreach ($item in $config) {
@@ -839,6 +872,11 @@ foreach ($item in $config) {
 
         if ($stripansi) {
             $output = $output -replace $ansiRegex, ""
+            if ($output.Length -gt $freeSpace) {
+                $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
+            }
+        } else {
+            $output = truncate_line $output $freeSpace
         }
 
         Write-Output $output
