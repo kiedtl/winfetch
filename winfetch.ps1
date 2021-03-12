@@ -879,7 +879,7 @@ if (-not $stripansi) {
 } else {
     Write-Output "`n"
 }
-
+& cmd /c pause
 #  ___ ___  ___
 # | __/ _ \| __|
 # | _| (_) | _|
