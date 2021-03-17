@@ -765,8 +765,7 @@ function info_weather {
     return @{
         title = "Weather"
         content = try {
-            $weather = Invoke-RestMethod wttr.in/?format=j1
-            "$($weather.current_condition.temp_c)°C - $($weather.current_condition.weatherDesc.value) ($($weather.nearest_area.areaName.value), $($weather.nearest_area.region.value))"
+            (Invoke-RestMethod wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
         } catch {
             "$e[91m(Network Error)"
         }
