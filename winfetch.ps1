@@ -647,8 +647,8 @@ function info_disk {
 		if ($total -gt 0) {
 		    $usage = [math]::floor(($used / $total * 100))
 		    [void]$lines.Add(@{
-		    title   = "Disk ($($diskInfo.DeviceID))"
-		    content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+		        title   = "Disk ($($diskInfo.DeviceID))"
+		        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
 		    })
 		}
                 break
