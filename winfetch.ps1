@@ -1,4 +1,3 @@
-#!/usr/bin/env pwsh
 #requires -version 5
 
 <#PSScriptInfo
@@ -78,6 +77,11 @@ param(
     [array]$showpkgs = @("scoop", "choco")
 )
 
+if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
+    Write-Error "Only supported on Windows."
+    exit 1
+}
+
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
 
@@ -87,8 +91,7 @@ if (-not $configPath) {
     if ($env:WINFETCH_CONFIG_PATH) {
         $configPath = $env:WINFETCH_CONFIG_PATH
     } else {
-        $configDir = $env:XDG_CONFIG_HOME, "${env:USERPROFILE}\.config" | Select-Object -First 1
-        $configPath = "${configDir}\winfetch\config.ps1"
+        $configPath = "${env:USERPROFILE}\.config\winfetch\config.ps1"
     }
 }
 
@@ -173,6 +176,8 @@ if ($help) {
 $cimSession = New-CimSession
 $buildVersion = "$([System.Environment]::OSVersion.Version)"
 $legacylogo = $buildVersion -like "6.1*"
+$COLUMNS = 35
+$GAP = 3
 
 
 # ===== CONFIGURATION =====
@@ -196,6 +201,7 @@ $baseConfig = @(
     "disk"
     "battery"
     "locale"
+    "weather"
     "local_ip"
     "public_ip"
     "blank"
@@ -269,6 +275,7 @@ $defaultConfig = @'
     "disk"
     # "battery"
     # "locale"
+    # "weather"
     # "local_ip"
     # "public_ip"
     "blank"
@@ -284,14 +291,18 @@ if ($genconf -and (Test-Path $configPath)) {
     $choiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", `
         "do nothing and exit"
     $result = $Host.UI.PromptForChoice("Resetting your config to default will overwrite it.",
-            "Do you want to continue?", ($choiceYes, $choiceNo), 1)
+        "Do you want to continue?", ($choiceYes, $choiceNo), 1)
     if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
 }
 
 if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)) {
     New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
-    Write-Host "INFO: saved default config to '$configPath'."
-    if ($genconf) { exit 0 }
+    if ($genconf) {
+        Write-Host "Saved default config to '$configPath'."
+        exit 0
+    } else {
+        Write-Host "Missing config: Saved default config to '$configPath'."
+    }
 }
 
 # load config file
@@ -320,12 +331,10 @@ if ($switchlogo) { $legacylogo = -not $legacylogo }
 $img = if (-not $noimage) {
     if ($image) {
         if (-not (Get-Command -Name magick -ErrorAction Ignore)) {
-            Write-Host 'ERROR: Imagemagick must be installed to print custom images.' -f red
-            Write-Host 'hint: if you have Scoop installed, try `scoop install imagemagick`.' -f yellow
+            Write-Error 'Imagemagick must be installed to print custom images.'
             exit 1
         }
 
-        $COLUMNS = 35
         $CURR_ROW = ""
         $CHAR = [Text.Encoding]::UTF8.GetString(@(226, 150, 128)) # 226,150,136
         $upper, $lower = @(), @()
@@ -334,7 +343,7 @@ $img = if (-not $noimage) {
             $image = (Get-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name Wallpaper).Wallpaper
         }
         if (-not (Test-Path -path $image)) {
-            Write-Host 'ERROR: Specified image or wallpaper does not exist.' -f red
+            Write-Error 'Specified image or wallpaper does not exist.'
             exit 1
         }
         $pixels = @((magick convert -thumbnail "${COLUMNS}x" $image txt:-).Split("`n"))
@@ -757,28 +766,40 @@ function info_locale {
 }
 
 
+# ===== WEATHER =====
+function info_weather {
+    return @{
+        title = "Weather"
+        content = try {
+            (Invoke-RestMethod wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
+        } catch {
+            "$e[91m(Network Error)"
+        }
+    }
+}
+
+
 # ===== IP =====
 function info_local_ip {
-    $indexDefault = Get-NetRoute -DestinationPrefix 0.0.0.0/0 | Sort-Object -Property RouteMetric | Select-Object -First 1 | Select-Object -ExpandProperty ifIndex
-    $local_ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $indexDefault | Select-Object -ExpandProperty IPAddress
+    $local_ip = (Get-NetIPAddress | Where-Object {$_.AddressState -eq "Preferred" -and $_.ValidLifetime -lt "24:00:00"}).IPAddress
     return @{
         title = "Local IP"
-        content = $local_ip
+        content = if (-not $local_ip) {
+            "$e[91m(Network Error)"
+        } else {
+            $local_ip
+        }
     }
 }
 
 function info_public_ip {
-    try {
-        $public_ip = (Resolve-DnsName -Name myip.opendns.com -Server resolver1.opendns.com).IPAddress
-    } catch {}
-
-    if (-not $public_ip) {
-        $public_ip = Invoke-RestMethod -Uri https://ifconfig.me/ip
-    }
-
     return @{
         title = "Public IP"
-        content = $public_ip
+        content = try {
+            Invoke-RestMethod ifconfig.me/ip
+        } catch {
+            "$e[91m(Network Error)"
+        }
     }
 }
 
@@ -805,7 +826,7 @@ $freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
 
 # move cursor to top of image and to column 40
 if ($img -and -not $stripansi) {
-    $freeSpace -= 1 + 35 + 3
+    $freeSpace -= 1 + $COLUMNS + $GAP
     Write-Output "$e[$($img.Length + 1)A"
 }
 
@@ -841,7 +862,7 @@ foreach ($item in $config) {
                 $output = "$e[40G$output"
             } else {
                 # write image progressively
-                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight(35)
+                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
                 $output = " $imgline   $output"
             }
         }
@@ -864,7 +885,7 @@ foreach ($item in $config) {
 if ($stripansi) {
     # write out remaining image lines
     for ($i = $writtenLines; $i -lt $img.Length; $i++) {
-        $imgline = ("$($img[$i])"  -replace $ansiRegex, "").PadRight(35)
+        $imgline = ("$($img[$i])"  -replace $ansiRegex, "").PadRight($COLUMNS)
         Write-Output " $imgline"
     }
 }
