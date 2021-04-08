@@ -645,11 +645,11 @@ function info_disk {
                 $total = $diskInfo.Size
                 $used = $total - $diskInfo.FreeSpace
 		if ($total -gt 0) {
-			$usage = [math]::floor(($used / $total * 100))
-			[void]$lines.Add(@{
-				title   = "Disk ($($diskInfo.DeviceID))"
-				content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-			})
+		    $usage = [math]::floor(($used / $total * 100))
+		    [void]$lines.Add(@{
+		    title   = "Disk ($($diskInfo.DeviceID))"
+		    content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+		    })
 		}
                 break
             }
