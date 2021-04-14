@@ -22,7 +22,7 @@
 .DESCRIPTION
     Winfetch is a command-line system information utility for Windows written in PowerShell.
 .PARAMETER image
-    Display a pixelated image instead of the usual logo. Imagemagick required.
+    Display a pixelated image instead of the usual logo.
 .PARAMETER genconf
     Reset your configuration file to the default.
 .PARAMETER configpath
@@ -330,15 +330,6 @@ if ($switchlogo) { $legacylogo = -not $legacylogo }
 # ===== IMAGE =====
 $img = if (-not $noimage) {
     if ($image) {
-        if (-not (Get-Command -Name magick -ErrorAction Ignore)) {
-            Write-Error 'Imagemagick must be installed to print custom images.'
-            exit 1
-        }
-
-        $CURR_ROW = ""
-        $CHAR = [Text.Encoding]::UTF8.GetString(@(226, 150, 128)) # 226,150,136
-        $upper, $lower = @(), @()
-
         if ($image -eq 'wallpaper') {
             $image = (Get-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name Wallpaper).Wallpaper
         }
@@ -346,33 +337,37 @@ $img = if (-not $noimage) {
             Write-Error 'Specified image or wallpaper does not exist.'
             exit 1
         }
-        $pixels = @((magick convert -thumbnail "${COLUMNS}x" $image txt:-).Split("`n"))
-        foreach ($pixel in $pixels) {
-            # ignore comments in output
-            if ($pixel.StartsWith("#")) { continue }
 
-            $col, $row = [regex]::Match($pixel, "(\d+),(\d+):").Groups[1, 2].Value
-            $r, $g, $b = [regex]::Match($pixel, "\((\d+).*?,(\d+).*?,(\d+).*?,(\d+).*?\)").Groups[1, 2, 3].Value
+        Add-Type -AssemblyName 'System.Drawing'
+        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $image
+        $ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS
 
-            if (($row % 2) -eq 0) {
-                $upper += "${r};${g};${b}"
-            } else {
-                $lower += "${r};${g};${b}"
-            }
 
-            if (($row % 2) -eq 1 -and $col -eq ($COLUMNS - 1)) {
-                $i = 0
-                while ($i -lt $COLUMNS) {
-                    $CURR_ROW += "${e}[38;2;$($upper[$i]);48;2;$($lower[$i])m${CHAR}"
-                    $i++
+        $Bitmap = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $COLUMNS, $ROWS
+        $NewImage = [System.Drawing.Graphics]::FromImage($Bitmap)
+        $NewImage.DrawImage($OldImage, $(New-Object -TypeName System.Drawing.Rectangle -ArgumentList 0, 0, $COLUMNS, $ROWS))
+
+        for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
+            $currline = ""
+            for ($j = 0; $j -lt $Bitmap.Width; $j++) {
+                $back = $Bitmap.GetPixel($j, $i)
+                if ($i -ge $Bitmap.Height - 1) {
+                    $foreVT = ""
+                } else {
+                    $fore = $Bitmap.GetPixel($j, $i + 1)
+                    $foreVT = "$e[38;2;$($fore.R);$($fore.G);$($fore.B)m"
                 }
-                "${CURR_ROW}${e}[0m"
+                $backVT = "$e[48;2;$($back.R);$($back.G);$($back.B)m"
 
-                $CURR_ROW = ""
-                $upper = @()
-                $lower = @()
+                $currline += "$backVT$foreVT▄$e[0m"
             }
+            $currline
         }
+
+        $Bitmap.Dispose()
+        $NewImage.Dispose()
+        $OldImage.Dispose()
+
     } elseif ($legacylogo) {
         @(
             "${e}[${t};31m        ,.=:!!t3Z3z.,               "
