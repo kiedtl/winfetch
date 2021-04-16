@@ -355,11 +355,11 @@ $img = if (-not $noimage) {
                     $foreVT = ""
                 } else {
                     $fore = $Bitmap.GetPixel($j, $i + 1)
-                    $foreVT = "$e[38;2;$($fore.R);$($fore.G);$($fore.B)m"
+                    $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
                 }
-                $backVT = "$e[48;2;$($back.R);$($back.G);$($back.B)m"
+                $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
 
-                $currline += "$backVT$foreVT▄$e[0m"
+                $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
             }
             $currline
         }
