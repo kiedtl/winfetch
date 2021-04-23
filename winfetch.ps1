@@ -675,7 +675,7 @@ function info_pkgs {
         if (Test-Path "~/scoop/apps") {
             $scoopdir = "~/scoop/apps"
         } elseif (Get-Command -Name scoop -ErrorAction Ignore) {
-            $scoop = & scoop which scoop
+            $scoop = & scoop which scoop.ps1
             $scoopdir = (Resolve-Path "$(Split-Path -Path $scoop)\..\..\..").Path
         }
 
