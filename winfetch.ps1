@@ -733,9 +733,15 @@ function info_battery {
         ", ${hours}h ${minutes}m"
     }
 
+    $chargeRemaining = if ($battery.EstimatedChargeRemaining -ge 100) {
+        100 
+    } else {
+        $battery.EstimatedChargeRemaining
+    }
+
     return @{
         title = "Battery"
-        content = get_level_info "  " $batterystyle $battery.EstimatedChargeRemaining "$status$timeFormatted" -altstyle
+        content = get_level_info "  " $batterystyle $chargeRemaining "$status$timeFormatted" -altstyle
     }
 }
 
