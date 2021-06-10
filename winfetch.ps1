@@ -74,7 +74,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [array]$showdisks = @($env:SystemDrive),
-    [array]$showpkgs = @("winget", "scoop", "choco")
+    [array]$showpkgs = @("scoop", "choco")
 )
 
 if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
@@ -664,7 +664,7 @@ function info_pkgs {
     $pkgs = @()
 
     if ("winget" -in $ShowPkgs -and (Get-Command -Name winget -ErrorAction Ignore)) {
-        $wingetpkg = (winget list | Measure-Object).Count - 4
+        $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
 
         if ($wingetpkg) {
             $pkgs += "$wingetpkg"
