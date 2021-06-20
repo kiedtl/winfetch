@@ -173,7 +173,7 @@ if ($help) {
 # ===== VARIABLES =====
 $cimSession = New-CimSession
 $buildVersion = "$([System.Environment]::OSVersion.Version)"
-$legacylogo = $buildVersion -like "6.1*"
+$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
 $COLUMNS = 35
 $GAP = 3
 
@@ -323,7 +323,6 @@ if ($config.GetType() -eq [string]) {
 }
 
 $t = if ($blink) { "5" } else { "1" }
-if ($switchlogo) { $legacylogo = -not $legacylogo }
 
 # ===== IMAGE =====
 $img = if (-not $noimage) {
@@ -366,46 +365,66 @@ $img = if (-not $noimage) {
         $NewImage.Dispose()
         $OldImage.Dispose()
 
-    } elseif ($legacylogo) {
-        @(
-            "${e}[${t};31m        ,.=:!!t3Z3z.,               "
-            "${e}[${t};31m       :tt:::tt333EE3               "
-            "${e}[${t};31m       Et:::ztt33EEE  ${e}[32m@Ee.,      ..,"
-            "${e}[${t};31m      ;tt:::tt333EE7 ${e}[32m;EEEEEEttttt33#"
-            "${e}[${t};31m     :Et:::zt333EEQ. ${e}[32mSEEEEEttttt33QL"
-            "${e}[${t};31m     it::::tt333EEF ${e}[32m@EEEEEEttttt33F "
-            "${e}[${t};31m    ;3=*^``````'*4EEV ${e}[32m:EEEEEEttttt33@. "
-            "${e}[${t};34m    ,.=::::it=., ${e}[31m`` ${e}[32m@EEEEEEtttz33QF  "
-            "${e}[${t};34m   ;::::::::zt33)   ${e}[32m'4EEEtttji3P*   "
-            "${e}[${t};34m  :t::::::::tt33 ${e}[33m:Z3z..  ${e}[32m```` ${e}[33m,..g.   "
-            "${e}[${t};34m  i::::::::zt33F ${e}[33mAEEEtttt::::ztF    "
-            "${e}[${t};34m ;:::::::::t33V ${e}[33m;EEEttttt::::t3     "
-            "${e}[${t};34m E::::::::zt33L ${e}[33m@EEEtttt::::z3F     "
-            "${e}[${t};34m{3=*^``````'*4E3) ${e}[33m;EEEtttt:::::tZ``     "
-            "${e}[${t};34m            `` ${e}[33m:EEEEtttt::::z7       "
-            "${e}[${t};33m                'VEzjt:;;z>*``       "
-        )
     } else {
-        @(
-            "${e}[${t};34m                    ....,,:;+ccllll"
-            "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
-            "${e}[${t};34m,cclllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34m                                   "
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
-            "${e}[${t};34m``'ccllllllllll  lllllllllllllllllll"
-            "${e}[${t};34m      ``' \\*::  :ccllllllllllllllll"
-            "${e}[${t};34m                       ````````''*::cll"
-            "${e}[${t};34m                                 ````"
-        )
+        if ($os -Like "*Windows 11 *") {
+            @(
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34m                                 "
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+            )
+        } elseif ($os -Like "*Windows 10 *" -Or $os -Like "*Windows 8.1 *" -Or $os -Like "*Windows 8 *") {
+            @(
+                "${e}[${t};34m                    ....,,:;+ccllll"
+                "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
+                "${e}[${t};34m,cclllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34m                                   "
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34mllllllllllllll  lllllllllllllllllll"
+                "${e}[${t};34m``'ccllllllllll  lllllllllllllllllll"
+                "${e}[${t};34m      ``' \\*::  :ccllllllllllllllll"
+                "${e}[${t};34m                       ````````''*::cll"
+                "${e}[${t};34m                                 ````"
+            )
+        } else {
+            @(
+                "${e}[${t};31m        ,.=:!!t3Z3z.,               "
+                "${e}[${t};31m       :tt:::tt333EE3               "
+                "${e}[${t};31m       Et:::ztt33EEE  ${e}[32m@Ee.,      ..,"
+                "${e}[${t};31m      ;tt:::tt333EE7 ${e}[32m;EEEEEEttttt33#"
+                "${e}[${t};31m     :Et:::zt333EEQ. ${e}[32mSEEEEEttttt33QL"
+                "${e}[${t};31m     it::::tt333EEF ${e}[32m@EEEEEEttttt33F "
+                "${e}[${t};31m    ;3=*^``````'*4EEV ${e}[32m:EEEEEEttttt33@. "
+                "${e}[${t};34m    ,.=::::it=., ${e}[31m`` ${e}[32m@EEEEEEtttz33QF  "
+                "${e}[${t};34m   ;::::::::zt33)   ${e}[32m'4EEEtttji3P*   "
+                "${e}[${t};34m  :t::::::::tt33 ${e}[33m:Z3z..  ${e}[32m```` ${e}[33m,..g.   "
+                "${e}[${t};34m  i::::::::zt33F ${e}[33mAEEEtttt::::ztF    "
+                "${e}[${t};34m ;:::::::::t33V ${e}[33m;EEEttttt::::t3     "
+                "${e}[${t};34m E::::::::zt33L ${e}[33m@EEEtttt::::z3F     "
+                "${e}[${t};34m{3=*^``````'*4E3) ${e}[33m;EEEtttt:::::tZ``     "
+                "${e}[${t};34m            `` ${e}[33m:EEEEtttt::::z7       "
+                "${e}[${t};33m                'VEzjt:;;z>*``       "
+            )
+        }
     }
 }
 
@@ -433,8 +452,6 @@ function info_colorbar {
 
 # ===== OS =====
 function info_os {
-    $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
-
     return @{
         title   = "OS"
         content = "$($os.Caption.TrimStart('Microsoft ')) [$($os.OSArchitecture)]"
