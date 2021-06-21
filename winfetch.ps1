@@ -29,8 +29,6 @@
     Specify a path to a custom config file.
 .PARAMETER noimage
     Do not display any image or logo; display information only.
-.PARAMETER switchlogo
-    Switch the default Windows logo.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -64,7 +62,6 @@ param(
     [switch][alias('g')]$genconf,
     [string][alias('c')]$configpath,
     [switch][alias('n')]$noimage,
-    [switch][alias('l')]$switchlogo,
     [switch][alias('b')]$blink,
     [switch][alias('s')]$stripansi,
     [switch][alias('a')]$all,
@@ -211,9 +208,6 @@ $defaultConfig = @'
 
 # $image = "~/winfetch.png"
 # $noimage = $true
-
-# Switch the default Windows logo
-# $switchlogo = $true
 
 # Make the logo blink
 # $blink = $true
