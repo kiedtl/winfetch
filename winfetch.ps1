@@ -29,6 +29,8 @@
     Specify a path to a custom config file.
 .PARAMETER noimage
     Do not display any image or logo; display information only.
+.PARAMETER logo
+    Sets the version of Windows to derive the logo from.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -62,6 +64,7 @@ param(
     [switch][alias('g')]$genconf,
     [string][alias('c')]$configpath,
     [switch][alias('n')]$noimage,
+    [string][alias('l')]$logo,
     [switch][alias('b')]$blink,
     [switch][alias('s')]$stripansi,
     [switch][alias('a')]$all,
@@ -208,6 +211,9 @@ $defaultConfig = @'
 
 # $image = "~/winfetch.png"
 # $noimage = $true
+
+# Set the version of Windows to derive the logo from.
+# $logo = "Windows 10"
 
 # Make the logo blink
 # $blink = $true
@@ -360,7 +366,17 @@ $img = if (-not $noimage) {
         $OldImage.Dispose()
 
     } else {
-        if ($os -Like "*Windows 11 *") {
+        if (-not $logo) {
+            if ($os -Like "*Windows 11 *") {
+                $logo = "Windows 11"
+            } elseif ($os -Like "*Windows 10 *" -Or $os -Like "*Windows 8.1 *" -Or $os -Like "*Windows 8 *") {
+                $logo = "Windows 10"
+            } else {
+                $logo = "Windows 7"
+            }
+        }
+
+        if ($logo -eq "Windows 11") {
             @(
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
@@ -378,7 +394,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
             )
-        } elseif ($os -Like "*Windows 10 *" -Or $os -Like "*Windows 8.1 *" -Or $os -Like "*Windows 8 *") {
+        } elseif ($logo -eq "Windows 10" -Or $logo -eq "Windows 8.1" -Or $logo -eq "Windows 8") {
             @(
                 "${e}[${t};34m                    ....,,:;+ccllll"
                 "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
@@ -399,7 +415,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m                       ````````''*::cll"
                 "${e}[${t};34m                                 ````"
             )
-        } else {
+        } elseif ($logo -eq "Windows 7" -Or $logo -eq "Windows Vista" -Or $logo -eq "Windows XP") {
             @(
                 "${e}[${t};31m        ,.=:!!t3Z3z.,               "
                 "${e}[${t};31m       :tt:::tt333EE3               "
@@ -418,6 +434,9 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m            `` ${e}[33m:EEEEtttt::::z7       "
                 "${e}[${t};33m                'VEzjt:;;z>*``       "
             )
+        } else {
+            Write-Error 'The only version logos supported are Windows 11, Windows 10/8.1/8, and Windows 7/Vista/XP.'
+            exit 1
         }
     }
 }
