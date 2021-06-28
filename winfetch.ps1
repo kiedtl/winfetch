@@ -188,6 +188,7 @@ $baseConfig = @(
     "motherboard"
     "uptime"
     "resolution"
+    "ps_pkgs"
     "pkgs"
     "pwsh"
     "terminal"
@@ -261,6 +262,7 @@ $defaultConfig = @'
     "motherboard"
     # "custom_time"  # use custom info line
     "uptime"
+    # "ps_pkgs"  # takes some time
     "pkgs"
     "pwsh"
     "resolution"
@@ -655,6 +657,38 @@ function info_pwsh {
     return @{
         title   = "Shell"
         content = "PowerShell v$($PSVersionTable.PSVersion)"
+    }
+}
+
+
+# ===== POWERSHELL PACKAGES =====
+function info_ps_pkgs {
+    $ps_pkgs = @()
+
+    $modulecount = (Get-InstalledModule).Length
+    $scriptcount = (Get-InstalledScript).Length
+
+    if ($modulecount) {
+        if ($modulecount -eq 1) { $modulestring = "1 Module" }
+        else { $modulestring = "$modulecount Modules" }
+
+        $ps_pkgs += "$modulestring"
+    }
+
+    if ($scriptcount) {
+        if ($scriptcount -eq 1) { $scriptstring = "1 Script" }
+        else { $scriptstring = "$scriptcount Scripts" }
+
+        $ps_pkgs += "$scriptstring"
+    }
+
+    if (-not $ps_pkgs) {
+        $ps_pkgs = "(none)"
+    }
+
+    return @{
+        title   = "PS Packages"
+        content = $ps_pkgs -join ', '
     }
 }
 
