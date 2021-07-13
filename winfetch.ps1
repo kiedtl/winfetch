@@ -660,7 +660,7 @@ function info_memory {
 
 
 # ===== DISK USAGE =====
-function info_disk {
+function info_disk_CIM {
     [System.Collections.ArrayList]$lines = @()
 
     function to_units($value) {
@@ -678,13 +678,13 @@ function info_disk {
             if ($diskInfo.DeviceID -eq $diskLetter -or $diskLetter -eq "*") {
                 $total = $diskInfo.Size
                 $used = $total - $diskInfo.FreeSpace
-		if ($total -gt 0) {
-		    $usage = [math]::floor(($used / $total * 100))
-		    [void]$lines.Add(@{
-		        title   = "Disk ($($diskInfo.DeviceID))"
-		        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-		    })
-		}
+                if ($total -gt 0) {
+                    $usage = [math]::floor(($used / $total * 100))
+                    [void]$lines.Add(@{
+                        title   = "Disk ($($diskInfo.DeviceID))"
+                        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+                    })
+                }
                 break
             }
         }
@@ -693,6 +693,82 @@ function info_disk {
     return $lines
 }
 
+
+function info_disk {
+    Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace WinAPI
+{
+    public class DiskMethods
+    {
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
+        private static extern int NativeGetLogicalDriveStringsW(
+            int nBufferLength,
+            char[] lpBuffer);
+
+        // Wrapper around the native function for error handling
+        public static char[] GetLogicalDriveStringsW()
+        {
+            int length = NativeGetLogicalDriveStringsW(0, null);
+            if (length == 0)
+                throw new Win32Exception();
+
+            char[] buffer = new char[length];
+            length = NativeGetLogicalDriveStringsW(length, buffer);
+            if (length == 0)
+                throw new Win32Exception();
+
+            return buffer;
+        }
+
+        [DllImport("Kernel32.dll", SetLastError = true)]
+        public static extern bool GetDiskFreeSpaceEx(
+            string lpDirectoryName,
+            out ulong lpFreeBytesAvailable,
+            out ulong lpTotalNumberOfBytes,
+            out ulong lpTotalNumberOfFreeBytes);
+    }
+}
+'@
+
+    [System.Collections.ArrayList]$lines = @()
+
+    function to_units($value) {
+        if ($value -gt 1tb) {
+            return "$([math]::round($value / 1tb, 1)) TiB"
+        } else {
+            return "$([math]::floor($value / 1gb)) GiB"
+        }
+    }
+
+    $diskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()  # C, :, \, D, :, \
+    $diskLetters = $($diskLetters -join "").Split("\")     # C:, D:
+
+    foreach ($diskLetter in $diskLetters) {
+        if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
+            $lpFreeBytesAvailable = 0
+            $lpTotalNumberOfBytes = 0
+            $lpTotalNumberOfFreeBytes = 0
+            $success = [WinAPI.DiskMethods]::GetDiskFreeSpaceEx($diskLetter, [ref] $lpFreeBytesAvailable, [ref] $lpTotalNumberOfBytes, [ref] $lpTotalNumberOfFreeBytes)
+            $total = $lpTotalNumberOfBytes
+            $used = $total - $lpTotalNumberOfFreeBytes
+
+            if ($total -gt 0) {
+                $usage = [math]::floor(($used / $total * 100))
+                [void]$lines.Add(@{
+                    title   = "Disk ($diskLetter)"
+                    content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+                })
+            }
+        }
+    }
+
+    return $lines
+}
 
 # ===== POWERSHELL VERSION =====
 function info_pwsh {
