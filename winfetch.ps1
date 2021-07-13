@@ -176,7 +176,45 @@ $buildVersion = "$([System.Environment]::OSVersion.Version)"
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
 $COLUMNS = 35
 $GAP = 3
+Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
 
+namespace WinAPI
+{
+    public class DiskMethods
+    {
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
+        private static extern int NativeGetLogicalDriveStringsW(
+            int nBufferLength,
+            char[] lpBuffer);
+
+        // Wrapper around the native function for error handling
+        public static char[] GetLogicalDriveStringsW()
+        {
+            int length = NativeGetLogicalDriveStringsW(0, null);
+            if (length == 0)
+                throw new Win32Exception();
+
+            char[] buffer = new char[length];
+            length = NativeGetLogicalDriveStringsW(length, buffer);
+            if (length == 0)
+                throw new Win32Exception();
+
+            return buffer;
+        }
+
+        [DllImport("Kernel32.dll", SetLastError = true)]
+        public static extern bool GetDiskFreeSpaceEx(
+            string lpDirectoryName,
+            out ulong lpFreeBytesAvailable,
+            out ulong lpTotalNumberOfBytes,
+            out ulong lpTotalNumberOfFreeBytes);
+    }
+}
+'@
 
 # ===== CONFIGURATION =====
 $baseConfig = @(
@@ -695,46 +733,6 @@ function info_disk_CIM {
 
 
 function info_disk {
-    Add-Type -TypeDefinition @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace WinAPI
-{
-    public class DiskMethods
-    {
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
-        private static extern int NativeGetLogicalDriveStringsW(
-            int nBufferLength,
-            char[] lpBuffer);
-
-        // Wrapper around the native function for error handling
-        public static char[] GetLogicalDriveStringsW()
-        {
-            int length = NativeGetLogicalDriveStringsW(0, null);
-            if (length == 0)
-                throw new Win32Exception();
-
-            char[] buffer = new char[length];
-            length = NativeGetLogicalDriveStringsW(length, buffer);
-            if (length == 0)
-                throw new Win32Exception();
-
-            return buffer;
-        }
-
-        [DllImport("Kernel32.dll", SetLastError = true)]
-        public static extern bool GetDiskFreeSpaceEx(
-            string lpDirectoryName,
-            out ulong lpFreeBytesAvailable,
-            out ulong lpTotalNumberOfBytes,
-            out ulong lpTotalNumberOfFreeBytes);
-    }
-}
-'@
-
     [System.Collections.ArrayList]$lines = @()
 
     function to_units($value) {
