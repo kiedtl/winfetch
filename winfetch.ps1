@@ -743,23 +743,26 @@ function info_disk {
         }
     }
 
-    $allDiskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()  # C, :, \, D, :, \
-    $allDiskLetters = $($allDiskLetters -join "").Split("\")     # C:, D:
+    # Convert System.String[] to System.Object[]
+    $rawDiskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()
+    $allDiskLetters = @()
+    foreach ($entry in $rawDiskLetters) {
+        if ($entry -ne ":" -and $entry -ne "\" -and $entry + ":" -ne ":") {
+            $allDiskLetters += $entry + ":"
+        }
+    }
 
     # Verification stage
     $diskLetters = @()
     foreach ($diskLetter in $allDiskLetters) {
-        if ($diskLetter -ne "") {
-            foreach ($showDiskLetter in $showDisks) {
-                if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
-                    $diskLetters += $diskLetter
-                }
+        foreach ($showDiskLetter in $showDisks) {
+            if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
+                $diskLetters += $diskLetter
             }
         }
     }
 
     foreach ($diskLetter in $diskLetters) {
-        # Write-Host "working on '$diskLetter'"
         $lpFreeBytesAvailable = 0
         $lpTotalNumberOfBytes = 0
         $lpTotalNumberOfFreeBytes = 0
@@ -767,11 +770,6 @@ function info_disk {
         $total = $lpTotalNumberOfBytes
         $used = $total - $lpTotalNumberOfFreeBytes
 
-        Write-Host $success
-        Write-Host $lpFreeBytesAvailable
-        Write-Host $lpTotalNumberOfBytes
-        Write-Host $lpTotalNumberOfFreeBytes
-        
         if (-not $success) {
             [void]$lines.Add(@{
                 title   = "Disk ($diskLetter)"
