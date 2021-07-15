@@ -743,25 +743,48 @@ function info_disk {
         }
     }
 
-    $diskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()  # C, :, \, D, :, \
-    $diskLetters = $($diskLetters -join "").Split("\")     # C:, D:
+    $allDiskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()  # C, :, \, D, :, \
+    $allDiskLetters = $($allDiskLetters -join "").Split("\")     # C:, D:
+
+    # Verification stage
+    $diskLetters = @()
+    foreach ($diskLetter in $allDiskLetters) {
+        if ($diskLetter -ne "") {
+            foreach ($showDiskLetter in $showDisks) {
+                if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
+                    $diskLetters += $diskLetter
+                }
+            }
+        }
+    }
 
     foreach ($diskLetter in $diskLetters) {
-        if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
-            $lpFreeBytesAvailable = 0
-            $lpTotalNumberOfBytes = 0
-            $lpTotalNumberOfFreeBytes = 0
-            $success = [WinAPI.DiskMethods]::GetDiskFreeSpaceEx($diskLetter, [ref] $lpFreeBytesAvailable, [ref] $lpTotalNumberOfBytes, [ref] $lpTotalNumberOfFreeBytes)
-            $total = $lpTotalNumberOfBytes
-            $used = $total - $lpTotalNumberOfFreeBytes
+        # Write-Host "working on '$diskLetter'"
+        $lpFreeBytesAvailable = 0
+        $lpTotalNumberOfBytes = 0
+        $lpTotalNumberOfFreeBytes = 0
+        $success = [WinAPI.DiskMethods]::GetDiskFreeSpaceEx($diskLetter, [ref] $lpFreeBytesAvailable, [ref] $lpTotalNumberOfBytes, [ref] $lpTotalNumberOfFreeBytes)
+        $total = $lpTotalNumberOfBytes
+        $used = $total - $lpTotalNumberOfFreeBytes
 
-            if ($total -gt 0) {
-                $usage = [math]::floor(($used / $total * 100))
-                [void]$lines.Add(@{
-                    title   = "Disk ($diskLetter)"
-                    content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-                })
-            }
+        Write-Host $success
+        Write-Host $lpFreeBytesAvailable
+        Write-Host $lpTotalNumberOfBytes
+        Write-Host $lpTotalNumberOfFreeBytes
+        
+        if (-not $success) {
+            [void]$lines.Add(@{
+                title   = "Disk ($diskLetter)"
+                content = "(failed to get disk usage)"
+            })
+        }
+        
+        if ($total -gt 0) {
+            $usage = [math]::floor(($used / $total * 100))
+            [void]$lines.Add(@{
+                title   = "Disk ($diskLetter)"
+                content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+            })
         }
     }
 
