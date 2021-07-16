@@ -698,40 +698,6 @@ function info_memory {
 
 
 # ===== DISK USAGE =====
-function info_disk_CIM {
-    [System.Collections.ArrayList]$lines = @()
-
-    function to_units($value) {
-        if ($value -gt 1tb) {
-            return "$([math]::round($value / 1tb, 1)) TiB"
-        } else {
-            return "$([math]::floor($value / 1gb)) GiB"
-        }
-    }
-
-    $disks = Get-CimInstance -ClassName Win32_LogicalDisk -Property Size,FreeSpace -CimSession $cimSession
-
-    foreach ($diskInfo in $disks) {
-        foreach ($diskLetter in $showDisks) {
-            if ($diskInfo.DeviceID -eq $diskLetter -or $diskLetter -eq "*") {
-                $total = $diskInfo.Size
-                $used = $total - $diskInfo.FreeSpace
-                if ($total -gt 0) {
-                    $usage = [math]::floor(($used / $total * 100))
-                    [void]$lines.Add(@{
-                        title   = "Disk ($($diskInfo.DeviceID))"
-                        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-                    })
-                }
-                break
-            }
-        }
-    }
-
-    return $lines
-}
-
-
 function info_disk {
     [System.Collections.ArrayList]$lines = @()
 
