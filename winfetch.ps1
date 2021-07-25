@@ -1001,7 +1001,7 @@ foreach ($item in $config) {
     }
 
     foreach ($line in $info) {
-        $output = "$e[1;34m$($line["title"])$e[0m"
+        $output = "$e[1;33m$($line["title"])$e[0m"
 
         if ($line["title"] -and $line["content"]) {
             $output += ": "
