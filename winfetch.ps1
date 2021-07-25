@@ -537,7 +537,7 @@ function info_motherboard {
 function info_title {
     return @{
         title   = ""
-        content = "${e}[1;34m{0}${e}[0m@${e}[1;34m{1}${e}[0m" -f [System.Environment]::UserName,$env:COMPUTERNAME
+        content = "${e}[1;33m{0}${e}[0m@${e}[1;33m{1}${e}[0m" -f [System.Environment]::UserName,$env:COMPUTERNAME
     }
 }
 
