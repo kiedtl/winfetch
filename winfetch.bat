@@ -201,21 +201,21 @@ for /l %%x in (1, 1, %totallength%) do set "dashstring=!dashstring!-"
 
 :: Printing info
 if "%usecolor%" == "yes" (
-  echo. %E%[1;31m        ,.=:^^!^^!t3Z3z.,                 %E%[1;34m%username%%E%[0m@%E%[1;34m%COMPUTERNAME%%E%[0m
+  echo. %E%[1;31m        ,.=:^^!^^!t3Z3z.,                 %E%[1;33m%username%%E%[0m@%E%[1;33m%COMPUTERNAME%%E%[0m
   echo. %E%[1;31m       :tt:::tt333EE3                 %E%[0m%dashstring%
-  echo. %E%[1;31m       Et:::ztt33EEE  %E%[1;32m@Ee.,      ..,  %E%[1;34mOS%E%[0m: %osname%%AddressWidth%-bit
-  echo. %E%[1;31m      ;tt:::tt333EE7 %E%[1;32m;EEEEEEttttt33#  %E%[1;34mHost%E%[0m: %Model%
-  echo. %E%[1;31m     :Et:::zt333EEQ. %E%[1;32mSEEEEEttttt33QL  %E%[1;34mKernel%E%[0m: %Version%
-  echo. %E%[1;31m     it::::tt333EEF %E%[1;32m@EEEEEEttttt33F   %E%[1;34mUptime%E%[0m: %SystemUptime%s
-  echo. %E%[1;31m    ;3=*^^```'*4EEV %E%[1;32m:EEEEEEttttt33@.   %E%[1;34mResolution%E%[0m: %CurrentHorizontalResolution%x%CurrentVerticalResolution%
-  echo. %E%[1;34m    ,.=::::it=., %E%[1;31m` %E%[1;32m@EEEEEEtttz33QF    %E%[1;34mMotherboard%E%[0m: %MOBO_NAME% - %MOBO_MODEL%
-  echo. %E%[1;34m   ;::::::::zt33^)   %E%[1;32m'4EEEtttji3P*     %E%[1;34mShell%E%[0m: %shell_NAME%
-  echo. %E%[1;34m  :t::::::::tt33 %E%[1;33m:Z3z..  %E%[1;32m`` %E%[1;33m,..g.     %E%[1;34mTheme%E%[0m: %themename%
-  echo. %E%[1;34m  i::::::::zt33F %E%[1;33mAEEEtttt::::ztF      %E%[1;34mWM%E%[0m: %WM_NAME%
-  echo. %E%[1;34m ;:::::::::t33V %E%[1;33m;EEEttttt::::t3       %E%[1;34mCPU%E%[0m: %cpu%
-  echo. %E%[1;34m E::::::::zt33L %E%[1;33m@EEEtttt::::z3F       %E%[1;34mGPU%E%[0m: %gpu%
-  echo. %E%[1;34m{3=*^^```'*4E3^) %E%[1;33m;EEEtttt:::::tZ`       %E%[1;34mMemory%E%[0m: %E%[33m%usedram% MB%E%[0m / %totalram% MB
-  echo. %E%[1;34m            ` %E%[1;33m:EEEEtttt::::z7         %E%[1;34mDisk%E%[0m: [%SYSTEMDRIVE%] %E%[32m%used% GB%E%[0m / %all% GB
+  echo. %E%[1;31m       Et:::ztt33EEE  %E%[1;32m@Ee.,      ..,  %E%[1;33mOS%E%[0m: %osname%%AddressWidth%-bit
+  echo. %E%[1;31m      ;tt:::tt333EE7 %E%[1;32m;EEEEEEttttt33#  %E%[1;33mHost%E%[0m: %Model%
+  echo. %E%[1;31m     :Et:::zt333EEQ. %E%[1;32mSEEEEEttttt33QL  %E%[1;33mKernel%E%[0m: %Version%
+  echo. %E%[1;31m     it::::tt333EEF %E%[1;32m@EEEEEEttttt33F   %E%[1;33mUptime%E%[0m: %SystemUptime%s
+  echo. %E%[1;31m    ;3=*^^```'*4EEV %E%[1;32m:EEEEEEttttt33@.   %E%[1;33mResolution%E%[0m: %CurrentHorizontalResolution%x%CurrentVerticalResolution%
+  echo. %E%[1;34m    ,.=::::it=., %E%[1;31m` %E%[1;32m@EEEEEEtttz33QF    %E%[1;33mMotherboard%E%[0m: %MOBO_NAME% - %MOBO_MODEL%
+  echo. %E%[1;34m   ;::::::::zt33^)   %E%[1;32m'4EEEtttji3P*     %E%[1;33mShell%E%[0m: %shell_NAME%
+  echo. %E%[1;34m  :t::::::::tt33 %E%[1;33m:Z3z..  %E%[1;32m`` %E%[1;33m,..g.     %E%[1;33mTheme%E%[0m: %themename%
+  echo. %E%[1;34m  i::::::::zt33F %E%[1;33mAEEEtttt::::ztF      %E%[1;33mWM%E%[0m: %WM_NAME%
+  echo. %E%[1;34m ;:::::::::t33V %E%[1;33m;EEEttttt::::t3       %E%[1;33mCPU%E%[0m: %cpu%
+  echo. %E%[1;34m E::::::::zt33L %E%[1;33m@EEEtttt::::z3F       %E%[1;33mGPU%E%[0m: %gpu%
+  echo. %E%[1;34m{3=*^^```'*4E3^) %E%[1;33m;EEEtttt:::::tZ`       %E%[1;33mMemory%E%[0m: %E%[33m%usedram% MB%E%[0m / %totalram% MB
+  echo. %E%[1;34m            ` %E%[1;33m:EEEEtttt::::z7         %E%[1;33mDisk%E%[0m: [%SYSTEMDRIVE%] %E%[32m%used% GB%E%[0m / %all% GB
   echo. %E%[1;33m                'VEzjt:;;z^>*`         %E%[40m  %E%[41m  %E%[42m  %E%[43m  %E%[44m  %E%[45m  %E%[46m  %E%[47m  %E%[100m  %E%[101m  %E%[102m  %E%[103m  %E%[104m  %E%[105m  %E%[106m  %E%[107m  %E%[0m
 ) else (
   echo.         ,.=:^^!^^!t3Z3z.,                 %username%@%COMPUTERNAME%
