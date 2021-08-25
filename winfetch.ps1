@@ -805,7 +805,7 @@ function info_pkgs {
         $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
 
         if ($wingetpkg) {
-            $pkgs += "$wingetpkg"
+            $pkgs += "$wingetpkg (winget)"
         }
     }
 
