@@ -759,7 +759,7 @@ function info_disk {
                 content = "(failed to get disk usage)"
             })
         }
-        
+
         if ($total -gt 0) {
             $usage = [math]::floor(($used / $total * 100))
             [void]$lines.Add(@{
