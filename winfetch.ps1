@@ -388,7 +388,7 @@ $img = if (-not $noimage) {
         }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $image
+        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
         $ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS
 
 
@@ -429,6 +429,7 @@ $img = if (-not $noimage) {
         }
 
         if ($logo -eq "Windows 11") {
+            $COLUMNS = 32
             @(
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
@@ -447,6 +448,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
             )
         } elseif ($logo -eq "Windows 10" -Or $logo -eq "Windows 8.1" -Or $logo -eq "Windows 8") {
+            $COLUMNS = 34
             @(
                 "${e}[${t};34m                    ....,,:;+ccllll"
                 "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
@@ -468,6 +470,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m                                 ````"
             )
         } elseif ($logo -eq "Windows 7" -Or $logo -eq "Windows Vista" -Or $logo -eq "Windows XP") {
+            $COLUMNS = 35
             @(
                 "${e}[${t};31m        ,.=:!!t3Z3z.,               "
                 "${e}[${t};31m       :tt:::tt333EE3               "
@@ -973,7 +976,7 @@ if (-not $stripansi) {
 $writtenLines = 0
 $freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
 
-# move cursor to top of image and to column 40
+# move cursor to top of image and to its right
 if ($img -and -not $stripansi) {
     $freeSpace -= 1 + $COLUMNS + $GAP
     Write-Output "$e[$($img.Length + 1)A"
@@ -1007,8 +1010,8 @@ foreach ($item in $config) {
 
         if ($img) {
             if (-not $stripansi) {
-                # move cursor to column 40
-                $output = "$e[40G$output"
+                # move cursor to right of image
+                $output = "$e[$(2 + $COLUMNS + $GAP)G$output"
             } else {
                 # write image progressively
                 $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
