@@ -973,7 +973,7 @@ if (-not $stripansi) {
 $writtenLines = 0
 $freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
 
-# move cursor to top of image and to column 40
+# move cursor to top of image and to its right
 if ($img -and -not $stripansi) {
     $freeSpace -= 1 + $COLUMNS + $GAP
     Write-Output "$e[$($img.Length + 1)A"
@@ -1007,8 +1007,8 @@ foreach ($item in $config) {
 
         if ($img) {
             if (-not $stripansi) {
-                # move cursor to column 40
-                $output = "$e[40G$output"
+                # move cursor to right of image
+                $output = "$e[$(2 + $COLUMNS + $GAP)G$output"
             } else {
                 # write image progressively
                 $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
