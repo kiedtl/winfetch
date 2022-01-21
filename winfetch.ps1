@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+#!/usr/bin/env -S pwsh -nop
 #requires -version 5
 
 <#PSScriptInfo
