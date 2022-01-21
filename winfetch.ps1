@@ -429,6 +429,7 @@ $img = if (-not $noimage) {
         }
 
         if ($logo -eq "Windows 11") {
+            $COLUMNS = 32
             @(
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
@@ -447,6 +448,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
             )
         } elseif ($logo -eq "Windows 10" -Or $logo -eq "Windows 8.1" -Or $logo -eq "Windows 8") {
+            $COLUMNS = 34
             @(
                 "${e}[${t};34m                    ....,,:;+ccllll"
                 "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
@@ -468,6 +470,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m                                 ````"
             )
         } elseif ($logo -eq "Windows 7" -Or $logo -eq "Windows Vista" -Or $logo -eq "Windows XP") {
+            $COLUMNS = 35
             @(
                 "${e}[${t};31m        ,.=:!!t3Z3z.,               "
                 "${e}[${t};31m       :tt:::tt333EE3               "
@@ -744,7 +747,7 @@ function info_disk {
                 content = "(failed to get disk usage)"
             })
         }
-        
+
         if ($total -gt 0) {
             $usage = [math]::floor(($used / $total * 100))
             [void]$lines.Add(@{
