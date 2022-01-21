@@ -388,7 +388,7 @@ $img = if (-not $noimage) {
         }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $image
+        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
         $ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS
 
 
