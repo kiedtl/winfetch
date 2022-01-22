@@ -32,6 +32,8 @@
     Do not display any image or logo; display information only.
 .PARAMETER logo
     Sets the version of Windows to derive the logo from.
+.PARAMETER imgwidth
+    Specify width for image/logo. Default is 35.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -74,6 +76,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$memorystyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
+    [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
 )
@@ -175,7 +178,6 @@ if ($help) {
 $cimSession = New-CimSession
 $buildVersion = "$([System.Environment]::OSVersion.Version)"
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
-$COLUMNS = 35
 $GAP = 3
 Add-Type -TypeDefinition @'
 using System;
@@ -254,6 +256,9 @@ $defaultConfig = @'
 
 # Set the version of Windows to derive the logo from.
 # $logo = "Windows 10"
+
+# Specify width for image/logo
+# $imgwidth = 40
 
 # Make the logo blink
 # $blink = $true
@@ -375,6 +380,7 @@ if ($config.GetType() -eq [string]) {
 }
 
 $t = if ($blink) { "5" } else { "1" }
+$COLUMNS = $imgwidth
 
 # ===== IMAGE =====
 $img = if (-not $noimage) {
