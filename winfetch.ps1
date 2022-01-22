@@ -489,8 +489,20 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m            `` ${e}[33m:EEEEtttt::::z7       "
                 "${e}[${t};33m                'VEzjt:;;z>*``       "
             )
+        } elseif ($logo -eq "Microsoft") {
+            $COLUMNS = 13
+            @(
+                "${e}[${t};31m┌─────┐${e}[32m┌─────┐"
+                "${e}[${t};31m│     │${e}[32m│     │"
+                "${e}[${t};31m│     │${e}[32m│     │"
+                "${e}[${t};31m└─────┘${e}[32m└─────┘"
+                "${e}[${t};34m┌─────┐${e}[33m┌─────┐"
+                "${e}[${t};34m│     │${e}[33m│     │"
+                "${e}[${t};34m│     │${e}[33m│     │"
+                "${e}[${t};34m└─────┘${e}[33m└─────┘"
+            )
         } else {
-            Write-Error 'The only version logos supported are Windows 11, Windows 10/8.1/8, and Windows 7/Vista/XP.'
+            Write-Error 'The only version logos supported are Windows 11, Windows 10/8.1/8, Windows 7/Vista/XP and Microsoft.'
             exit 1
         }
     }
