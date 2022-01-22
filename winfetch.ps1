@@ -24,6 +24,8 @@
     Winfetch is a command-line system information utility for Windows written in PowerShell.
 .PARAMETER image
     Display a pixelated image instead of the usual logo.
+.PARAMETER ascii
+    Display the image using ASCII characters instead of blocks.
 .PARAMETER genconf
     Reset your configuration file to the default.
 .PARAMETER configpath
@@ -64,6 +66,7 @@
 [CmdletBinding()]
 param(
     [string][alias('i')]$image,
+    [switch][alias('k')]$ascii,
     [switch][alias('g')]$genconf,
     [string][alias('c')]$configpath,
     [switch][alias('n')]$noimage,
@@ -88,6 +91,7 @@ if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
 
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
+$chars = ' .,:;+iIH$@'
 
 if (-not $configPath) {
     if ($env:WINFETCH_CONFIG_PATH) {
@@ -254,6 +258,9 @@ $defaultConfig = @'
 # $image = "~/winfetch.png"
 # $noimage = $true
 
+# Display image using ASCII characters
+# $ascii = $true
+
 # Set the version of Windows to derive the logo from.
 # $logo = "Windows 10"
 
@@ -395,32 +402,39 @@ $img = if (-not $noimage) {
 
         Add-Type -AssemblyName 'System.Drawing'
         $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
-        $ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS
 
+        # Divide scaled height by 2.2 to compensate for ASCII characters being taller than they are wide
+        [int]$ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS / $(if ($ascii) { 2.2 } else { 1 })
+        $Bitmap = New-Object System.Drawing.Bitmap @($OldImage, [Drawing.Size]"$COLUMNS,$ROWS")
 
-        $Bitmap = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $COLUMNS, $ROWS
-        $NewImage = [System.Drawing.Graphics]::FromImage($Bitmap)
-        $NewImage.DrawImage($OldImage, $(New-Object -TypeName System.Drawing.Rectangle -ArgumentList 0, 0, $COLUMNS, $ROWS))
-
-        for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
-            $currline = ""
-            for ($j = 0; $j -lt $Bitmap.Width; $j++) {
-                $back = $Bitmap.GetPixel($j, $i)
-                if ($i -ge $Bitmap.Height - 1) {
-                    $foreVT = ""
-                } else {
-                    $fore = $Bitmap.GetPixel($j, $i + 1)
-                    $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
-                }
-                $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
-
-                $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+        if ($ascii) {
+            for ($i = 0; $i -lt $Bitmap.Height; $i++) {
+              $currline = ""
+              for ($j = 0; $j -lt $Bitmap.Width; $j++) {
+                $p = $Bitmap.GetPixel($j, $i)
+                $currline += "$e[38;2;$($p.R);$($p.G);$($p.B)m$($chars[[math]::Floor($p.GetBrightness() * $chars.Length)])$e[0m"
+              }
+              $currline
             }
-            $currline
+        } else {
+            for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
+                $currline = ""
+                for ($j = 0; $j -lt $Bitmap.Width; $j++) {
+                    $back = $Bitmap.GetPixel($j, $i)
+                    if ($i -ge $Bitmap.Height - 1) {
+                        $foreVT = ""
+                    } else {
+                        $fore = $Bitmap.GetPixel($j, $i + 1)
+                        $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
+                    }
+                    $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
+                    $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+                }
+                $currline
+            }
         }
 
         $Bitmap.Dispose()
-        $NewImage.Dispose()
         $OldImage.Dispose()
 
     } else {
