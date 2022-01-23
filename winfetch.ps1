@@ -401,7 +401,7 @@ $img = if (-not $noimage) {
         }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
+        $OldImage = New-Object System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
 
         # Divide scaled height by 2.2 to compensate for ASCII characters being taller than they are wide
         [int]$ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS / $(if ($ascii) { 2.2 } else { 1 })
