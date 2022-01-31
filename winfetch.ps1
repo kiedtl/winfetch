@@ -357,7 +357,7 @@ if ($genconf -and (Test-Path $configPath)) {
     if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
 }
 
-if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)) {
+if (-not (Test-Path $configPath) -or [String]::IsNullOrWhiteSpace((Get-Content $configPath))) {
     New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
     if ($genconf) {
         Write-Host "Saved default config to '$configPath'."
