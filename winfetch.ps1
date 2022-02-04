@@ -74,7 +74,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$memorystyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
-    [array]$showdisks = @($env:SystemDrive),
+    [array]$showdisks = @("*"),
     [array]$showpkgs = @("scoop", "choco")
 )
 
@@ -984,7 +984,8 @@ if ($img -and -not $stripansi) {
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
         $info = & "info_$item"
-    } else {
+    }
+    else {
         $info = @{ title = "$e[31mfunction 'info_$item' not found" }
     }
 
@@ -997,37 +998,41 @@ foreach ($item in $config) {
     }
 
     foreach ($line in $info) {
-        $output = "$e[1;33m$($line["title"])$e[0m"
+        foreach ($item in $line["content"]) {
+            $output = "$e[1;33m$($line["title"])$e[0m"
 
-        if ($line["title"] -and $line["content"]) {
-            $output += ": "
-        }
-
-        $output += "$($line["content"])"
-
-        if ($img) {
-            if (-not $stripansi) {
-                # move cursor to column 40
-                $output = "$e[40G$output"
-            } else {
-                # write image progressively
-                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
-                $output = " $imgline   $output"
+            if ($line["title"] -and $line["content"]) {
+                $output += ": "
             }
-        }
 
-        $writtenLines++
+            $output += $item
 
-        if ($stripansi) {
-            $output = $output -replace $ansiRegex, ""
-            if ($output.Length -gt $freeSpace) {
-                $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
+            if ($img) {
+                if (-not $stripansi) {
+                    # move cursor to column 40
+                    $output = "$e[40G$output"
+                }
+                else {
+                    # write image progressively
+                    $imgline = ("$($img[$writtenLines])" -replace $ansiRegex, "").PadRight($COLUMNS)
+                    $output = " $imgline   $output"
+                }
             }
-        } else {
-            $output = truncate_line $output $freeSpace
-        }
 
-        Write-Output $output
+            $writtenLines++
+
+            if ($stripansi) {
+                $output = $output -replace $ansiRegex, ""
+                if ($output.Length -gt $freeSpace) {
+                    $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
+                }
+            }
+            else {
+                $output = truncate_line $output $freeSpace
+            }
+
+            Write-Output $output
+        }
     }
 }
 
