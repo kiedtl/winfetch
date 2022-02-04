@@ -1019,8 +1019,7 @@ if ($img -and -not $stripansi) {
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
         $info = & "info_$item"
-    }
-    else {
+    } else {
         $info = @{ title = "$e[31mfunction 'info_$item' not found" }
     }
 
