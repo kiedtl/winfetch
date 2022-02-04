@@ -1046,8 +1046,7 @@ foreach ($item in $config) {
                 if (-not $stripansi) {
                     # move cursor to column 40
                     $output = "$e[40G$output"
-                }
-                else {
+                } else {
                     # write image progressively
                     $imgline = ("$($img[$writtenLines])" -replace $ansiRegex, "").PadRight($COLUMNS)
                     $output = " $imgline   $output"
@@ -1061,8 +1060,7 @@ foreach ($item in $config) {
                 if ($output.Length -gt $freeSpace) {
                     $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
                 }
-            }
-            else {
+            } else {
                 $output = truncate_line $output $freeSpace
             }
 
