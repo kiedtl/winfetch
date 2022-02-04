@@ -74,7 +74,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$memorystyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
-    [array]$showdisks = @("*"),
+    [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
 )
 
