@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+#!/usr/bin/env -S pwsh -nop
 #requires -version 5
 
 <#PSScriptInfo
@@ -24,6 +24,8 @@
     Winfetch is a command-line system information utility for Windows written in PowerShell.
 .PARAMETER image
     Display a pixelated image instead of the usual logo.
+.PARAMETER ascii
+    Display the image using ASCII characters instead of blocks.
 .PARAMETER genconf
     Reset your configuration file to the default.
 .PARAMETER configpath
@@ -32,6 +34,8 @@
     Do not display any image or logo; display information only.
 .PARAMETER logo
     Sets the version of Windows to derive the logo from.
+.PARAMETER imgwidth
+    Specify width for image/logo. Default is 35.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -62,6 +66,7 @@
 [CmdletBinding()]
 param(
     [string][alias('i')]$image,
+    [switch][alias('k')]$ascii,
     [switch][alias('g')]$genconf,
     [string][alias('c')]$configpath,
     [switch][alias('n')]$noimage,
@@ -74,6 +79,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$memorystyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
+    [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
 )
@@ -85,6 +91,7 @@ if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
 
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
+$chars = ' .,:;+iIH$@'
 
 if (-not $configPath) {
     if ($env:WINFETCH_CONFIG_PATH) {
@@ -175,7 +182,6 @@ if ($help) {
 $cimSession = New-CimSession
 $buildVersion = "$([System.Environment]::OSVersion.Version)"
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
-$COLUMNS = 35
 $GAP = 3
 Add-Type -TypeDefinition @'
 using System;
@@ -252,8 +258,14 @@ $defaultConfig = @'
 # $image = "~/winfetch.png"
 # $noimage = $true
 
+# Display image using ASCII characters
+# $ascii = $true
+
 # Set the version of Windows to derive the logo from.
 # $logo = "Windows 10"
+
+# Specify width for image/logo
+# $imgwidth = 40
 
 # Make the logo blink
 # $blink = $true
@@ -345,7 +357,7 @@ if ($genconf -and (Test-Path $configPath)) {
     if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
 }
 
-if (-not (Test-Path $configPath) -or ((Get-Item -Path $configPath).Length -eq 0)) {
+if (-not (Test-Path $configPath) -or [String]::IsNullOrWhiteSpace((Get-Content $configPath))) {
     New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
     if ($genconf) {
         Write-Host "Saved default config to '$configPath'."
@@ -375,6 +387,7 @@ if ($config.GetType() -eq [string]) {
 }
 
 $t = if ($blink) { "5" } else { "1" }
+$COLUMNS = $imgwidth
 
 # ===== IMAGE =====
 $img = if (-not $noimage) {
@@ -388,33 +401,40 @@ $img = if (-not $noimage) {
         }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $image
-        $ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS
+        $OldImage = New-Object System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
 
+        # Divide scaled height by 2.2 to compensate for ASCII characters being taller than they are wide
+        [int]$ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS / $(if ($ascii) { 2.2 } else { 1 })
+        $Bitmap = New-Object System.Drawing.Bitmap @($OldImage, [Drawing.Size]"$COLUMNS,$ROWS")
 
-        $Bitmap = New-Object -TypeName System.Drawing.Bitmap -ArgumentList $COLUMNS, $ROWS
-        $NewImage = [System.Drawing.Graphics]::FromImage($Bitmap)
-        $NewImage.DrawImage($OldImage, $(New-Object -TypeName System.Drawing.Rectangle -ArgumentList 0, 0, $COLUMNS, $ROWS))
-
-        for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
-            $currline = ""
-            for ($j = 0; $j -lt $Bitmap.Width; $j++) {
-                $back = $Bitmap.GetPixel($j, $i)
-                if ($i -ge $Bitmap.Height - 1) {
-                    $foreVT = ""
-                } else {
-                    $fore = $Bitmap.GetPixel($j, $i + 1)
-                    $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
-                }
-                $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
-
-                $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+        if ($ascii) {
+            for ($i = 0; $i -lt $Bitmap.Height; $i++) {
+              $currline = ""
+              for ($j = 0; $j -lt $Bitmap.Width; $j++) {
+                $p = $Bitmap.GetPixel($j, $i)
+                $currline += "$e[38;2;$($p.R);$($p.G);$($p.B)m$($chars[[math]::Floor($p.GetBrightness() * $chars.Length)])$e[0m"
+              }
+              $currline
             }
-            $currline
+        } else {
+            for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
+                $currline = ""
+                for ($j = 0; $j -lt $Bitmap.Width; $j++) {
+                    $back = $Bitmap.GetPixel($j, $i)
+                    if ($i -ge $Bitmap.Height - 1) {
+                        $foreVT = ""
+                    } else {
+                        $fore = $Bitmap.GetPixel($j, $i + 1)
+                        $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
+                    }
+                    $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
+                    $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+                }
+                $currline
+            }
         }
 
         $Bitmap.Dispose()
-        $NewImage.Dispose()
         $OldImage.Dispose()
 
     } else {
@@ -429,6 +449,7 @@ $img = if (-not $noimage) {
         }
 
         if ($logo -eq "Windows 11") {
+            $COLUMNS = 32
             @(
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
@@ -447,6 +468,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34mlllllllllllllll   lllllllllllllll"
             )
         } elseif ($logo -eq "Windows 10" -Or $logo -eq "Windows 8.1" -Or $logo -eq "Windows 8") {
+            $COLUMNS = 34
             @(
                 "${e}[${t};34m                    ....,,:;+ccllll"
                 "${e}[${t};34m      ...,,+:;  cllllllllllllllllll"
@@ -468,6 +490,7 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m                                 ````"
             )
         } elseif ($logo -eq "Windows 7" -Or $logo -eq "Windows Vista" -Or $logo -eq "Windows XP") {
+            $COLUMNS = 35
             @(
                 "${e}[${t};31m        ,.=:!!t3Z3z.,               "
                 "${e}[${t};31m       :tt:::tt333EE3               "
@@ -486,8 +509,20 @@ $img = if (-not $noimage) {
                 "${e}[${t};34m            `` ${e}[33m:EEEEtttt::::z7       "
                 "${e}[${t};33m                'VEzjt:;;z>*``       "
             )
+        } elseif ($logo -eq "Microsoft") {
+            $COLUMNS = 13
+            @(
+                "${e}[${t};31m┌─────┐${e}[32m┌─────┐"
+                "${e}[${t};31m│     │${e}[32m│     │"
+                "${e}[${t};31m│     │${e}[32m│     │"
+                "${e}[${t};31m└─────┘${e}[32m└─────┘"
+                "${e}[${t};34m┌─────┐${e}[33m┌─────┐"
+                "${e}[${t};34m│     │${e}[33m│     │"
+                "${e}[${t};34m│     │${e}[33m│     │"
+                "${e}[${t};34m└─────┘${e}[33m└─────┘"
+            )
         } else {
-            Write-Error 'The only version logos supported are Windows 11, Windows 10/8.1/8, and Windows 7/Vista/XP.'
+            Write-Error 'The only version logos supported are Windows 11, Windows 10/8.1/8, Windows 7/Vista/XP and Microsoft.'
             exit 1
         }
     }
@@ -744,7 +779,7 @@ function info_disk {
                 content = "(failed to get disk usage)"
             })
         }
-        
+
         if ($total -gt 0) {
             $usage = [math]::floor(($used / $total * 100))
             [void]$lines.Add(@{
@@ -891,12 +926,12 @@ function info_battery {
 
 # ===== LOCALE =====
 function info_locale {
-    # `Get-WinUserLanguageList` has a regression bug on PowerShell v7.1+
+    # `Get-WinUserLanguageList` has a regression bug on PowerShell Core
     # https://github.com/PowerShell/PowerShellModuleCoverage/issues/18
     # A slight increase in response time is incurred as a result
 
     $contentstring = $null
-    if ($PSVersionTable.PSVersion -like "7.1.*") {
+    if ($PSVersionTable.PSVersion.Major -gt 5) {
         Import-Module International -UseWindowsPowerShell -WarningAction SilentlyContinue
         $contentstring = "$((Get-WinHomeLocation).HomeLocation) - $((Get-WinUserLanguageList)[0].LocalizedName)"
         Remove-Module International
@@ -973,7 +1008,7 @@ if (-not $stripansi) {
 $writtenLines = 0
 $freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
 
-# move cursor to top of image and to column 40
+# move cursor to top of image and to its right
 if ($img -and -not $stripansi) {
     $freeSpace -= 1 + $COLUMNS + $GAP
     Write-Output "$e[$($img.Length + 1)A"
