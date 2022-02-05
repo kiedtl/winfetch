@@ -183,7 +183,7 @@ $cimSession = New-CimSession
 $buildVersion = "$([System.Environment]::OSVersion.Version)"
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
 $GAP = 3
-Add-Type -TypeDefinition @'
+$diskMethodsType = @'
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -736,6 +736,7 @@ function info_memory {
 
 # ===== DISK USAGE =====
 function info_disk {
+    Add-Type $diskMethodsType
     [System.Collections.ArrayList]$lines = @()
 
     function to_units($value) {
