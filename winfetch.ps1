@@ -395,13 +395,13 @@ $img = if (-not $noimage) {
         if ($image -eq 'wallpaper') {
             $image = (Get-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name Wallpaper).Wallpaper
         }
-        if (-not (Test-Path -path $image)) {
-            Write-Error 'Specified image or wallpaper does not exist.'
-            exit 1
-        }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = New-Object System.Drawing.Bitmap -ArgumentList (Resolve-Path $image).Path
+        $OldImage = if (Test-Path $image -PathType Leaf) {
+            [Drawing.Bitmap]::FromFile((Resolve-Path $image))
+        } else {
+            [Drawing.Bitmap]::FromStream((Invoke-WebRequest $image -UseBasicParsing).RawContentStream)
+        }
 
         # Divide scaled height by 2.2 to compensate for ASCII characters being taller than they are wide
         [int]$ROWS = $OldImage.Height / $OldImage.Width * $COLUMNS / $(if ($ascii) { 2.2 } else { 1 })
