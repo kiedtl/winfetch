@@ -89,84 +89,6 @@ if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
     exit 1
 }
 
-$e = [char]0x1B
-$ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
-$chars = ' .,:;+iIH$@'
-
-if (-not $configPath) {
-    if ($env:WINFETCH_CONFIG_PATH) {
-        $configPath = $env:WINFETCH_CONFIG_PATH
-    } else {
-        $configPath = "${env:USERPROFILE}\.config\winfetch\config.ps1"
-    }
-}
-
-# function to generate percentage bars
-function get_percent_bar {
-    param ([Parameter(Mandatory)][ValidateRange(0, 100)][int]$percent)
-
-    $x = [char]9632
-    $bar = $null
-
-    $bar += "$e[97m[ $e[0m"
-    for ($i = 1; $i -le ($barValue = ([math]::round($percent / 10))); $i++) {
-        if ($i -le 6) { $bar += "$e[32m$x$e[0m" }
-        elseif ($i -le 8) { $bar += "$e[93m$x$e[0m" }
-        else { $bar += "$e[91m$x$e[0m" }
-    }
-    for ($i = 1; $i -le (10 - $barValue); $i++) { $bar += "$e[97m-$e[0m" }
-    $bar += "$e[97m ]$e[0m"
-
-    return $bar
-}
-
-function get_level_info {
-    param (
-        [string]$barprefix,
-        [string]$style,
-        [int]$percentage,
-        [string]$text,
-        [switch]$altstyle
-    )
-
-    switch ($style) {
-        'bar' { return "$barprefix$(get_percent_bar $percentage)" }
-        'textbar' { return "$text $(get_percent_bar $percentage)" }
-        'bartext' { return "$barprefix$(get_percent_bar $percentage) $text" }
-        default { if ($altstyle) { return "$percentage% ($text)" } else { return "$text ($percentage%)" }}
-    }
-}
-
-function truncate_line {
-    param (
-        [string]$text,
-        [int]$maxLength
-    )
-    $length = ($text -replace $ansiRegex, "").Length
-    if ($length -le $maxLength) {
-        return $text
-    }
-    $truncateAmt = $length - $maxLength
-    $trucatedOutput = ""
-    $parts = $text -split $ansiRegex
-
-    for ($i = $parts.Length - 1; $i -ge 0; $i--) {
-        $part = $parts[$i]
-        if (-not $part.StartsWith([char]27) -and $truncateAmt -gt 0) {
-            $num = if ($truncateAmt -gt $part.Length) {
-                $part.Length
-            } else {
-                $truncateAmt
-            }
-            $truncateAmt -= $num
-            $part = $part.Substring(0, $part.Length - $num)
-        }
-        $trucatedOutput = "$part$trucatedOutput"
-    }
-
-    return $trucatedOutput
-}
-
 # ===== DISPLAY HELP =====
 if ($help) {
     if (Get-Command -Name less -ErrorAction Ignore) {
@@ -178,80 +100,7 @@ if ($help) {
 }
 
 
-# ===== VARIABLES =====
-$cimSession = New-CimSession
-$buildVersion = "$([System.Environment]::OSVersion.Version)"
-$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
-$GAP = 3
-$diskMethodsType = @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace WinAPI
-{
-    public class DiskMethods
-    {
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
-        private static extern int NativeGetLogicalDriveStringsW(
-            int nBufferLength,
-            char[] lpBuffer);
-
-        // Wrapper around the native function for error handling
-        public static char[] GetLogicalDriveStringsW()
-        {
-            int length = NativeGetLogicalDriveStringsW(0, null);
-            if (length == 0)
-                throw new Win32Exception();
-
-            char[] buffer = new char[length];
-            length = NativeGetLogicalDriveStringsW(length, buffer);
-            if (length == 0)
-                throw new Win32Exception();
-
-            return buffer;
-        }
-
-        [DllImport("Kernel32.dll", SetLastError = true)]
-        public static extern bool GetDiskFreeSpaceEx(
-            string lpDirectoryName,
-            out ulong lpFreeBytesAvailable,
-            out ulong lpTotalNumberOfBytes,
-            out ulong lpTotalNumberOfFreeBytes);
-    }
-}
-'@
-
-# ===== CONFIGURATION =====
-$baseConfig = @(
-    "title"
-    "dashes"
-    "os"
-    "computer"
-    "kernel"
-    "motherboard"
-    "uptime"
-    "resolution"
-    "ps_pkgs"
-    "pkgs"
-    "pwsh"
-    "terminal"
-    "theme"
-    "cpu"
-    "gpu"
-    "cpu_usage"
-    "memory"
-    "disk"
-    "battery"
-    "locale"
-    "weather"
-    "local_ip"
-    "public_ip"
-    "blank"
-    "colorbar"
-)
-
+# ===== CONFIG MANAGEMENT =====
 $defaultConfig = @'
 # ===== WINFETCH CONFIGURATION =====
 
@@ -346,6 +195,14 @@ $defaultConfig = @'
 
 '@
 
+if (-not $configPath) {
+    if ($env:WINFETCH_CONFIG_PATH) {
+        $configPath = $env:WINFETCH_CONFIG_PATH
+    } else {
+        $configPath = "${env:USERPROFILE}\.config\winfetch\config.ps1"
+    }
+}
+
 # generate default config
 if ($genconf -and (Test-Path $configPath)) {
     $choiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
@@ -369,9 +226,34 @@ if (-not (Test-Path $configPath) -or [String]::IsNullOrWhiteSpace((Get-Content $
 
 # load config file
 $config = . $configPath
-
 if (-not $config -or $all) {
-    $config = $baseConfig
+    $config = @(
+        "title"
+        "dashes"
+        "os"
+        "computer"
+        "kernel"
+        "motherboard"
+        "uptime"
+        "resolution"
+        "ps_pkgs"
+        "pkgs"
+        "pwsh"
+        "terminal"
+        "theme"
+        "cpu"
+        "gpu"
+        "cpu_usage"
+        "memory"
+        "disk"
+        "battery"
+        "locale"
+        "weather"
+        "local_ip"
+        "public_ip"
+        "blank"
+        "colorbar"
+    )
 }
 
 # prevent config from overriding specified parameters
@@ -379,15 +261,79 @@ foreach ($param in $PSBoundParameters.Keys) {
     Set-Variable $param $PSBoundParameters[$param]
 }
 
-# convert old config style
-if ($config.GetType() -eq [string]) {
-    $oldConfig = $config.ToLower()
-    $config = $baseConfig | Where-Object { $oldConfig.Contains($PSItem) }
-    $config += @("blank", "colorbar")
-}
-
+# ===== VARIABLES =====
+$e = [char]0x1B
+$ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
+$cimSession = New-CimSession
+$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
+
+# ===== UTILITY FUNCTIONS =====
+function get_percent_bar {
+    param ([Parameter(Mandatory)][ValidateRange(0, 100)][int]$percent)
+
+    $x = [char]9632
+    $bar = $null
+
+    $bar += "$e[97m[ $e[0m"
+    for ($i = 1; $i -le ($barValue = ([math]::round($percent / 10))); $i++) {
+        if ($i -le 6) { $bar += "$e[32m$x$e[0m" }
+        elseif ($i -le 8) { $bar += "$e[93m$x$e[0m" }
+        else { $bar += "$e[91m$x$e[0m" }
+    }
+    for ($i = 1; $i -le (10 - $barValue); $i++) { $bar += "$e[97m-$e[0m" }
+    $bar += "$e[97m ]$e[0m"
+
+    return $bar
+}
+
+function get_level_info {
+    param (
+        [string]$barprefix,
+        [string]$style,
+        [int]$percentage,
+        [string]$text,
+        [switch]$altstyle
+    )
+
+    switch ($style) {
+        'bar' { return "$barprefix$(get_percent_bar $percentage)" }
+        'textbar' { return "$text $(get_percent_bar $percentage)" }
+        'bartext' { return "$barprefix$(get_percent_bar $percentage) $text" }
+        default { if ($altstyle) { return "$percentage% ($text)" } else { return "$text ($percentage%)" }}
+    }
+}
+
+function truncate_line {
+    param (
+        [string]$text,
+        [int]$maxLength
+    )
+    $length = ($text -replace $ansiRegex, "").Length
+    if ($length -le $maxLength) {
+        return $text
+    }
+    $truncateAmt = $length - $maxLength
+    $trucatedOutput = ""
+    $parts = $text -split $ansiRegex
+
+    for ($i = $parts.Length - 1; $i -ge 0; $i--) {
+        $part = $parts[$i]
+        if (-not $part.StartsWith([char]27) -and $truncateAmt -gt 0) {
+            $num = if ($truncateAmt -gt $part.Length) {
+                $part.Length
+            } else {
+                $truncateAmt
+            }
+            $truncateAmt -= $num
+            $part = $part.Substring(0, $part.Length - $num)
+        }
+        $trucatedOutput = "$part$trucatedOutput"
+    }
+
+    return $trucatedOutput
+}
 
 # ===== IMAGE =====
 $img = if (-not $noimage) {
@@ -408,6 +354,7 @@ $img = if (-not $noimage) {
         $Bitmap = New-Object System.Drawing.Bitmap @($OldImage, [Drawing.Size]"$COLUMNS,$ROWS")
 
         if ($ascii) {
+            $chars = ' .,:;+iIH$@'
             for ($i = 0; $i -lt $Bitmap.Height; $i++) {
               $currline = ""
               for ($j = 0; $j -lt $Bitmap.Width; $j++) {
@@ -602,7 +549,7 @@ function info_computer {
 function info_kernel {
     return @{
         title   = "Kernel"
-        content = $buildVersion
+        content = "$([System.Environment]::OSVersion.Version)"
     }
 }
 
@@ -736,8 +683,46 @@ function info_memory {
 
 # ===== DISK USAGE =====
 function info_disk {
-    Add-Type $diskMethodsType
     [System.Collections.ArrayList]$lines = @()
+    Add-Type @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace WinAPI
+{
+    public class DiskMethods
+    {
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
+        private static extern int NativeGetLogicalDriveStringsW(
+            int nBufferLength,
+            char[] lpBuffer);
+
+        // Wrapper around the native function for error handling
+        public static char[] GetLogicalDriveStringsW()
+        {
+            int length = NativeGetLogicalDriveStringsW(0, null);
+            if (length == 0)
+                throw new Win32Exception();
+
+            char[] buffer = new char[length];
+            length = NativeGetLogicalDriveStringsW(length, buffer);
+            if (length == 0)
+                throw new Win32Exception();
+
+            return buffer;
+        }
+
+        [DllImport("Kernel32.dll", SetLastError = true)]
+        public static extern bool GetDiskFreeSpaceEx(
+            string lpDirectoryName,
+            out ulong lpFreeBytesAvailable,
+            out ulong lpTotalNumberOfBytes,
+            out ulong lpTotalNumberOfFreeBytes);
+    }
+}
+'@
 
     function to_units($value) {
         if ($value -gt 1tb) {
@@ -1006,6 +991,7 @@ if (-not $stripansi) {
     }
 }
 
+$GAP = 3
 $writtenLines = 0
 $freeSpace = $Host.UI.RawUI.WindowSize.Width - 1
 
