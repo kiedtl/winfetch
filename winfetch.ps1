@@ -841,14 +841,9 @@ function info_pkgs {
     }
 
     if ("scoop" -in $ShowPkgs) {
-        if (Test-Path "~/scoop/apps") {
-            $scoopdir = "~/scoop/apps"
-        } elseif (Get-Command -Name scoop -ErrorAction Ignore) {
-            $scoop = & scoop which scoop.ps1
-            $scoopdir = (Resolve-Path "$(Split-Path -Path $scoop)\..\..\..").Path
-        }
+        $scoopdir = if ($Env:SCOOP) { "$Env:SCOOP\apps" } else { "$Env:UserProfile\scoop\apps" }
 
-        if ($scoopdir) {
+        if (Test-Path $scoopdir) {
             $scooppkg = (Get-ChildItem -Path $scoopdir -Directory).Count - 1
         }
 
