@@ -703,10 +703,15 @@ function info_cpu {
 }
 
 function info_gpu {
-    return @{
+    [System.Collections.ArrayList]$lines = @()
+    #loop through Win32_VideoController
+    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -CimSession $cimSession) {
+        [void]$lines.Add(@{
         title   = "GPU"
-        content = (Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession).Name
+            content = $gpu.Name
+        })
     }
+    return $lines
 }
 
 
@@ -1032,14 +1037,13 @@ foreach ($item in $config) {
     }
 
     foreach ($line in $info) {
-        foreach ($item in $line["content"]) {
             $output = "$e[1;33m$($line["title"])$e[0m"
 
             if ($line["title"] -and $line["content"]) {
                 $output += ": "
             }
 
-            $output += $item
+        $output += "$($line["content"])"
 
             if ($img) {
                 if (-not $stripansi) {
@@ -1047,7 +1051,7 @@ foreach ($item in $config) {
                     $output = "$e[40G$output"
                 } else {
                     # write image progressively
-                    $imgline = ("$($img[$writtenLines])" -replace $ansiRegex, "").PadRight($COLUMNS)
+                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
                     $output = " $imgline   $output"
                 }
             }
@@ -1064,7 +1068,6 @@ foreach ($item in $config) {
             }
 
             Write-Output $output
-        }
     }
 }
 
