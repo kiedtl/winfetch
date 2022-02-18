@@ -1037,37 +1037,37 @@ foreach ($item in $config) {
     }
 
     foreach ($line in $info) {
-            $output = "$e[1;33m$($line["title"])$e[0m"
+        $output = "$e[1;33m$($line["title"])$e[0m"
 
-            if ($line["title"] -and $line["content"]) {
-                $output += ": "
-            }
+        if ($line["title"] -and $line["content"]) {
+            $output += ": "
+        }
 
         $output += "$($line["content"])"
 
-            if ($img) {
-                if (-not $stripansi) {
-                    # move cursor to column 40
-                    $output = "$e[40G$output"
-                } else {
-                    # write image progressively
-                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
-                    $output = " $imgline   $output"
-                }
-            }
-
-            $writtenLines++
-
-            if ($stripansi) {
-                $output = $output -replace $ansiRegex, ""
-                if ($output.Length -gt $freeSpace) {
-                    $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
-                }
+        if ($img) {
+            if (-not $stripansi) {
+                # move cursor to right of image
+                $output = "$e[$(2 + $COLUMNS + $GAP)G$output"
             } else {
-                $output = truncate_line $output $freeSpace
+                # write image progressively
+                $imgline = ("$($img[$writtenLines])"  -replace $ansiRegex, "").PadRight($COLUMNS)
+                $output = " $imgline   $output"
             }
+        }
 
-            Write-Output $output
+        $writtenLines++
+
+        if ($stripansi) {
+            $output = $output -replace $ansiRegex, ""
+            if ($output.Length -gt $freeSpace) {
+                $output = $output.Substring(0, $output.Length - ($output.Length - $freeSpace))
+            }
+        } else {
+            $output = truncate_line $output $freeSpace
+        }
+
+        Write-Output $output
     }
 }
 
