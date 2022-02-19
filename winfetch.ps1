@@ -705,9 +705,9 @@ function info_cpu {
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
     #loop through Win32_VideoController
-    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -CimSession $cimSession) {
+    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
         [void]$lines.Add(@{
-        title   = "GPU"
+            title   = "GPU"
             content = $gpu.Name
         })
     }
