@@ -572,92 +572,85 @@ function info_uptime {
 
 # ===== RESOLUTION =====
 function info_resolution {
-    Add-Type -AssemblyName System.Core
-    Add-Type -AssemblyName System.Runtime.InteropServices
-    $id = Get-Random
-    $code = @"
+    Add-Type @"
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-public class Pinvoke$id
+namespace WinAPI
 {
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    struct MONITORINFOEX
+    public class MonitorMethods
     {
-        public int Size;
-        public Rect Monitor;
-        public Rect WorkArea;
-        public uint Flags;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string DeviceName;
-    }
-    
-    [DllImport("Shcore.dll")]
-    static public extern bool SetProcessDpiAwareness(int value);
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        struct MONITORINFOEX
+        {
+            public int Size;
+            public Rect Monitor;
+            public Rect WorkArea;
+            public uint Flags;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string DeviceName;
+        }
+        
+        [DllImport("Shcore.dll")]
+        static public extern bool SetProcessDpiAwareness(int value);
 
-    [DllImport("user32.dll")]
-    static extern bool EnumDisplayMonitors(
-        IntPtr hdc,
-        IntPtr lprcClip,
-        EnumMonitorsDelegate lpfnEnum,
-        IntPtr dwData
-    );
+        [DllImport("user32.dll")]
+        static extern bool EnumDisplayMonitors(
+            IntPtr hdc,
+            IntPtr lprcClip,
+            EnumMonitorsDelegate lpfnEnum,
+            IntPtr dwData
+        );
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFOEX lpmi);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFOEX lpmi);
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Rect
-    {
-        public int left;
-        public int top;
-        public int right;
-        public int bottom;
-    }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Rect
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
 
-    delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData);
+        delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData);
 
-    static private List<DisplayInfo> m_displays = new List<DisplayInfo>();
-    
-    static bool EnumProc(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData)
-    {
-        MONITORINFOEX mONITORINFOEX = new MONITORINFOEX();
-        mONITORINFOEX.Size = Marshal.SizeOf(typeof(MONITORINFOEX));
-        GetMonitorInfo(hMonitor, ref mONITORINFOEX);
+        static private List<DisplayInfo> m_displays = new List<DisplayInfo>();
+        
+        static bool EnumProc(IntPtr hMonitor, IntPtr hdcMonitor, ref Rect lprcMonitor, IntPtr dwData)
+        {
+            MONITORINFOEX mONITORINFOEX = new MONITORINFOEX();
+            mONITORINFOEX.Size = Marshal.SizeOf(typeof(MONITORINFOEX));
+            GetMonitorInfo(hMonitor, ref mONITORINFOEX);
 
-        var displayInfo = new DisplayInfo();
-        displayInfo.X = (int)((mONITORINFOEX.Monitor.right - mONITORINFOEX.Monitor.left));
-        displayInfo.Y = (int)((mONITORINFOEX.Monitor.bottom - mONITORINFOEX.Monitor.top));
+            var displayInfo = new DisplayInfo();
+            displayInfo.X = (int)((mONITORINFOEX.Monitor.right - mONITORINFOEX.Monitor.left));
+            displayInfo.Y = (int)((mONITORINFOEX.Monitor.bottom - mONITORINFOEX.Monitor.top));
 
-        m_displays.Add(displayInfo);
-        return true;
-    }
+            m_displays.Add(displayInfo);
+            return true;
+        }
 
-    public class DisplayInfo
-    {
-        public int X;
-        public int Y;
-    }
+        public class DisplayInfo
+        {
+            public int X;
+            public int Y;
+        }
 
-    public static string GetResult()
-    {
-        SetProcessDpiAwareness(2);
-        EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, EnumProc, IntPtr.Zero);
-        return String.Join(", ", m_displays.Select(displayInfo => displayInfo.X.ToString() + "x" + displayInfo.Y.ToString()));
-    }
-
-    public static void Main()
-    {
-        GetResult();
+        public static string GetResolution()
+        {
+            SetProcessDpiAwareness(2);
+            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, EnumProc, IntPtr.Zero);
+            return String.Join(", ", m_displays.Select(displayInfo => displayInfo.X.ToString() + "x" + displayInfo.Y.ToString()));
+        }
     }
 }
 "@
-    Add-Type -TypeDefinition $code
-    $result = iex "[Pinvoke$id]::GetResult()"
     return @{
         title   = "Resolution"
-        content = $result
+        content = [WinAPI.MonitorMethods]::GetResolution()
     }
 }
 
