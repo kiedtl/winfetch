@@ -642,6 +642,7 @@ namespace WinAPI
         public static string GetResolution()
         {
             SetProcessDpiAwareness(2);
+            m_displays = new List<DisplayInfo>();
             EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, EnumProc, IntPtr.Zero);
             return String.Join(", ", m_displays.Select(displayInfo => displayInfo.X.ToString() + "x" + displayInfo.Y.ToString()));
         }
