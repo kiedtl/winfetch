@@ -1,5 +1,7 @@
-#!/usr/bin/env -S pwsh -nop
+﻿#!/usr/bin/env -S pwsh -nop
 #requires -version 5
+
+# (!) This file must to be saved in UTF-8 with BOM encoding in order to work with legacy Powershell 5.x
 
 <#PSScriptInfo
 .VERSION 2.4.0
