@@ -398,23 +398,23 @@ $img = if (-not $noimage) {
         }
 
         if ($logo -eq "Windows 11") {
-            $COLUMNS = 32
+            $COLUMNS = 31
             @(
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34m                                 "
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
-                "${e}[${t};34mlllllllllllllll   lllllllllllllll"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m                                "
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
+                "${e}[${t};34m███████████████  ███████████████"
             )
         } elseif ($logo -eq "Windows 10" -Or $logo -eq "Windows 8.1" -Or $logo -eq "Windows 8") {
             $COLUMNS = 34
