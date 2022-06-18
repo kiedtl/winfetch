@@ -859,12 +859,12 @@ function info_pkgs {
         }
     }
 
-    foreach ($pkgitem in $CustomPkgs) {
-        if (Test-Path Function:"info_pkg_$pkgitem") {
-            $count = & "info_pkg_$pkgitem"
-            $pkgs += "$count ($pkgitem)"
-        }
-    }
+    #foreach ($pkgitem in $CustomPkgs) {
+    #    if (Test-Path Function:"info_pkg_$pkgitem") {
+    #        $count = & "info_pkg_$pkgitem"
+    #        $pkgs += "$count ($pkgitem)"
+    #    }
+    #}
 
     if (-not $pkgs) {
         $pkgs = "(none)"
