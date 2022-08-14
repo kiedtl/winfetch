@@ -687,9 +687,15 @@ function info_theme {
 
 # ===== CPU/GPU =====
 function info_cpu {
+    $cpu = Get-CimInstance -ClassName Win32_Processor -Property Name,MaxClockSpeed -CimSession $cimSession
+    $cpuname = if ($cpu.Name.Contains('@')) {
+        ($cpu.Name -Split ' @ ')[0]
+    } else {
+        $cpu.Name
+    }
     return @{
         title   = "CPU"
-        content = (Get-CimInstance -ClassName Win32_Processor -Property Name -CimSession $cimSession).Name
+        content = "$cpuname @ $($cpu.MaxClockSpeed)MHz"
     }
 }
 
