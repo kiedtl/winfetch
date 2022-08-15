@@ -693,9 +693,10 @@ function info_cpu {
     } else {
         $cpu.Name
     }
+    $cpufreq = [math]::round((([int]$cpu.MaxClockSpeed)/1000), 2)
     return @{
         title   = "CPU"
-        content = "$cpuname @ $($cpu.MaxClockSpeed)MHz"
+        content = "${cpuname} @ ${cpufreq}GHz"
     }
 }
 
