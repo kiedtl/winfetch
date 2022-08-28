@@ -693,6 +693,7 @@ function info_cpu {
     } else {
         $cpu.Name
     }
+    $cpuname = $cpuname.Trim()
     $cpufreq = [math]::round((([int]$cpu.MaxClockSpeed)/1000), 2)
     return @{
         title   = "CPU"
