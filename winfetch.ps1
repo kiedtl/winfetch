@@ -689,9 +689,9 @@ function info_theme {
 function info_cpu {
     $cpu = Get-CimInstance -ClassName Win32_Processor -Property Name,MaxClockSpeed -CimSession $cimSession
     $cpuname = if ($cpu.Name.Contains('@')) {
-        ($cpu.Name -Split ' @ ')[0]
+        ($cpu.Name -Split ' @ ')[0].Trim()
     } else {
-        $cpu.Name
+        $cpu.Name.Trim()
     }
     $cpufreq = [math]::round((([int]$cpu.MaxClockSpeed)/1000), 2)
     return @{
