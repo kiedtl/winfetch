@@ -835,8 +835,8 @@ namespace WinAPI
 }
 
 function info_disk {
-    Wait-Job -Job $disk_job
-    return Receive-Job -Job $disk_job
+    while ($disk_job.IsCompleted -eq $false){}
+    return $PowerShell.EndInvoke($disk_job)
 }
 
 
@@ -1058,10 +1058,18 @@ if ($img -and -not $stripansi) {
 }
 
 
-# write info
+# Create Runspaces
 if ($config -like "disk"){
-    $disk_job = Start-Job -Name info_disk -ScriptBlock $disk_script
+    $Runspace = [runspacefactory]::CreateRunspace()
+    $PowerShell = [powershell]::Create()
+    $PowerShell.Runspace = $Runspace
+    $Runspace.Open()
+    $null = $PowerShell.AddScript($disk_script)
+    $disk_job = $PowerShell.BeginInvoke()
 }
+
+
+# write info
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
         $info = & "info_$item"
