@@ -738,7 +738,7 @@ function info_memory {
 
 
 # ===== DISK USAGE =====
-function info_disk {
+$disk_script = {
     [System.Collections.ArrayList]$lines = @()
     Add-Type @'
 using System;
@@ -798,7 +798,7 @@ namespace WinAPI
     }
 
     # Verification stage
-    $diskLetters = @()
+    $diskLetters = @("C:")
     foreach ($diskLetter in $allDiskLetters) {
         foreach ($showDiskLetter in $showDisks) {
             if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
@@ -826,12 +826,17 @@ namespace WinAPI
             $usage = [math]::floor(($used / $total * 100))
             [void]$lines.Add(@{
                 title   = "Disk ($diskLetter)"
-                content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
+                content = "$(to_units $used) / $(to_units $total) ($usage%)"
             })
         }
     }
 
     return $lines
+}
+
+function info_disk {
+    Wait-Job -Job $disk_job
+    return Receive-Job -Job $disk_job
 }
 
 
@@ -1054,6 +1059,9 @@ if ($img -and -not $stripansi) {
 
 
 # write info
+if ($config -like "disk"){
+    $disk_job = Start-Job -Name info_disk -ScriptBlock $disk_script
+}
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
         $info = & "info_$item"
