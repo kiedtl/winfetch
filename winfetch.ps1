@@ -738,7 +738,7 @@ function info_memory {
 
 
 # ===== DISK USAGE =====
-$disk_script = {
+$Script_disk = {
     [System.Collections.ArrayList]$lines = @()
     Add-Type @'
 using System;
@@ -835,8 +835,9 @@ namespace WinAPI
 }
 
 function info_disk {
-    while ($disk_job.IsCompleted -eq $false){}
-    return $PowerShell.EndInvoke($disk_job)
+    $Job = $Jobs | Where-Object { $_.name -eq "disk" }
+    while ($Job.IsCompleted -eq $false){}
+    return $Job.Runspace.EndInvoke($Job.Status)
 }
 
 
@@ -1058,14 +1059,22 @@ if ($img -and -not $stripansi) {
 }
 
 
-# Create Runspaces
-if ($config -like "disk"){
-    $Runspace = [runspacefactory]::CreateRunspace()
-    $PowerShell = [powershell]::Create()
-    $PowerShell.Runspace = $Runspace
-    $Runspace.Open()
-    $null = $PowerShell.AddScript($disk_script)
-    $disk_job = $PowerShell.BeginInvoke()
+# Create Runspace Pool
+# TODO: Add option in config to disable runspaces
+$RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
+$RunspacePool.Open()
+$Jobs = New-Object System.Collections.ArrayList
+$RunspaceOps = @("disk") # Operations to execute on another thread
+
+
+# Create and Execute Runspaces
+foreach ($Op in $RunspaceOps){
+    if($config -like $Op){
+        $PowerShell = [powershell]::Create()
+        $PowerShell.RunspacePool = $RunspacePool
+        $null = $PowerShell.AddScript((Get-Variable Script_$Op).Value)
+        $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
+    }
 }
 
 
