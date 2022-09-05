@@ -1059,6 +1059,74 @@ if ($img -and -not $stripansi) {
 }
 
 
+# Create Variable Array and Function Array to Pass into Runspaces
+$Vars = @(
+    # Flags
+    @{
+        Name = "stripansi"
+        Value = $stripansi
+    },
+    @{
+        Name = "cpustyle"
+        Value = $cpustyle
+    },
+    @{
+        Name = "memorystyle"
+        Value = $memorystyle
+    },
+    @{
+        Name = "diskstyle"
+        Value = $diskstyle
+    },
+    @{
+        Name = "batterystyle"
+        Value = $batterystyle
+    },
+    @{
+        Name = "showdisks"
+        Value = $showdisks
+    },
+    @{
+        Name = "showpkgs"
+        Value = $showpkgs
+    },
+    # Variables
+    @{
+        Name = "e"
+        Value = $e
+    },
+    @{# truncate_line
+        Name = "ansiRegex"
+        Value = $ansiRegex
+    },
+    @{# info_motherboard, info_computer, info_uptime, info_terminal, info_cpu, info_cpu_usage
+        Name = "cimSession"
+        Value = $cimSession
+    },
+    @{# Remove if info_os is not converted
+        Name = "os"
+        Value = $os
+    },
+    @{# Likely to be removed as seems to be unused
+        Name = "t"
+        Value = $t
+    }
+)
+$Funcs = @(
+    @{
+        Name = "get_percent_bar"
+        Value = $Function:get_percent_bar
+    },
+    @{
+        Name = "get_level_info"
+        Value = $Function:get_level_info
+    },
+    @{
+        Name = "truncate_line"
+        Value = $Function:truncate_line
+    }
+)
+
 # Create Runspace Pool
 # TODO: Add option in config to disable runspaces
 $RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
