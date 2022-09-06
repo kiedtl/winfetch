@@ -1135,7 +1135,9 @@ if ($Runspaces){
     $RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
     $RunspacePool.Open()
     $Jobs = New-Object System.Collections.ArrayList
-    $RunspaceOps = @("disk") # Operations to execute on another thread
+
+    # Operations to execute on another thread
+    $RunspaceOps = @("disk")
 
     # Create and Execute Runspaces
     foreach ($Op in $RunspaceOps){
@@ -1155,7 +1157,7 @@ if ($Runspaces){
                 }
             }).AddArgument($Vars).AddArgument($Funcs)
             $null = $PowerShell.AddScript((Get-ChildItem Function:"info_$Op").ScriptBlock)
-            $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
+            $null = $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
         }
     }
 }
@@ -1168,6 +1170,7 @@ foreach ($item in $config) {
             $Job = $Jobs | Where-Object { $_.name -eq $item }
             while ($Job.IsCompleted -eq $false){}
             $info = $Job.Runspace.EndInvoke($Job.Status)
+            $Job.Runspace.Dispose()
         }else{
             $info = & "info_$item"
         }
@@ -1237,6 +1240,10 @@ if (-not $stripansi) {
     Write-Output "$e[?25h"
 } else {
     Write-Output "`n"
+}
+if($runspaces){
+    $RunspacePool.Close()
+    $RunspacePool.Dispose()
 }
 
 #  ___ ___  ___
