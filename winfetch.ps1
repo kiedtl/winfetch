@@ -805,7 +805,7 @@ namespace WinAPI
     }
 
     # Verification stage
-    $diskLetters = @("C:")
+    $diskLetters = @()
     foreach ($diskLetter in $allDiskLetters) {
         foreach ($showDiskLetter in $showDisks) {
             if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
@@ -833,7 +833,7 @@ namespace WinAPI
             $usage = [math]::floor(($used / $total * 100))
             [void]$lines.Add(@{
                 title   = "Disk ($diskLetter)"
-                content = "$(to_units $used) / $(to_units $total) ($usage%)"
+                content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
             })
         }
     }
@@ -1142,6 +1142,18 @@ if ($Runspaces){
         if($config -like $Op){
             $PowerShell = [powershell]::Create()
             $PowerShell.RunspacePool = $RunspacePool
+            $null = $PowerShell.AddScript({
+                param($Vars, $Funcs)
+                # Import Variables
+                foreach ($Var in $Vars){
+                    Set-Variable -Name $Var.Name -Value $Var.Value
+                }
+
+                # Import Functions
+                foreach ($Func in $Funcs){
+                    Set-Item -Path "Function:$($Func.Name)" -Value $Func.Value
+                }
+            }).AddArgument($Vars).AddArgument($Funcs)
             $null = $PowerShell.AddScript((Get-ChildItem Function:"info_$Op").ScriptBlock)
             $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
         }
