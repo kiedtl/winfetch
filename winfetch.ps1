@@ -58,6 +58,8 @@
     Configure which disks are shown, use '-showdisks *' to show all.
 .PARAMETER showpkgs
     Configure which package managers are shown, e.g. '-showpkgs winget,scoop,choco'.
+.PARAMETER runspaces
+    Configure whether to run commands in multiple threads using Runspaces.
 .INPUTS
     System.String
 .OUTPUTS
@@ -83,7 +85,8 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [array]$showdisks = @($env:SystemDrive),
-    [array]$showpkgs = @("scoop", "choco")
+    [array]$showpkgs = @("scoop", "choco"),
+    [bool]$runspaces = $true
 )
 
 if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
@@ -157,6 +160,10 @@ $defaultConfig = @'
 # Configure which package managers are shown
 # disabling unused ones will improve speed
 # $ShowPkgs = @("winget", "scoop", "choco")
+
+# Configure whether to run in multiple threads using runspaces
+# Disabling will reduce speed, but may be useful for debugging
+# $runspaces = $true
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -738,7 +745,7 @@ function info_memory {
 
 
 # ===== DISK USAGE =====
-$Script_disk = {
+function info_disk {
     [System.Collections.ArrayList]$lines = @()
     Add-Type @'
 using System;
@@ -832,12 +839,6 @@ namespace WinAPI
     }
 
     return $lines
-}
-
-function info_disk {
-    $Job = $Jobs | Where-Object { $_.name -eq "disk" }
-    while ($Job.IsCompleted -eq $false){}
-    return $Job.Runspace.EndInvoke($Job.Status)
 }
 
 
@@ -1103,11 +1104,11 @@ $Vars = @(
         Name = "cimSession"
         Value = $cimSession
     },
-    @{# Remove if info_os is not converted
+    @{# TODO: Remove if info_os is not converted
         Name = "os"
         Value = $os
     },
-    @{# Likely to be removed as seems to be unused
+    @{# TODO: Likely to be removed as seems to be unused
         Name = "t"
         Value = $t
     }
@@ -1127,21 +1128,23 @@ $Funcs = @(
     }
 )
 
-# Create Runspace Pool
-# TODO: Add option in config to disable runspaces
-$RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
-$RunspacePool.Open()
-$Jobs = New-Object System.Collections.ArrayList
-$RunspaceOps = @("disk") # Operations to execute on another thread
 
+# Check if Runspace config option is enabled
+if ($Runspaces){
+    # Create Runspace Pool
+    $RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
+    $RunspacePool.Open()
+    $Jobs = New-Object System.Collections.ArrayList
+    $RunspaceOps = @("disk") # Operations to execute on another thread
 
-# Create and Execute Runspaces
-foreach ($Op in $RunspaceOps){
-    if($config -like $Op){
-        $PowerShell = [powershell]::Create()
-        $PowerShell.RunspacePool = $RunspacePool
-        $null = $PowerShell.AddScript((Get-Variable Script_$Op).Value)
-        $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
+    # Create and Execute Runspaces
+    foreach ($Op in $RunspaceOps){
+        if($config -like $Op){
+            $PowerShell = [powershell]::Create()
+            $PowerShell.RunspacePool = $RunspacePool
+            $null = $PowerShell.AddScript((Get-ChildItem Function:"info_$Op").ScriptBlock)
+            $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
+        }
     }
 }
 
@@ -1149,7 +1152,13 @@ foreach ($Op in $RunspaceOps){
 # write info
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
-        $info = & "info_$item"
+        if ($Runspaces -and $item -in $RunspaceOps){
+            $Job = $Jobs | Where-Object { $_.name -eq $item }
+            while ($Job.IsCompleted -eq $false){}
+            $info = $Job.Runspace.EndInvoke($Job.Status)
+        }else{
+            $info = & "info_$item"
+        }
     } else {
         $info = @{ title = "$e[31mfunction 'info_$item' not found" }
     }
