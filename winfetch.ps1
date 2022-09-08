@@ -1137,7 +1137,34 @@ if ($Runspaces){
     $Jobs = New-Object System.Collections.ArrayList
 
     # Operations to execute on another thread
-    $RunspaceOps = @("disk")
+    $RunspaceOps = @(
+        "title"
+        "dashes"
+        "os"
+        "computer"
+        "kernel"
+        "motherboard"
+        "custom_time"
+        "uptime"
+        "ps_pkgs"
+        "pkgs"
+        "pwsh"
+        "resolution"
+        "terminal"
+        "theme"
+        "cpu"
+        "gpu"
+        "cpu_usage"
+        #"memory" # Causes Errors
+        "disk"
+        #"battery" # Causes Errors
+        "locale"
+        "weather"
+        "local_ip"
+        "public_ip"
+        "blank"
+        "colorbar"
+    )
 
     # Create and Execute Runspaces
     foreach ($Op in $RunspaceOps){
