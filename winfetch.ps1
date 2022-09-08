@@ -162,7 +162,8 @@ $defaultConfig = @'
 # $ShowPkgs = @("winget", "scoop", "choco")
 
 # Configure whether to run in multiple threads using runspaces
-# Disabling will reduce speed, but may be useful for debugging
+# Disabling might cause a speed decrease or increase, depending on your system and configuration
+# Disabling will make debugging easier
 $runspaces = $true
 
 # Operations to execute in runspaces
@@ -1134,13 +1135,9 @@ $Vars = @(
         Name = "cimSession"
         Value = $cimSession
     },
-    @{# TODO: Remove if info_os is not converted
+    @{
         Name = "os"
         Value = $os
-    },
-    @{# TODO: Likely to be removed as seems to be unused
-        Name = "t"
-        Value = $t
     }
 )
 $Funcs = @(
@@ -1171,6 +1168,7 @@ if ($Runspaces){
         if($config -like $Op){
             $PowerShell = [powershell]::Create()
             $PowerShell.RunspacePool = $RunspacePool
+            # Add Helper Script to Runspace
             $null = $PowerShell.AddScript({
                 param($Vars, $Funcs)
                 # Import Variables
@@ -1194,9 +1192,13 @@ if ($Runspaces){
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
         if ($Runspaces -and $item -in $RunspaceOps){
+            # Get Runspace from $item
             $Job = $Jobs | Where-Object { $_.name -eq $item }
+            # Wait for Runspace to finish
             while ($Job.IsCompleted -eq $false){}
+            # Get Runspace Output
             $info = $Job.Runspace.EndInvoke($Job.Status)
+            # Close Runspace
             $Job.Runspace.Dispose()
         }else{
             $info = & "info_$item"
@@ -1268,7 +1270,9 @@ if (-not $stripansi) {
 } else {
     Write-Output "`n"
 }
+
 if($runspaces){
+    # Close and Dispose Runspace Pool
     $RunspacePool.Close()
     $RunspacePool.Dispose()
 }
