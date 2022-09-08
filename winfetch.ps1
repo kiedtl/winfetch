@@ -163,7 +163,37 @@ $defaultConfig = @'
 
 # Configure whether to run in multiple threads using runspaces
 # Disabling will reduce speed, but may be useful for debugging
-# $runspaces = $true
+$runspaces = $true
+
+# Operations to execute in runspaces
+$RunspaceOps = @(
+    "title"
+    "dashes"
+    "os"
+    "computer"
+    "kernel"
+    "motherboard"
+    "custom_time"
+    "uptime"
+    "ps_pkgs"
+    "pkgs"
+    "pwsh"
+    "resolution"
+    "terminal"
+    "theme"
+    "cpu"
+    "gpu"
+    "cpu_usage"
+    #"memory" # Causes Errors
+    "disk"
+    #"battery" # Causes Errors
+    "locale"
+    "weather"
+    "local_ip"
+    "public_ip"
+    "blank"
+    "colorbar"
+)
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -1135,36 +1165,6 @@ if ($Runspaces){
     $RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
     $RunspacePool.Open()
     $Jobs = New-Object System.Collections.ArrayList
-
-    # Operations to execute on another thread
-    $RunspaceOps = @(
-        "title"
-        "dashes"
-        "os"
-        "computer"
-        "kernel"
-        "motherboard"
-        "custom_time"
-        "uptime"
-        "ps_pkgs"
-        "pkgs"
-        "pwsh"
-        "resolution"
-        "terminal"
-        "theme"
-        "cpu"
-        "gpu"
-        "cpu_usage"
-        #"memory" # Causes Errors
-        "disk"
-        #"battery" # Causes Errors
-        "locale"
-        "weather"
-        "local_ip"
-        "public_ip"
-        "blank"
-        "colorbar"
-    )
 
     # Create and Execute Runspaces
     foreach ($Op in $RunspaceOps){
