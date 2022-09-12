@@ -703,8 +703,9 @@ function info_cpu {
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
     # Get list of GPUs from the Registry
+    $LastSeen = (Get-ItemProperty -path HKLM:\SOFTWARE\Microsoft\DirectX\).LastSeen
     Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
-        if(($_.Description -ne "Microsoft Basic Render Driver") -and ($lines.content -notcontains $_.Description)){
+        if(($_.Description -ne "Microsoft Basic Render Driver") -and ($_.LastSeen -eq $LastSeen) -and ($lines.content -notcontains $_.Description)){
             [void]$lines.Add(@{
                 title   = "GPU"
                 content = $_.Description
