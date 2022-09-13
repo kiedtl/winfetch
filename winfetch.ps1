@@ -702,12 +702,15 @@ function info_cpu {
 
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
-    #loop through Win32_VideoController
-    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
-        [void]$lines.Add(@{
-            title   = "GPU"
-            content = $gpu.Name
-        })
+    # Get list of GPUs from the Registry
+    $LastSeen = (Get-ItemProperty -path HKLM:\SOFTWARE\Microsoft\DirectX\).LastSeen
+    Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
+        if(($_.Description -ne "Microsoft Basic Render Driver") -and ($_.LastSeen -eq $LastSeen) -and ($lines.content -notcontains $_.Description)){
+            [void]$lines.Add(@{
+                title   = "GPU"
+                content = $_.Description
+            })
+        }
     }
     return $lines
 }
