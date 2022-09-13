@@ -1267,846 +1267,286 @@ function info_locale {
         "161832258" = "Bonaire, Sint Eustatius and Saba"
     }
     $languageLookup = @{
-        "aa" = "Afar"
-        "aa-DJ" = "Afar (Djibouti)"
-        "aa-ER" = "Afar (Eritrea)"
-        "aa-ET" = "Afar (Ethiopia)"
-        "af" = "Afrikaans"
-        "af-NA" = "Afrikaans (Namibia)"
-        "af-ZA" = "Afrikaans (South Africa)"
-        "agq" = "Aghem"
-        "agq-CM" = "Aghem (Cameroon)"
-        "ak" = "Akan"
-        "ak-GH" = "Akan (Ghana)"
-        "sq" = "Albanian"
-        "sq-AL" = "Albanian (Albania)"
-        "sq-XK" = "Albanian (Kosovo)"
-        "sq-MK" = "Albanian (Macedonia, FYRO)"
-        "gsw" = "Alsatian"
-        "gsw-FR" = "Alsatian (France)"
-        "gsw-LI" = "Alsatian (Liechtenstein)"
-        "gsw-CH" = "Alsatian (Switzerland)"
-        "am" = "Amharic"
-        "am-ET" = "Amharic (Ethiopia)"
-        "ar" = "Arabic"
-        "ar-DZ" = "Arabic (Algeria)"
-        "ar-BH" = "Arabic (Bahrain)"
-        "ar-TD" = "Arabic (Chad)"
-        "ar-KM" = "Arabic (Comoros)"
-        "ar-DJ" = "Arabic (Djibouti)"
-        "ar-EG" = "Arabic (Egypt)"
-        "ar-ER" = "Arabic (Eritrea)"
-        "ar-IQ" = "Arabic (Iraq)"
-        "ar-IL" = "Arabic (Israel)"
-        "ar-JO" = "Arabic (Jordan)"
-        "ar-KW" = "Arabic (Kuwait)"
-        "ar-LB" = "Arabic (Lebanon)"
-        "ar-LY" = "Arabic (Libya)"
-        "ar-MR" = "Arabic (Mauritania)"
-        "ar-MA" = "Arabic (Morocco)"
-        "ar-OM" = "Arabic (Oman)"
-        "ar-PS" = "Arabic (Palestinian Authority)"
-        "ar-QA" = "Arabic (Qatar)"
-        "ar-SA" = "Arabic (Saudi Arabia)"
-        "ar-SO" = "Arabic (Somalia)"
-        "ar-SS" = "Arabic (South Sudan)"
-        "ar-SD" = "Arabic (Sudan)"
-        "ar-SY" = "Arabic (Syria)"
-        "ar-TN" = "Arabic (Tunisia)"
-        "ar-AE" = "Arabic (U.A.E.)"
-        "ar-001" = "Arabic (World)"
-        "ar-YE" = "Arabic (Yemen)"
-        "hy" = "Armenian"
-        "hy-AM" = "Armenian (Armenia)"
-        "as" = "Assamese"
-        "as-IN" = "Assamese (India)"
-        "ast" = "Asturian"
-        "ast-ES" = "Asturian (Spain)"
-        "asa" = "Asu"
-        "asa-TZ" = "Asu (Tanzania)"
-        "az" = "Azerbaijani"
-        "az-Cyrl" = "Azerbaijani (Cyrillic)"
-        "az-Cyrl-AZ" = "Azerbaijani (Cyrillic, Azerbaijan)"
-        "az-Latn" = "Azerbaijani (Latin)"
-        "az-Latn-AZ" = "Azerbaijani (Latin, Azerbaijan)"
-        "ksf" = "Bafia"
-        "ksf-CM" = "Bafia (Cameroon)"
-        "bm" = "Bambara"
-        "bm-Latn" = "Bambara (Latin)"
-        "bm-Latn-ML" = "Bambara (Latin, Mali)"
-        "bn" = "Bangla"
-        "bn-BD" = "Bangla (Bangladesh)"
-        "bn-IN" = "Bangla (India)"
-        "bas" = "Basaa"
-        "bas-CM" = "Basaa (Cameroon)"
-        "ba" = "Bashkir"
-        "ba-RU" = "Bashkir (Russia)"
-        "eu" = "Basque"
-        "eu-ES" = "Basque (Basque)"
-        "be" = "Belarusian"
-        "be-BY" = "Belarusian (Belarus)"
-        "bem" = "Bemba"
-        "bem-ZM" = "Bemba (Zambia)"
-        "bez" = "Bena"
-        "bez-TZ" = "Bena (Tanzania)"
-        "byn" = "Blin"
-        "byn-ER" = "Blin (Eritrea)"
-        "brx" = "Bodo"
-        "brx-IN" = "Bodo (India)"
-        "bs" = "Bosnian"
-        "bs-Cyrl" = "Bosnian (Cyrillic)"
-        "bs-Cyrl-BA" = "Bosnian (Cyrillic, Bosnia and Herzegovina)"
-        "bs-Latn" = "Bosnian (Latin)"
-        "bs-Latn-BA" = "Bosnian (Latin, Bosnia and Herzegovina)"
-        "br" = "Breton"
-        "br-FR" = "Breton (France)"
-        "bg" = "Bulgarian"
-        "bg-BG" = "Bulgarian (Bulgaria)"
-        "my" = "Burmese"
-        "my-MM" = "Burmese (Myanmar)"
-        "ca" = "Catalan"
-        "ca-AD" = "Catalan (Andorra)"
-        "ca-ES" = "Catalan (Catalan)"
-        "ca-FR" = "Catalan (France)"
-        "ca-IT" = "Catalan (Italy)"
-        "tzm-Arab" = "Central Atlas Tamazight (Arabic)"
-        "tzm-Arab-MA" = "Central Atlas Tamazight (Arabic, Morocco)"
-        "tzm-Latn-MA" = "Central Atlas Tamazight (Latin, Morocco)"
-        "tzm-Tfng-MA" = "Central Atlas Tamazight (Tifinagh, Morocco)"
-        "ku" = "Central Kurdish"
-        "ku-Arab" = "Central Kurdish (Arabic)"
-        "ku-Arab-IQ" = "Central Kurdish (Iraq)"
-        "ce" = "Chechen"
-        "ce-RU" = "Chechen (Russia)"
-        "chr" = "Cherokee"
-        "chr-Cher-US" = "Cherokee (Cherokee)"
-        "chr-Cher" = "Cherokee (Cherokee)"
-        "cgg" = "Chiga"
-        "cgg-UG" = "Chiga (Uganda)"
-        "zh" = "Chinese"
-        "zh-Hans-HK" = "Chinese (Simplified Han, Hong Kong SAR)"
-        "zh-Hans-MO" = "Chinese (Simplified Han, Macao SAR)"
-        "zh-Hans" = "Chinese (Simplified)"
-        "zh-CN" = "Chinese (Simplified, PRC)"
-        "zh-SG" = "Chinese (Simplified, Singapore)"
-        "zh-Hant" = "Chinese (Traditional)"
-        "zh-HK" = "Chinese (Traditional, Hong Kong S.A.R.)"
-        "zh-MO" = "Chinese (Traditional, Macao S.A.R.)"
-        "zh-TW" = "Chinese (Traditional, Taiwan)"
-        "cu" = "Church Slavic"
-        "cu-RU" = "Church Slavic (Russia)"
-        "ksh" = "Colognian"
-        "kw" = "Cornish"
-        "kw-GB" = "Cornish (United Kingdom)"
-        "co" = "Corsican"
-        "co-FR" = "Corsican (France)"
-        "hr" = "Croatian"
-        "hr-HR" = "Croatian (Croatia)"
-        "hr-BA" = "Croatian (Latin, Bosnia and Herzegovina)"
-        "cs" = "Czech"
-        "cs-CZ" = "Czech (Czechia / Czech Republic)"
-        "da" = "Danish"
-        "da-DK" = "Danish (Denmark)"
-        "da-GL" = "Danish (Greenland)"
-        "prs" = "Dari"
-        "prs-AF" = "Dari (Afghanistan)"
-        "dv" = "Divehi"
-        "dv-MV" = "Divehi (Maldives)"
-        "dua" = "Duala"
-        "dua-CM" = "Duala (Cameroon)"
-        "nl" = "Dutch"
-        "nl-AW" = "Dutch (Aruba)"
-        "nl-BE" = "Dutch (Belgium)"
-        "nl-BQ" = "Dutch (Bonaire, Sint Eustatius and Saba)"
-        "nl-CW" = "Dutch (Curaçao)"
-        "nl-NL" = "Dutch (Netherlands)"
-        "nl-SX" = "Dutch (Sint Maarten)"
-        "nl-SR" = "Dutch (Suriname)"
-        "dz" = "Dzongkha"
-        "dz-BT" = "Dzongkha (Bhutan)"
-        "bin" = "Edo"
-        "bin-NG" = "Edo (Nigeria)"
-        "ebu" = "Embu"
-        "ebu-KE" = "Embu (Kenya)"
-        "en" = "English"
-        "en-AS" = "English (American Samoa)"
-        "en-AI" = "English (Anguilla)"
-        "en-AG" = "English (Antigua and Barbuda)"
-        "en-AU" = "English (Australia)"
-        "en-AT" = "English (Austria)"
-        "en-BS" = "English (Bahamas)"
-        "en-BB" = "English (Barbados)"
-        "en-BE" = "English (Belgium)"
-        "en-BZ" = "English (Belize)"
-        "en-BM" = "English (Bermuda)"
-        "en-BW" = "English (Botswana)"
-        "en-IO" = "English (British Indian Ocean Territory)"
-        "en-VG" = "English (British Virgin Islands)"
-        "en-BI" = "English (Burundi)"
-        "en-CM" = "English (Cameroon)"
-        "en-CA" = "English (Canada)"
-        "en-029" = "English (Caribbean)"
-        "en-KY" = "English (Cayman Islands)"
-        "en-CX" = "English (Christmas Island)"
-        "en-CC" = "English (Cocos [Keeling] Islands)"
-        "en-CK" = "English (Cook Islands)"
-        "en-CY" = "English (Cyprus)"
-        "en-DK" = "English (Denmark)"
-        "en-DM" = "English (Dominica)"
-        "en-ER" = "English (Eritrea)"
-        "en-150" = "English (Europe)"
-        "en-FK" = "English (Falkland Islands)"
-        "en-FJ" = "English (Fiji)"
-        "en-FI" = "English (Finland)"
-        "en-GM" = "English (Gambia)"
-        "en-DE" = "English (Germany)"
-        "en-GH" = "English (Ghana)"
-        "en-GI" = "English (Gibraltar)"
-        "en-GD" = "English (Grenada)"
-        "en-GU" = "English (Guam)"
-        "en-GG" = "English (Guernsey)"
-        "en-GY" = "English (Guyana)"
-        "en-HK" = "English (Hong Kong SAR)"
-        "en-IN" = "English (India)"
-        "en-ID" = "English (Indonesia)"
-        "en-IE" = "English (Ireland)"
-        "en-IM" = "English (Isle of Man)"
-        "en-IL" = "English (Israel)"
-        "en-JM" = "English (Jamaica)"
-        "en-JE" = "English (Jersey)"
-        "en-KE" = "English (Kenya)"
-        "en-KI" = "English (Kiribati)"
-        "en-LS" = "English (Lesotho)"
-        "en-LR" = "English (Liberia)"
-        "en-MO" = "English (Macao SAR)"
-        "en-MG" = "English (Madagascar)"
-        "en-MW" = "English (Malawi)"
-        "en-MY" = "English (Malaysia)"
-        "en-MT" = "English (Malta)"
-        "en-MH" = "English (Marshall Islands)"
-        "en-MU" = "English (Mauritius)"
-        "en-FM" = "English (Micronesia)"
-        "en-MS" = "English (Montserrat)"
-        "en-NA" = "English (Namibia)"
-        "en-NR" = "English (Nauru)"
-        "en-NL" = "English (Netherlands)"
-        "en-NZ" = "English (New Zealand)"
-        "en-NG" = "English (Nigeria)"
-        "en-NU" = "English (Niue)"
-        "en-NF" = "English (Norfolk Island)"
-        "en-MP" = "English (Northern Mariana Islands)"
-        "en-PK" = "English (Pakistan)"
-        "en-PW" = "English (Palau)"
-        "en-PG" = "English (Papua New Guinea)"
-        "en-PN" = "English (Pitcairn Islands)"
-        "en-PR" = "English (Puerto Rico)"
-        "en-PH" = "English (Philippines)"
-        "en-RW" = "English (Rwanda)"
-        "en-KN" = "English (Saint Kitts and Nevis)"
-        "en-LC" = "English (Saint Lucia)"
-        "en-VC" = "English (Saint Vincent and the Grenadines)"
-        "en-WS" = "English (Samoa)"
-        "en-SC" = "English (Seychelles)"
-        "en-SL" = "English (Sierra Leone)"
-        "en-SG" = "English (Singapore)"
-        "en-SX" = "English (Sint Maarten)"
-        "en-SI" = "English (Slovenia)"
-        "en-SB" = "English (Solomon Islands)"
-        "en-ZA" = "English (South Africa)"
-        "en-SS" = "English (South Sudan)"
-        "en-SH" = "English (St Helena, Ascension, Tristan da Cunha)"
-        "en-SD" = "English (Sudan)"
-        "en-SZ" = "English (Swaziland)"
-        "en-SE" = "English (Sweden)"
-        "en-CH" = "English (Switzerland)"
-        "en-TZ" = "English (Tanzania)"
-        "en-TK" = "English (Tokelau)"
-        "en-TO" = "English (Tonga)"
-        "en-TT" = "English (Trinidad and Tobago)"
-        "en-TC" = "English (Turks and Caicos Islands)"
-        "en-TV" = "English (Tuvalu)"
-        "en-UG" = "English (Uganda)"
-        "en-GB" = "English (United Kingdom)"
-        "en-US" = "English (United States)"
-        "en-UM" = "English (US Minor Outlying Islands)"
-        "en-VI" = "English (US Virgin Islands)"
-        "en-VU" = "English (Vanuatu)"
-        "en-001" = "English (World)"
-        "en-ZM" = "English (Zambia)"
-        "en-ZW" = "English (Zimbabwe)"
-        "eo" = "Esperanto"
-        "eo-001" = "Esperanto (World)"
-        "et" = "Estonian"
-        "et-EE" = "Estonian (Estonia)"
-        "ee" = "Ewe"
-        "ee-GH" = "Ewe (Ghana)"
-        "ee-TG" = "Ewe (Togo)"
-        "ewo" = "Ewondo"
-        "ewo-CM" = "Ewondo (Cameroon)"
-        "fo" = "Faroese"
-        "fo-DK" = "Faroese (Denmark)"
-        "fo-FO" = "Faroese (Faroe Islands)"
-        "fil" = "Filipino"
-        "fil-PH" = "Filipino (Philippines)"
-        "fi" = "Finnish"
-        "fi-FI" = "Finnish (Finland)"
-        "fr" = "French"
-        "fr-DZ" = "French (Algeria)"
-        "fr-BE" = "French (Belgium)"
-        "fr-BJ" = "French (Benin)"
-        "fr-BF" = "French (Burkina Faso)"
-        "fr-BI" = "French (Burundi)"
-        "fr-CM" = "French (Cameroon)"
-        "fr-CA" = "French (Canada)"
-        "fr-029" = "French (Caribbean)"
-        "fr-CF" = "French (Central African Republic)"
-        "fr-TD" = "French (Chad)"
-        "fr-KM" = "French (Comoros)"
-        "fr-CD" = "French (Congo DRC)"
-        "fr-CG" = "French (Congo)"
-        "fr-CI" = "French (Côte d’Ivoire)"
-        "fr-DJ" = "French (Djibouti)"
-        "fr-GQ" = "French (Equatorial Guinea)"
-        "fr-FR" = "French (France)"
-        "fr-GF" = "French (French Guiana)"
-        "fr-PF" = "French (French Polynesia)"
-        "fr-GA" = "French (Gabon)"
-        "fr-GP" = "French (Guadeloupe)"
-        "fr-GN" = "French (Guinea)"
-        "fr-HT" = "French (Haiti)"
-        "fr-LU" = "French (Luxembourg)"
-        "fr-MG" = "French (Madagascar)"
-        "fr-ML" = "French (Mali)"
-        "fr-MQ" = "French (Martinique)"
-        "fr-MR" = "French (Mauritania)"
-        "fr-MU" = "French (Mauritius)"
-        "fr-YT" = "French (Mayotte)"
-        "fr-MC" = "French (Monaco)"
-        "fr-MA" = "French (Morocco)"
-        "fr-NC" = "French (New Caledonia)"
-        "fr-NE" = "French (Niger)"
-        "fr-RE" = "French (Reunion)"
-        "fr-RW" = "French (Rwanda)"
-        "fr-BL" = "French (Saint Barthélemy)"
-        "fr-MF" = "French (Saint Martin)"
-        "fr-PM" = "French (Saint Pierre and Miquelon)"
-        "fr-SN" = "French (Senegal)"
-        "fr-SC" = "French (Seychelles)"
-        "fr-CH" = "French (Switzerland)"
-        "fr-SY" = "French (Syria)"
-        "fr-TG" = "French (Togo)"
-        "fr-TN" = "French (Tunisia)"
-        "fr-VU" = "French (Vanuatu)"
-        "fr-WF" = "French (Wallis and Futuna)"
-        "fy" = "Frisian"
-        "fy-NL" = "Frisian (Netherlands)"
-        "fur" = "Friulian"
-        "fur-IT" = "Friulian (Italy)"
-        "ff" = "Fulah"
-        "ff-CM" = "Fulah (Cameroon)"
-        "ff-GN" = "Fulah (Guinea)"
-        "ff-Latn" = "Fulah (Latin)"
-        "ff-Latn-SN" = "Fulah (Latin, Senegal)"
-        "ff-MR" = "Fulah (Mauritania)"
-        "ff-NG" = "Fulah (Nigeria)"
-        "gl" = "Galician"
-        "gl-ES" = "Galician (Galician)"
-        "lg" = "Ganda"
-        "lg-UG" = "Ganda (Uganda)"
-        "ka" = "Georgian"
-        "ka-GE" = "Georgian (Georgia)"
-        "de" = "German"
-        "de-AT" = "German (Austria)"
-        "de-BE" = "German (Belgium)"
-        "de-DE" = "German (Germany)"
-        "de-IT" = "German (Italy)"
-        "de-LI" = "German (Liechtenstein)"
-        "de-LU" = "German (Luxembourg)"
-        "de-CH" = "German (Switzerland)"
-        "el" = "Greek"
-        "el-CY" = "Greek (Cyprus)"
-        "el-GR" = "Greek (Greece)"
-        "kl" = "Greenlandic"
-        "kl-GL" = "Greenlandic (Greenland)"
-        "gn" = "Guarani"
-        "gn-PY" = "Guarani (Paraguay)"
-        "gu" = "Gujarati"
-        "gu-IN" = "Gujarati (India)"
-        "guz" = "Gusii"
-        "guz-KE" = "Gusii (Kenya)"
-        "ha" = "Hausa"
-        "ha-Latn" = "Hausa (Latin)"
-        "ha-Latn-GH" = "Hausa (Latin, Ghana)"
-        "ha-Latn-NE" = "Hausa (Latin, Niger)"
-        "ha-Latn-NG" = "Hausa (Latin, Nigeria)"
-        "haw" = "Hawaiian"
-        "haw-US" = "Hawaiian (United States)"
-        "he" = "Hebrew"
-        "he-IL" = "Hebrew (Israel)"
-        "hi" = "Hindi"
-        "hi-IN" = "Hindi (India)"
-        "hu" = "Hungarian"
-        "hu-HU" = "Hungarian (Hungary)"
-        "ibb" = "Ibibio"
-        "ibb-NG" = "Ibibio (Nigeria)"
-        "is" = "Icelandic"
-        "is-IS" = "Icelandic (Iceland)"
-        "ig" = "Igbo"
-        "ig-NG" = "Igbo (Nigeria)"
-        "id" = "Indonesian"
-        "id-ID" = "Indonesian (Indonesia)"
-        "ia" = "Interlingua"
-        "ia-FR" = "Interlingua (France)"
-        "ia-001" = "Interlingua (World)"
-        "iu" = "Inuktitut"
-        "iu-Latn" = "Inuktitut (Latin)"
-        "iu-Latn-CA" = "Inuktitut (Latin, Canada)"
-        "iu-Cans" = "Inuktitut (Syllabics)"
-        "iu-Cans-CA" = "Inuktitut (Syllabics, Canada)"
-        ")" = "Invariant Language (Invariant Country"
-        "ga" = "Irish"
-        "ga-IE" = "Irish (Ireland)"
-        "xh" = "isiXhosa"
-        "xh-ZA" = "isiXhosa (South Africa)"
-        "zu" = "isiZulu"
-        "zu-ZA" = "isiZulu (South Africa)"
-        "it" = "Italian"
-        "it-IT" = "Italian (Italy)"
-        "it-SM" = "Italian (San Marino)"
-        "it-CH" = "Italian (Switzerland)"
-        "it-VA" = "Italian (Vatican City)"
-        "ja" = "Japanese"
-        "ja-JP" = "Japanese (Japan)"
-        "jv-Latn" = "Javanese"
-        "jv" = "Javanese"
-        "jv-Latn-ID" = "Javanese (Indonesia)"
-        "jv-Java" = "Javanese (Javanese)"
-        "jv-Java-ID" = "Javanese (Javanese, Indonesia)"
-        "dyo" = "Jola-Fonyi"
-        "dyo-SN" = "Jola-Fonyi (Senegal)"
-        "kea" = "Kabuverdianu"
-        "kea-CV" = "Kabuverdianu (Cabo Verde)"
-        "kab" = "Kabyle"
-        "kab-DZ" = "Kabyle (Algeria)"
-        "kkj" = "Kako"
-        "kkj-CM" = "Kako (Cameroon)"
-        "kln" = "Kalenjin"
-        "kln-KE" = "Kalenjin (Kenya)"
-        "kam" = "Kamba"
-        "kam-KE" = "Kamba (Kenya)"
-        "kn" = "Kannada"
-        "kn-IN" = "Kannada (India)"
-        "kr" = "Kanuri"
-        "kr-NG" = "Kanuri (Nigeria)"
-        "ks" = "Kashmiri"
-        "ks-Deva" = "Kashmiri (Devanagari)"
-        "ks-Deva-IN" = "Kashmiri (Devanagari, India)"
-        "ks-Arab" = "Kashmiri (Perso-Arabic)"
-        "ks-Arab-IN" = "Kashmiri (Perso-Arabic)"
-        "kk" = "Kazakh"
-        "kk-KZ" = "Kazakh (Kazakhstan)"
-        "km" = "Khmer"
-        "km-KH" = "Khmer (Cambodia)"
-        "quc-Latn" = "K'iche'"
-        "quc" = "K'iche'"
-        "quc-Latn-GT" = "K'iche' (Guatemala)"
-        "ki" = "Kikuyu"
-        "ki-KE" = "Kikuyu (Kenya)"
-        "rw" = "Kinyarwanda"
-        "rw-RW" = "Kinyarwanda (Rwanda)"
-        "sw" = "Kiswahili"
-        "sw-CD" = "Kiswahili (Congo DRC)"
-        "sw-KE" = "Kiswahili (Kenya)"
-        "sw-TZ" = "Kiswahili (Tanzania)"
-        "sw-UG" = "Kiswahili (Uganda)"
-        "kok" = "Konkani"
-        "kok-IN" = "Konkani (India)"
-        "ko" = "Korean"
-        "ko-KR" = "Korean (Korea)"
-        "ko-KP" = "Korean (North Korea)"
-        "khq" = "Koyra Chiini"
-        "khq-ML" = "Koyra Chiini (Mali)"
-        "ses" = "Koyraboro Senni"
-        "ses-ML" = "Koyraboro Senni (Mali)"
-        "ku-Arab-IR" = "Kurdish (Perso-Arabic, Iran)"
-        "nmg" = "Kwasio"
-        "nmg-CM" = "Kwasio (Cameroon)"
-        "ky" = "Kyrgyz"
-        "ky-KG" = "Kyrgyz (Kyrgyzstan)"
-        "lkt" = "Lakota"
-        "lkt-US" = "Lakota (United States)"
-        "lag" = "Langi"
-        "lag-TZ" = "Langi (Tanzania)"
-        "lo" = "Lao"
-        "lo-LA" = "Lao (Lao P.D.R.)"
-        "la" = "Latin"
-        "la-001" = "Latin (World)"
-        "lv" = "Latvian"
-        "lv-LV" = "Latvian (Latvia)"
-        "ln" = "Lingala"
-        "ln-AO" = "Lingala (Angola)"
-        "ln-CF" = "Lingala (Central African Republic)"
-        "ln-CD" = "Lingala (Congo DRC)"
-        "ln-CG" = "Lingala (Congo)"
-        "lt" = "Lithuanian"
-        "lt-LT" = "Lithuanian (Lithuania)"
-        "nds" = "Low German"
-        "nds-DE" = "Low German (Germany)"
-        "nds-NL" = "Low German (Netherlands)"
-        "dsb" = "Lower Sorbian"
-        "dsb-DE" = "Lower Sorbian (Germany)"
-        "lu" = "Luba-Katanga"
-        "lu-CD" = "Luba-Katanga (Congo DRC)"
-        "luo" = "Luo"
-        "luo-KE" = "Luo (Kenya)"
-        "lb" = "Luxembourgish"
-        "lb-LU" = "Luxembourgish (Luxembourg)"
-        "luy" = "Luyia"
-        "luy-KE" = "Luyia (Kenya)"
-        "mk-MK" = "Macedonian (Former Yugoslav Republic of Macedonia)"
-        "mk" = "Macedonian (FYROM)"
-        "jmc" = "Machame"
-        "jmc-TZ" = "Machame (Tanzania)"
-        "mgh" = "Makhuwa-Meetto"
-        "mgh-MZ" = "Makhuwa-Meetto (Mozambique)"
-        "kde" = "Makonde"
-        "kde-TZ" = "Makonde (Tanzania)"
-        "mg" = "Malagasy"
-        "mg-MG" = "Malagasy (Madagascar)"
-        "ms" = "Malay"
-        "ms-BN" = "Malay (Brunei Darussalam)"
-        "ms-SG" = "Malay (Latin, Singapore)"
-        "ms-MY" = "Malay (Malaysia)"
-        "ml" = "Malayalam"
-        "ml-IN" = "Malayalam (India)"
-        "mt" = "Maltese"
-        "mt-MT" = "Maltese (Malta)"
-        "mni" = "Manipuri"
-        "mni-IN" = "Manipuri (India)"
-        "gv" = "Manx"
-        "gv-IM" = "Manx (Isle of Man)"
-        "mi" = "Maori"
-        "mi-NZ" = "Maori (New Zealand)"
-        "arn" = "Mapudungun"
-        "arn-CL" = "Mapudungun (Chile)"
-        "mr" = "Marathi"
-        "mr-IN" = "Marathi (India)"
-        "mas" = "Masai"
-        "mas-KE" = "Masai (Kenya)"
-        "mas-TZ" = "Masai (Tanzania)"
-        "mzn" = "Mazanderani"
-        "mzn-IR" = "Mazanderani (Iran)"
-        "mer" = "Meru"
-        "mer-KE" = "Meru (Kenya)"
-        "mgo" = "Meta'"
-        "mgo-CM" = "Meta' (Cameroon)"
-        "moh" = "Mohawk"
-        "moh-CA" = "Mohawk (Mohawk)"
-        "mn" = "Mongolian"
-        "mn-Cyrl" = "Mongolian (Cyrillic)"
-        "mn-MN" = "Mongolian (Cyrillic, Mongolia)"
-        "mn-Mong" = "Mongolian (Traditional Mongolian)"
-        "mn-Mong-MN" = "Mongolian (Traditional Mongolian, Mongolia)"
-        "mn-Mong-CN" = "Mongolian (Traditional Mongolian, PRC)"
-        "mfe" = "Morisyen"
-        "mfe-MU" = "Morisyen (Mauritius)"
-        "mua" = "Mundang"
-        "mua-CM" = "Mundang (Cameroon)"
-        "naq" = "Nama"
-        "naq-NA" = "Nama (Namibia)"
-        "ne" = "Nepali"
-        "ne-IN" = "Nepali (India)"
-        "ne-NP" = "Nepali (Nepal)"
-        "nnh" = "Ngiemboon"
-        "nnh-CM" = "Ngiemboon (Cameroon)"
-        "jgo" = "Ngomba"
-        "jgo-CM" = "Ngomba (Cameroon)"
-        "nqo" = "N'ko"
-        "nqo-GN" = "N'ko (Guinea)"
-        "nd" = "North Ndebele"
-        "nd-ZW" = "North Ndebele (Zimbabwe)"
-        "lrc" = "Northern Luri"
-        "lrc-IR" = "Northern Luri (Iran)"
-        "lrc-IQ" = "Northern Luri (Iraq)"
-        "no" = "Norwegian"
-        "nb" = "Norwegian (Bokmål)"
-        "nn" = "Norwegian (Nynorsk)"
-        "nb-NO" = "Norwegian, Bokmål (Norway)"
-        "nb-SJ" = "Norwegian, Bokmål (Svalbard and Jan Mayen)"
-        "nn-NO" = "Norwegian, Nynorsk (Norway)"
-        "nus" = "Nuer"
-        "nus-SS" = "Nuer (South Sudan)"
-        "nyn" = "Nyankole"
-        "nyn-UG" = "Nyankole (Uganda)"
-        "oc" = "Occitan"
-        "oc-FR" = "Occitan (France)"
-        "or" = "Odia"
-        "or-IN" = "Odia (India)"
-        "om" = "Oromo"
-        "om-ET" = "Oromo (Ethiopia)"
-        "om-KE" = "Oromo (Kenya)"
-        "os-GE" = "Ossetian (Cyrillic, Georgia)"
-        "os-RU" = "Ossetian (Cyrillic, Russia)"
-        "os" = "Ossetic"
-        "pap" = "Papiamento"
-        "pap-029" = "Papiamento (Caribbean)"
-        "ps" = "Pashto"
-        "ps-AF" = "Pashto (Afghanistan)"
-        "fa" = "Persian"
-        "fa-IR" = "Persian (Iran)"
-        "pl" = "Polish"
-        "pl-PL" = "Polish (Poland)"
-        "pt" = "Portuguese"
-        "pt-AO" = "Portuguese (Angola)"
-        "pt-BR" = "Portuguese (Brazil)"
-        "pt-CV" = "Portuguese (Cabo Verde)"
-        "pt-GQ" = "Portuguese (Equatorial Guinea)"
-        "pt-GW" = "Portuguese (Guinea-Bissau)"
-        "pt-LU" = "Portuguese (Luxembourg)"
-        "pt-MO" = "Portuguese (Macao SAR)"
-        "pt-MZ" = "Portuguese (Mozambique)"
-        "pt-PT" = "Portuguese (Portugal)"
-        "pt-ST" = "Portuguese (São Tomé and Príncipe)"
-        "pt-CH" = "Portuguese (Switzerland)"
-        "pt-TL" = "Portuguese (Timor-Leste)"
-        "prg" = "Prussian"
-        "prg-001" = "Prussian (World)"
-        "pa" = "Punjabi"
-        "pa-Arab" = "Punjabi (Arabic)"
-        "pa-IN" = "Punjabi (India)"
-        "pa-Arab-PK" = "Punjabi (Islamic Republic of Pakistan)"
-        "quz" = "Quechua"
-        "quz-BO" = "Quechua (Bolivia)"
-        "quz-EC" = "Quechua (Ecuador)"
-        "quz-PE" = "Quechua (Peru)"
-        "ksh-DE" = "Ripuarian (Germany)"
-        "ro" = "Romanian"
-        "ro-MD" = "Romanian (Moldova)"
-        "ro-RO" = "Romanian (Romania)"
-        "rm" = "Romansh"
-        "rm-CH" = "Romansh (Switzerland)"
-        "rof" = "Rombo"
-        "rof-TZ" = "Rombo (Tanzania)"
-        "rn" = "Rundi"
-        "rn-BI" = "Rundi (Burundi)"
-        "ru" = "Russian"
-        "ru-BY" = "Russian (Belarus)"
-        "ru-KZ" = "Russian (Kazakhstan)"
-        "ru-KG" = "Russian (Kyrgyzstan)"
-        "ru-MD" = "Russian (Moldova)"
-        "ru-RU" = "Russian (Russia)"
-        "ru-UA" = "Russian (Ukraine)"
-        "rwk" = "Rwa"
-        "rwk-TZ" = "Rwa (Tanzania)"
-        "ssy" = "Saho"
-        "ssy-ER" = "Saho (Eritrea)"
-        "sah" = "Sakha"
-        "sah-RU" = "Sakha (Russia)"
-        "saq" = "Samburu"
-        "saq-KE" = "Samburu (Kenya)"
-        "smn" = "Sami (Inari)"
-        "smj" = "Sami (Lule)"
-        "se" = "Sami (Northern)"
-        "sms" = "Sami (Skolt)"
-        "sma" = "Sami (Southern)"
-        "smn-FI" = "Sami, Inari (Finland)"
-        "smj-NO" = "Sami, Lule (Norway)"
-        "smj-SE" = "Sami, Lule (Sweden)"
-        "se-FI" = "Sami, Northern (Finland)"
-        "se-NO" = "Sami, Northern (Norway)"
-        "se-SE" = "Sami, Northern (Sweden)"
-        "sms-FI" = "Sami, Skolt (Finland)"
-        "sma-NO" = "Sami, Southern (Norway)"
-        "sma-SE" = "Sami, Southern (Sweden)"
-        "sg" = "Sango"
-        "sg-CF" = "Sango (Central African Republic)"
-        "sbp" = "Sangu"
-        "sbp-TZ" = "Sangu (Tanzania)"
-        "sa" = "Sanskrit"
-        "sa-IN" = "Sanskrit (India)"
-        "gd" = "Scottish Gaelic"
-        "gd-GB" = "Scottish Gaelic (United Kingdom)"
-        "seh" = "Sena"
-        "seh-MZ" = "Sena (Mozambique)"
-        "sr" = "Serbian"
-        "sr-Cyrl" = "Serbian (Cyrillic)"
-        "sr-Cyrl-BA" = "Serbian (Cyrillic, Bosnia and Herzegovina)"
-        "sr-Cyrl-XK" = "Serbian (Cyrillic, Kosovo)"
-        "sr-Cyrl-ME" = "Serbian (Cyrillic, Montenegro)"
-        "sr-Cyrl-RS" = "Serbian (Cyrillic, Serbia)"
-        "sr-Latn" = "Serbian (Latin)"
-        "sr-Latn-BA" = "Serbian (Latin, Bosnia and Herzegovina)"
-        "sr-Latn-XK" = "Serbian (Latin, Kosovo)"
-        "sr-Latn-ME" = "Serbian (Latin, Montenegro)"
-        "sr-Latn-RS" = "Serbian (Latin, Serbia)"
-        "st-LS" = "Sesotho (Lesotho)"
-        "nso" = "Sesotho sa Leboa"
-        "nso-ZA" = "Sesotho sa Leboa (South Africa)"
-        "tn" = "Setswana"
-        "tn-BW" = "Setswana (Botswana)"
-        "tn-ZA" = "Setswana (South Africa)"
-        "ksb" = "Shambala"
-        "ksb-TZ" = "Shambala (Tanzania)"
-        "sn" = "Shona"
-        "sn-Latn" = "Shona (Latin)"
-        "sn-Latn-ZW" = "Shona (Latin, Zimbabwe)"
-        "sd" = "Sindhi"
-        "sd-Arab" = "Sindhi (Arabic)"
-        "sd-Deva" = "Sindhi (Devanagari)"
-        "sd-Deva-IN" = "Sindhi (Devanagari, India)"
-        "sd-Arab-PK" = "Sindhi (Islamic Republic of Pakistan)"
-        "si" = "Sinhala"
-        "si-LK" = "Sinhala (Sri Lanka)"
-        "sk" = "Slovak"
-        "sk-SK" = "Slovak (Slovakia)"
-        "sl" = "Slovenian"
-        "sl-SI" = "Slovenian (Slovenia)"
-        "xog" = "Soga"
-        "xog-UG" = "Soga (Uganda)"
-        "so" = "Somali"
-        "so-DJ" = "Somali (Djibouti)"
-        "so-ET" = "Somali (Ethiopia)"
-        "so-KE" = "Somali (Kenya)"
-        "so-SO" = "Somali (Somalia)"
-        "nr" = "South Ndebele"
-        "nr-ZA" = "South Ndebele (South Africa)"
-        "st" = "Southern Sotho"
-        "st-ZA" = "Southern Sotho (South Africa)"
-        "es" = "Spanish"
-        "es-AR" = "Spanish (Argentina)"
-        "es-BZ" = "Spanish (Belize)"
-        "es-VE" = "Spanish (Venezuela)"
-        "es-BO" = "Spanish (Bolivia)"
-        "es-BR" = "Spanish (Brazil)"
-        "es-CL" = "Spanish (Chile)"
-        "es-CO" = "Spanish (Colombia)"
-        "es-CR" = "Spanish (Costa Rica)"
-        "es-CU" = "Spanish (Cuba)"
-        "es-DO" = "Spanish (Dominican Republic)"
-        "es-EC" = "Spanish (Ecuador)"
-        "es-SV" = "Spanish (El Salvador)"
-        "es-GQ" = "Spanish (Equatorial Guinea)"
-        "es-GT" = "Spanish (Guatemala)"
-        "es-HN" = "Spanish (Honduras)"
-        "es-419" = "Spanish (Latin America)"
-        "es-MX" = "Spanish (Mexico)"
-        "es-NI" = "Spanish (Nicaragua)"
-        "es-PA" = "Spanish (Panama)"
-        "es-PY" = "Spanish (Paraguay)"
-        "es-PE" = "Spanish (Peru)"
-        "es-PH" = "Spanish (Philippines)"
-        "es-PR" = "Spanish (Puerto Rico)"
-        "es-ES" = "Spanish (Spain)"
-        "es-US" = "Spanish (United States)"
-        "es-UY" = "Spanish (Uruguay)"
-        "zgh" = "Standard Moroccan Tamazight"
-        "zgh-Tfng" = "Standard Moroccan Tamazight (Tifinagh)"
-        "zgh-Tfng-MA" = "Standard Moroccan Tamazight (Tifinagh, Morocco)"
-        "ss" = "Swati"
-        "ss-ZA" = "Swati (South Africa)"
-        "ss-SZ" = "Swati (Eswatini former Swaziland)"
-        "sv" = "Swedish"
-        "sv-AX" = "Swedish (Åland Islands)"
-        "sv-FI" = "Swedish (Finland)"
-        "sv-SE" = "Swedish (Sweden)"
-        "syr" = "Syriac"
-        "syr-SY" = "Syriac (Syria)"
-        "shi" = "Tachelhit"
-        "shi-Latn" = "Tachelhit (Latin)"
-        "shi-Latn-MA" = "Tachelhit (Latin, Morocco)"
-        "shi-Tfng" = "Tachelhit (Tifinagh)"
-        "shi-Tfng-MA" = "Tachelhit (Tifinagh, Morocco)"
-        "dav" = "Taita"
-        "dav-KE" = "Taita (Kenya)"
-        "tg" = "Tajik"
-        "tg-Cyrl" = "Tajik (Cyrillic)"
-        "tg-Cyrl-TJ" = "Tajik (Cyrillic, Tajikistan)"
-        "tzm" = "Tamazight"
-        "tzm-Latn" = "Tamazight (Latin)"
-        "tzm-Latn-DZ" = "Tamazight (Latin, Algeria)"
-        "tzm-Tfng" = "Tamazight (Tifinagh)"
-        "ta" = "Tamil"
-        "ta-IN" = "Tamil (India)"
-        "ta-MY" = "Tamil (Malaysia)"
-        "ta-SG" = "Tamil (Singapore)"
-        "ta-LK" = "Tamil (Sri Lanka)"
-        "twq" = "Tasawaq"
-        "twq-NE" = "Tasawaq (Niger)"
-        "tt" = "Tatar"
-        "tt-RU" = "Tatar (Russia)"
-        "te" = "Telugu"
-        "te-IN" = "Telugu (India)"
-        "teo" = "Teso"
-        "teo-KE" = "Teso (Kenya)"
-        "teo-UG" = "Teso (Uganda)"
-        "th" = "Thai"
-        "th-TH" = "Thai (Thailand)"
-        "bo" = "Tibetan"
-        "bo-IN" = "Tibetan (India)"
-        "bo-CN" = "Tibetan (PRC)"
-        "tig" = "Tigre"
-        "tig-ER" = "Tigre (Eritrea)"
-        "ti" = "Tigrinya"
-        "ti-ER" = "Tigrinya (Eritrea)"
-        "ti-ET" = "Tigrinya (Ethiopia)"
-        "to" = "Tongan"
-        "to-TO" = "Tongan (Tonga)"
-        "ts" = "Tsonga"
-        "ts-ZA" = "Tsonga (South Africa)"
-        "tr" = "Turkish"
-        "tr-CY" = "Turkish (Cyprus)"
-        "tr-TR" = "Turkish (Turkey)"
-        "tk" = "Turkmen"
-        "tk-TM" = "Turkmen (Turkmenistan)"
-        "uk" = "Ukrainian"
-        "uk-UA" = "Ukrainian (Ukraine)"
-        "hsb" = "Upper Sorbian"
-        "hsb-DE" = "Upper Sorbian (Germany)"
-        "ur" = "Urdu"
-        "ur-IN" = "Urdu (India)"
-        "ur-PK" = "Urdu (Islamic Republic of Pakistan)"
-        "ug" = "Uyghur"
-        "ug-CN" = "Uyghur (PRC)"
-        "uz" = "Uzbek"
-        "uz-Cyrl" = "Uzbek (Cyrillic)"
-        "uz-Cyrl-UZ" = "Uzbek (Cyrillic, Uzbekistan)"
-        "uz-Latn" = "Uzbek (Latin)"
-        "uz-Latn-UZ" = "Uzbek (Latin, Uzbekistan)"
-        "uz-Arab" = "Uzbek (Perso-Arabic)"
-        "uz-Arab-AF" = "Uzbek (Perso-Arabic, Afghanistan)"
-        "vai" = "Vai"
-        "vai-Latn" = "Vai (Latin)"
-        "vai-Latn-LR" = "Vai (Latin, Liberia)"
-        "vai-Vaii" = "Vai (Vai)"
-        "vai-Vaii-LR" = "Vai (Vai, Liberia)"
-        "ca-ES-valencia" = "Valencian (Spain)"
-        "ve" = "Venda"
-        "ve-ZA" = "Venda (South Africa)"
-        "vi" = "Vietnamese"
-        "vi-VN" = "Vietnamese (Vietnam)"
-        "vo" = "Volapük"
-        "vo-001" = "Volapük (World)"
-        "vun" = "Vunjo"
-        "vun-TZ" = "Vunjo (Tanzania)"
-        "wae" = "Walser"
-        "wae-CH" = "Walser (Switzerland)"
-        "cy" = "Welsh"
-        "cy-GB" = "Welsh (United Kingdom)"
-        "wal" = "Wolaytta"
-        "wal-ET" = "Wolaytta (Ethiopia)"
-        "wo" = "Wolof"
-        "wo-SN" = "Wolof (Senegal)"
-        "yav" = "Yangben"
-        "yav-CM" = "Yangben (Cameroon)"
-        "ii" = "Yi"
-        "ii-CN" = "Yi (PRC)"
-        "yi" = "Yiddish"
-        "yi-001" = "Yiddish (World)"
-        "yo" = "Yoruba"
-        "yo-BJ" = "Yoruba (Benin)"
-        "yo-NG" = "Yoruba (Nigeria)"
-        "dje" = "Zarma"
-        "dje-NE" = "Zarma (Niger)"
+        "aa" = "Afar"; "aa-DJ" = "Afar (Djibouti)"; "aa-ER" = "Afar (Eritrea)"; 
+        "aa-ET" = "Afar (Ethiopia)"; "af" = "Afrikaans"; "af-NA" = "Afrikaans (Namibia)"; 
+        "af-ZA" = "Afrikaans (South Africa)"; "agq" = "Aghem"; "agq-CM" = "Aghem (Cameroon)"; 
+        "ak" = "Akan"; "ak-GH" = "Akan (Ghana)"; "am" = "Amharic"; 
+        "am-ET" = "Amharic (Ethiopia)"; "ar" = "Arabic"; "ar-001" = "Arabic (World)"; 
+        "ar-AE" = "Arabic (U.A.E.)"; "ar-BH" = "Arabic (Bahrain)"; "ar-DJ" = "Arabic (Djibouti)"; 
+        "ar-DZ" = "Arabic (Algeria)"; "ar-EG" = "Arabic (Egypt)"; "ar-ER" = "Arabic (Eritrea)"; 
+        "ar-IL" = "Arabic (Israel)"; "ar-IQ" = "Arabic (Iraq)"; "ar-JO" = "Arabic (Jordan)"; 
+        "ar-KM" = "Arabic (Comoros)"; "ar-KW" = "Arabic (Kuwait)"; "ar-LB" = "Arabic (Lebanon)"; 
+        "ar-LY" = "Arabic (Libya)"; "ar-MA" = "Arabic (Morocco)"; "ar-MR" = "Arabic (Mauritania)"; 
+        "ar-OM" = "Arabic (Oman)"; "ar-PS" = "Arabic (Palestinian Authority)"; "ar-QA" = "Arabic (Qatar)"; 
+        "ar-SA" = "Arabic (Saudi Arabia)"; "ar-SD" = "Arabic (Sudan)"; "ar-SO" = "Arabic (Somalia)"; 
+        "ar-SS" = "Arabic (South Sudan)"; "ar-SY" = "Arabic (Syria)"; "ar-TD" = "Arabic (Chad)"; 
+        "ar-TN" = "Arabic (Tunisia)"; "ar-YE" = "Arabic (Yemen)"; "arn" = "Mapudungun"; 
+        "arn-CL" = "Mapudungun (Chile)"; "as" = "Assamese"; "as-IN" = "Assamese (India)"; 
+        "asa" = "Asu"; "asa-TZ" = "Asu (Tanzania)"; "ast" = "Asturian"; 
+        "ast-ES" = "Asturian (Spain)"; "az" = "Azerbaijani"; "az-Cyrl" = "Azerbaijani (Cyrillic)"; 
+        "az-Cyrl-AZ" = "Azerbaijani (Cyrillic, Azerbaijan)"; "az-Latn" = "Azerbaijani (Latin)"; "az-Latn-AZ" = "Azerbaijani (Latin, Azerbaijan)"; 
+        "ba" = "Bashkir"; "ba-RU" = "Bashkir (Russia)"; "bas" = "Basaa"; 
+        "bas-CM" = "Basaa (Cameroon)"; "be" = "Belarusian"; "be-BY" = "Belarusian (Belarus)"; 
+        "bem" = "Bemba"; "bem-ZM" = "Bemba (Zambia)"; "bez" = "Bena"; 
+        "bez-TZ" = "Bena (Tanzania)"; "bg" = "Bulgarian"; "bg-BG" = "Bulgarian (Bulgaria)"; 
+        "bin" = "Edo"; "bin-NG" = "Edo (Nigeria)"; "bm" = "Bambara"; 
+        "bm-Latn" = "Bambara (Latin)"; "bm-Latn-ML" = "Bambara (Latin, Mali)"; "bn" = "Bangla"; 
+        "bn-BD" = "Bangla (Bangladesh)"; "bn-IN" = "Bangla (India)"; "bo" = "Tibetan"; 
+        "bo-CN" = "Tibetan (PRC)"; "bo-IN" = "Tibetan (India)"; "br" = "Breton"; 
+        "br-FR" = "Breton (France)"; "brx" = "Bodo"; "brx-IN" = "Bodo (India)"; 
+        "bs" = "Bosnian"; "bs-Cyrl" = "Bosnian (Cyrillic)"; "bs-Cyrl-BA" = "Bosnian (Cyrillic, Bosnia and Herzegovina)"; 
+        "bs-Latn" = "Bosnian (Latin)"; "bs-Latn-BA" = "Bosnian (Latin, Bosnia and Herzegovina)"; "byn" = "Blin"; 
+        "byn-ER" = "Blin (Eritrea)"; "ca" = "Catalan"; "ca-AD" = "Catalan (Andorra)"; 
+        "ca-ES" = "Catalan (Catalan)"; "ca-ES-valencia" = "Valencian (Spain)"; "ca-FR" = "Catalan (France)"; 
+        "ca-IT" = "Catalan (Italy)"; "ce" = "Chechen"; "ce-RU" = "Chechen (Russia)"; 
+        "cgg" = "Chiga"; "cgg-UG" = "Chiga (Uganda)"; "chr" = "Cherokee"; 
+        "chr-Cher" = "Cherokee (Cherokee)"; "chr-Cher-US" = "Cherokee (Cherokee)"; "co" = "Corsican"; 
+        "co-FR" = "Corsican (France)"; "cs" = "Czech"; "cs-CZ" = "Czech (Czechia / Czech Republic)"; 
+        "cu" = "Church Slavic"; "cu-RU" = "Church Slavic (Russia)"; "cy" = "Welsh"; 
+        "cy-GB" = "Welsh (United Kingdom)"; "da" = "Danish"; "da-DK" = "Danish (Denmark)"; 
+        "da-GL" = "Danish (Greenland)"; "dav" = "Taita"; "dav-KE" = "Taita (Kenya)"; 
+        "de" = "German"; "de-AT" = "German (Austria)"; "de-BE" = "German (Belgium)"; 
+        "de-CH" = "German (Switzerland)"; "de-DE" = "German (Germany)"; "de-IT" = "German (Italy)"; 
+        "de-LI" = "German (Liechtenstein)"; "de-LU" = "German (Luxembourg)"; "dje" = "Zarma"; 
+        "dje-NE" = "Zarma (Niger)"; "dsb" = "Lower Sorbian"; "dsb-DE" = "Lower Sorbian (Germany)"; 
+        "dua" = "Duala"; "dua-CM" = "Duala (Cameroon)"; "dv" = "Divehi"; 
+        "dv-MV" = "Divehi (Maldives)"; "dyo" = "Jola-Fonyi"; "dyo-SN" = "Jola-Fonyi (Senegal)"; 
+        "dz" = "Dzongkha"; "dz-BT" = "Dzongkha (Bhutan)"; "ebu" = "Embu"; 
+        "ebu-KE" = "Embu (Kenya)"; "ee" = "Ewe"; "ee-GH" = "Ewe (Ghana)"; 
+        "ee-TG" = "Ewe (Togo)"; "el" = "Greek"; "el-CY" = "Greek (Cyprus)"; 
+        "el-GR" = "Greek (Greece)"; "en" = "English"; "en-001" = "English (World)"; 
+        "en-029" = "English (Caribbean)"; "en-150" = "English (Europe)"; "en-AG" = "English (Antigua and Barbuda)"; 
+        "en-AI" = "English (Anguilla)"; "en-AS" = "English (American Samoa)"; "en-AT" = "English (Austria)"; 
+        "en-AU" = "English (Australia)"; "en-BB" = "English (Barbados)"; "en-BE" = "English (Belgium)"; 
+        "en-BI" = "English (Burundi)"; "en-BM" = "English (Bermuda)"; "en-BS" = "English (Bahamas)"; 
+        "en-BW" = "English (Botswana)"; "en-BZ" = "English (Belize)"; "en-CA" = "English (Canada)"; 
+        "en-CC" = "English (Cocos [Keeling] Islands)"; "en-CH" = "English (Switzerland)"; "en-CK" = "English (Cook Islands)"; 
+        "en-CM" = "English (Cameroon)"; "en-CX" = "English (Christmas Island)"; "en-CY" = "English (Cyprus)"; 
+        "en-DE" = "English (Germany)"; "en-DK" = "English (Denmark)"; "en-DM" = "English (Dominica)"; 
+        "en-ER" = "English (Eritrea)"; "en-FI" = "English (Finland)"; "en-FJ" = "English (Fiji)"; 
+        "en-FK" = "English (Falkland Islands)"; "en-FM" = "English (Micronesia)"; "en-GB" = "English (United Kingdom)"; 
+        "en-GD" = "English (Grenada)"; "en-GG" = "English (Guernsey)"; "en-GH" = "English (Ghana)"; 
+        "en-GI" = "English (Gibraltar)"; "en-GM" = "English (Gambia)"; "en-GU" = "English (Guam)"; 
+        "en-GY" = "English (Guyana)"; "en-HK" = "English (Hong Kong SAR)"; "en-ID" = "English (Indonesia)"; 
+        "en-IE" = "English (Ireland)"; "en-IL" = "English (Israel)"; "en-IM" = "English (Isle of Man)"; 
+        "en-IN" = "English (India)"; "en-IO" = "English (British Indian Ocean Territory)"; "en-JE" = "English (Jersey)"; 
+        "en-JM" = "English (Jamaica)"; "en-KE" = "English (Kenya)"; "en-KI" = "English (Kiribati)"; 
+        "en-KN" = "English (Saint Kitts and Nevis)"; "en-KY" = "English (Cayman Islands)"; "en-LC" = "English (Saint Lucia)"; 
+        "en-LR" = "English (Liberia)"; "en-LS" = "English (Lesotho)"; "en-MG" = "English (Madagascar)"; 
+        "en-MH" = "English (Marshall Islands)"; "en-MO" = "English (Macao SAR)"; "en-MP" = "English (Northern Mariana Islands)"; 
+        "en-MS" = "English (Montserrat)"; "en-MT" = "English (Malta)"; "en-MU" = "English (Mauritius)"; 
+        "en-MW" = "English (Malawi)"; "en-MY" = "English (Malaysia)"; "en-NA" = "English (Namibia)"; 
+        "en-NF" = "English (Norfolk Island)"; "en-NG" = "English (Nigeria)"; "en-NL" = "English (Netherlands)"; 
+        "en-NR" = "English (Nauru)"; "en-NU" = "English (Niue)"; "en-NZ" = "English (New Zealand)"; 
+        "en-PG" = "English (Papua New Guinea)"; "en-PH" = "English (Philippines)"; "en-PK" = "English (Pakistan)"; 
+        "en-PN" = "English (Pitcairn Islands)"; "en-PR" = "English (Puerto Rico)"; "en-PW" = "English (Palau)"; 
+        "en-RW" = "English (Rwanda)"; "en-SB" = "English (Solomon Islands)"; "en-SC" = "English (Seychelles)"; 
+        "en-SD" = "English (Sudan)"; "en-SE" = "English (Sweden)"; "en-SG" = "English (Singapore)"; 
+        "en-SH" = "English (St Helena, Ascension, Tristan da Cunha)"; "en-SI" = "English (Slovenia)"; "en-SL" = "English (Sierra Leone)"; 
+        "en-SS" = "English (South Sudan)"; "en-SX" = "English (Sint Maarten)"; "en-SZ" = "English (Swaziland)"; 
+        "en-TC" = "English (Turks and Caicos Islands)"; "en-TK" = "English (Tokelau)"; "en-TO" = "English (Tonga)"; 
+        "en-TT" = "English (Trinidad and Tobago)"; "en-TV" = "English (Tuvalu)"; "en-TZ" = "English (Tanzania)"; 
+        "en-UG" = "English (Uganda)"; "en-UM" = "English (US Minor Outlying Islands)"; "en-US" = "English (United States)"; 
+        "en-VC" = "English (Saint Vincent and the Grenadines)"; "en-VG" = "English (British Virgin Islands)"; "en-VI" = "English (US Virgin Islands)"; 
+        "en-VU" = "English (Vanuatu)"; "en-WS" = "English (Samoa)"; "en-ZA" = "English (South Africa)"; 
+        "en-ZM" = "English (Zambia)"; "en-ZW" = "English (Zimbabwe)"; "eo" = "Esperanto"; 
+        "eo-001" = "Esperanto (World)"; "es" = "Spanish"; "es-419" = "Spanish (Latin America)"; 
+        "es-AR" = "Spanish (Argentina)"; "es-BO" = "Spanish (Bolivia)"; "es-BR" = "Spanish (Brazil)"; 
+        "es-BZ" = "Spanish (Belize)"; "es-CL" = "Spanish (Chile)"; "es-CO" = "Spanish (Colombia)"; 
+        "es-CR" = "Spanish (Costa Rica)"; "es-CU" = "Spanish (Cuba)"; "es-DO" = "Spanish (Dominican Republic)"; 
+        "es-EC" = "Spanish (Ecuador)"; "es-ES" = "Spanish (Spain)"; "es-GQ" = "Spanish (Equatorial Guinea)"; 
+        "es-GT" = "Spanish (Guatemala)"; "es-HN" = "Spanish (Honduras)"; "es-MX" = "Spanish (Mexico)"; 
+        "es-NI" = "Spanish (Nicaragua)"; "es-PA" = "Spanish (Panama)"; "es-PE" = "Spanish (Peru)"; 
+        "es-PH" = "Spanish (Philippines)"; "es-PR" = "Spanish (Puerto Rico)"; "es-PY" = "Spanish (Paraguay)"; 
+        "es-SV" = "Spanish (El Salvador)"; "es-US" = "Spanish (United States)"; "es-UY" = "Spanish (Uruguay)"; 
+        "es-VE" = "Spanish (Venezuela)"; "et" = "Estonian"; "et-EE" = "Estonian (Estonia)"; 
+        "eu" = "Basque"; "eu-ES" = "Basque (Basque)"; "ewo" = "Ewondo"; 
+        "ewo-CM" = "Ewondo (Cameroon)"; "fa" = "Persian"; "fa-IR" = "Persian (Iran)"; 
+        "ff" = "Fulah"; "ff-CM" = "Fulah (Cameroon)"; "ff-GN" = "Fulah (Guinea)"; 
+        "ff-Latn" = "Fulah (Latin)"; "ff-Latn-SN" = "Fulah (Latin, Senegal)"; "ff-MR" = "Fulah (Mauritania)"; 
+        "ff-NG" = "Fulah (Nigeria)"; "fi" = "Finnish"; "fi-FI" = "Finnish (Finland)"; 
+        "fil" = "Filipino"; "fil-PH" = "Filipino (Philippines)"; "fo" = "Faroese"; 
+        "fo-DK" = "Faroese (Denmark)"; "fo-FO" = "Faroese (Faroe Islands)"; "fr" = "French"; 
+        "fr-029" = "French (Caribbean)"; "fr-BE" = "French (Belgium)"; "fr-BF" = "French (Burkina Faso)"; 
+        "fr-BI" = "French (Burundi)"; "fr-BJ" = "French (Benin)"; "fr-BL" = "French (Saint Barthélemy)"; 
+        "fr-CA" = "French (Canada)"; "fr-CD" = "French (Congo DRC)"; "fr-CF" = "French (Central African Republic)"; 
+        "fr-CG" = "French (Congo)"; "fr-CH" = "French (Switzerland)"; "fr-CI" = "French (Côte d’Ivoire)"; 
+        "fr-CM" = "French (Cameroon)"; "fr-DJ" = "French (Djibouti)"; "fr-DZ" = "French (Algeria)"; 
+        "fr-FR" = "French (France)"; "fr-GA" = "French (Gabon)"; "fr-GF" = "French (French Guiana)"; 
+        "fr-GN" = "French (Guinea)"; "fr-GP" = "French (Guadeloupe)"; "fr-GQ" = "French (Equatorial Guinea)"; 
+        "fr-HT" = "French (Haiti)"; "fr-KM" = "French (Comoros)"; "fr-LU" = "French (Luxembourg)"; 
+        "fr-MA" = "French (Morocco)"; "fr-MC" = "French (Monaco)"; "fr-MF" = "French (Saint Martin)"; 
+        "fr-MG" = "French (Madagascar)"; "fr-ML" = "French (Mali)"; "fr-MQ" = "French (Martinique)"; 
+        "fr-MR" = "French (Mauritania)"; "fr-MU" = "French (Mauritius)"; "fr-NC" = "French (New Caledonia)"; 
+        "fr-NE" = "French (Niger)"; "fr-PF" = "French (French Polynesia)"; "fr-PM" = "French (Saint Pierre and Miquelon)"; 
+        "fr-RE" = "French (Reunion)"; "fr-RW" = "French (Rwanda)"; "fr-SC" = "French (Seychelles)"; 
+        "fr-SN" = "French (Senegal)"; "fr-SY" = "French (Syria)"; "fr-TD" = "French (Chad)"; 
+        "fr-TG" = "French (Togo)"; "fr-TN" = "French (Tunisia)"; "fr-VU" = "French (Vanuatu)"; 
+        "fr-WF" = "French (Wallis and Futuna)"; "fr-YT" = "French (Mayotte)"; "fur" = "Friulian"; 
+        "fur-IT" = "Friulian (Italy)"; "fy" = "Frisian"; "fy-NL" = "Frisian (Netherlands)"; 
+        "ga" = "Irish"; "ga-IE" = "Irish (Ireland)"; "gd" = "Scottish Gaelic"; 
+        "gd-GB" = "Scottish Gaelic (United Kingdom)"; "gl" = "Galician"; "gl-ES" = "Galician (Galician)"; 
+        "gn" = "Guarani"; "gn-PY" = "Guarani (Paraguay)"; "gsw" = "Alsatian"; 
+        "gsw-CH" = "Alsatian (Switzerland)"; "gsw-FR" = "Alsatian (France)"; "gsw-LI" = "Alsatian (Liechtenstein)"; 
+        "gu" = "Gujarati"; "gu-IN" = "Gujarati (India)"; "guz" = "Gusii"; 
+        "guz-KE" = "Gusii (Kenya)"; "gv" = "Manx"; "gv-IM" = "Manx (Isle of Man)"; 
+        "ha" = "Hausa"; "ha-Latn" = "Hausa (Latin)"; "ha-Latn-GH" = "Hausa (Latin, Ghana)"; 
+        "ha-Latn-NE" = "Hausa (Latin, Niger)"; "ha-Latn-NG" = "Hausa (Latin, Nigeria)"; "haw" = "Hawaiian"; 
+        "haw-US" = "Hawaiian (United States)"; "he" = "Hebrew"; "he-IL" = "Hebrew (Israel)"; 
+        "hi" = "Hindi"; "hi-IN" = "Hindi (India)"; "hr" = "Croatian"; 
+        "hr-BA" = "Croatian (Latin, Bosnia and Herzegovina)"; "hr-HR" = "Croatian (Croatia)"; "hsb" = "Upper Sorbian"; 
+        "hsb-DE" = "Upper Sorbian (Germany)"; "hu" = "Hungarian"; "hu-HU" = "Hungarian (Hungary)"; 
+        "hy" = "Armenian"; "hy-AM" = "Armenian (Armenia)"; "ia" = "Interlingua"; 
+        "ia-001" = "Interlingua (World)"; "ia-FR" = "Interlingua (France)"; "ibb" = "Ibibio"; 
+        "ibb-NG" = "Ibibio (Nigeria)"; "id" = "Indonesian"; "id-ID" = "Indonesian (Indonesia)"; 
+        "ig" = "Igbo"; "ig-NG" = "Igbo (Nigeria)"; "ii" = "Yi"; 
+        "ii-CN" = "Yi (PRC)"; "is" = "Icelandic"; "is-IS" = "Icelandic (Iceland)"; 
+        "it" = "Italian"; "it-CH" = "Italian (Switzerland)"; "it-IT" = "Italian (Italy)"; 
+        "it-SM" = "Italian (San Marino)"; "it-VA" = "Italian (Vatican City)"; "iu" = "Inuktitut"; 
+        "iu-Cans" = "Inuktitut (Syllabics)"; "iu-Cans-CA" = "Inuktitut (Syllabics, Canada)"; "iu-Latn" = "Inuktitut (Latin)"; 
+        "iu-Latn-CA" = "Inuktitut (Latin, Canada)"; "ja" = "Japanese"; "ja-JP" = "Japanese (Japan)"; 
+        "jgo" = "Ngomba"; "jgo-CM" = "Ngomba (Cameroon)"; "jmc" = "Machame"; 
+        "jmc-TZ" = "Machame (Tanzania)"; "jv" = "Javanese"; "jv-Java" = "Javanese (Javanese)"; 
+        "jv-Java-ID" = "Javanese (Javanese, Indonesia)"; "jv-Latn" = "Javanese"; "jv-Latn-ID" = "Javanese (Indonesia)"; 
+        "ka" = "Georgian"; "ka-GE" = "Georgian (Georgia)"; "kab" = "Kabyle"; 
+        "kab-DZ" = "Kabyle (Algeria)"; "kam" = "Kamba"; "kam-KE" = "Kamba (Kenya)"; 
+        "kde" = "Makonde"; "kde-TZ" = "Makonde (Tanzania)"; "kea" = "Kabuverdianu"; 
+        "kea-CV" = "Kabuverdianu (Cabo Verde)"; "khq" = "Koyra Chiini"; "khq-ML" = "Koyra Chiini (Mali)"; 
+        "ki" = "Kikuyu"; "ki-KE" = "Kikuyu (Kenya)"; "kk" = "Kazakh"; 
+        "kk-KZ" = "Kazakh (Kazakhstan)"; "kkj" = "Kako"; "kkj-CM" = "Kako (Cameroon)"; 
+        "kl" = "Greenlandic"; "kl-GL" = "Greenlandic (Greenland)"; "kln" = "Kalenjin"; 
+        "kln-KE" = "Kalenjin (Kenya)"; "km" = "Khmer"; "km-KH" = "Khmer (Cambodia)"; 
+        "kn" = "Kannada"; "kn-IN" = "Kannada (India)"; "ko" = "Korean"; 
+        "ko-KP" = "Korean (North Korea)"; "ko-KR" = "Korean (Korea)"; "kok" = "Konkani"; 
+        "kok-IN" = "Konkani (India)"; "kr" = "Kanuri"; "kr-NG" = "Kanuri (Nigeria)"; 
+        "ks" = "Kashmiri"; "ks-Arab" = "Kashmiri (Perso-Arabic)"; "ks-Arab-IN" = "Kashmiri (Perso-Arabic)"; 
+        "ks-Deva" = "Kashmiri (Devanagari)"; "ks-Deva-IN" = "Kashmiri (Devanagari, India)"; "ksb" = "Shambala"; 
+        "ksb-TZ" = "Shambala (Tanzania)"; "ksf" = "Bafia"; "ksf-CM" = "Bafia (Cameroon)"; 
+        "ksh" = "Colognian"; "ksh-DE" = "Ripuarian (Germany)"; "ku" = "Central Kurdish"; 
+        "ku-Arab" = "Central Kurdish (Arabic)"; "ku-Arab-IQ" = "Central Kurdish (Iraq)"; "ku-Arab-IR" = "Kurdish (Perso-Arabic, Iran)"; 
+        "kw" = "Cornish"; "kw-GB" = "Cornish (United Kingdom)"; "ky" = "Kyrgyz"; 
+        "ky-KG" = "Kyrgyz (Kyrgyzstan)"; "la" = "Latin"; "la-001" = "Latin (World)"; 
+        "lag" = "Langi"; "lag-TZ" = "Langi (Tanzania)"; "lb" = "Luxembourgish"; 
+        "lb-LU" = "Luxembourgish (Luxembourg)"; "lg" = "Ganda"; "lg-UG" = "Ganda (Uganda)"; 
+        "lkt" = "Lakota"; "lkt-US" = "Lakota (United States)"; "ln" = "Lingala"; 
+        "ln-AO" = "Lingala (Angola)"; "ln-CD" = "Lingala (Congo DRC)"; "ln-CF" = "Lingala (Central African Republic)"; 
+        "ln-CG" = "Lingala (Congo)"; "lo" = "Lao"; "lo-LA" = "Lao (Lao P.D.R.)"; 
+        "lrc" = "Northern Luri"; "lrc-IQ" = "Northern Luri (Iraq)"; "lrc-IR" = "Northern Luri (Iran)"; 
+        "lt" = "Lithuanian"; "lt-LT" = "Lithuanian (Lithuania)"; "lu" = "Luba-Katanga"; 
+        "lu-CD" = "Luba-Katanga (Congo DRC)"; "luo" = "Luo"; "luo-KE" = "Luo (Kenya)"; 
+        "luy" = "Luyia"; "luy-KE" = "Luyia (Kenya)"; "lv" = "Latvian"; 
+        "lv-LV" = "Latvian (Latvia)"; "mas" = "Masai"; "mas-KE" = "Masai (Kenya)"; 
+        "mas-TZ" = "Masai (Tanzania)"; "mer" = "Meru"; "mer-KE" = "Meru (Kenya)"; 
+        "mfe" = "Morisyen"; "mfe-MU" = "Morisyen (Mauritius)"; "mg" = "Malagasy"; 
+        "mg-MG" = "Malagasy (Madagascar)"; "mgh" = "Makhuwa-Meetto"; "mgh-MZ" = "Makhuwa-Meetto (Mozambique)"; 
+        "mgo" = "Meta'"; "mgo-CM" = "Meta' (Cameroon)"; "mi" = "Maori"; 
+        "mi-NZ" = "Maori (New Zealand)"; "mk" = "Macedonian (FYROM)"; "mk-MK" = "Macedonian (Former Yugoslav Republic of Macedonia)"; 
+        "ml" = "Malayalam"; "ml-IN" = "Malayalam (India)"; "mn" = "Mongolian"; 
+        "mn-Cyrl" = "Mongolian (Cyrillic)"; "mn-MN" = "Mongolian (Cyrillic, Mongolia)"; "mn-Mong" = "Mongolian (Traditional Mongolian)"; 
+        "mn-Mong-CN" = "Mongolian (Traditional Mongolian, PRC)"; "mn-Mong-MN" = "Mongolian (Traditional Mongolian, Mongolia)"; "mni" = "Manipuri"; 
+        "mni-IN" = "Manipuri (India)"; "moh" = "Mohawk"; "moh-CA" = "Mohawk (Mohawk)"; 
+        "mr" = "Marathi"; "mr-IN" = "Marathi (India)"; "ms" = "Malay"; 
+        "ms-BN" = "Malay (Brunei Darussalam)"; "ms-MY" = "Malay (Malaysia)"; "ms-SG" = "Malay (Latin, Singapore)"; 
+        "mt" = "Maltese"; "mt-MT" = "Maltese (Malta)"; "mua" = "Mundang"; 
+        "mua-CM" = "Mundang (Cameroon)"; "my" = "Burmese"; "my-MM" = "Burmese (Myanmar)"; 
+        "mzn" = "Mazanderani"; "mzn-IR" = "Mazanderani (Iran)"; "naq" = "Nama"; 
+        "naq-NA" = "Nama (Namibia)"; "nb" = "Norwegian (Bokmål)"; "nb-NO" = "Norwegian, Bokmål (Norway)"; 
+        "nb-SJ" = "Norwegian, Bokmål (Svalbard and Jan Mayen)"; "nd" = "North Ndebele"; "nd-ZW" = "North Ndebele (Zimbabwe)"; 
+        "nds" = "Low German"; "nds-DE" = "Low German (Germany)"; "nds-NL" = "Low German (Netherlands)"; 
+        "ne" = "Nepali"; "ne-IN" = "Nepali (India)"; "ne-NP" = "Nepali (Nepal)"; 
+        "nl" = "Dutch"; "nl-AW" = "Dutch (Aruba)"; "nl-BE" = "Dutch (Belgium)"; 
+        "nl-BQ" = "Dutch (Bonaire, Sint Eustatius and Saba)"; "nl-CW" = "Dutch (Curaçao)"; "nl-NL" = "Dutch (Netherlands)"; 
+        "nl-SR" = "Dutch (Suriname)"; "nl-SX" = "Dutch (Sint Maarten)"; "nmg" = "Kwasio"; 
+        "nmg-CM" = "Kwasio (Cameroon)"; "nn" = "Norwegian (Nynorsk)"; "nn-NO" = "Norwegian, Nynorsk (Norway)"; 
+        "nnh" = "Ngiemboon"; "nnh-CM" = "Ngiemboon (Cameroon)"; "no" = "Norwegian"; 
+        "nqo" = "N'ko"; "nqo-GN" = "N'ko (Guinea)"; "nr" = "South Ndebele"; 
+        "nr-ZA" = "South Ndebele (South Africa)"; "nso" = "Sesotho sa Leboa"; "nso-ZA" = "Sesotho sa Leboa (South Africa)"; 
+        "nus" = "Nuer"; "nus-SS" = "Nuer (South Sudan)"; "nyn" = "Nyankole"; 
+        "nyn-UG" = "Nyankole (Uganda)"; "oc" = "Occitan"; "oc-FR" = "Occitan (France)"; 
+        "om" = "Oromo"; "om-ET" = "Oromo (Ethiopia)"; "om-KE" = "Oromo (Kenya)"; 
+        "or" = "Odia"; "or-IN" = "Odia (India)"; "os" = "Ossetic"; 
+        "os-GE" = "Ossetian (Cyrillic, Georgia)"; "os-RU" = "Ossetian (Cyrillic, Russia)"; "pa" = "Punjabi"; 
+        "pa-Arab" = "Punjabi (Arabic)"; "pa-Arab-PK" = "Punjabi (Islamic Republic of Pakistan)"; "pa-IN" = "Punjabi (India)"; 
+        "pap" = "Papiamento"; "pap-029" = "Papiamento (Caribbean)"; "pl" = "Polish"; 
+        "pl-PL" = "Polish (Poland)"; "prg" = "Prussian"; "prg-001" = "Prussian (World)"; 
+        "prs" = "Dari"; "prs-AF" = "Dari (Afghanistan)"; "ps" = "Pashto"; 
+        "ps-AF" = "Pashto (Afghanistan)"; "pt" = "Portuguese"; "pt-AO" = "Portuguese (Angola)"; 
+        "pt-BR" = "Portuguese (Brazil)"; "pt-CH" = "Portuguese (Switzerland)"; "pt-CV" = "Portuguese (Cabo Verde)"; 
+        "pt-GQ" = "Portuguese (Equatorial Guinea)"; "pt-GW" = "Portuguese (Guinea-Bissau)"; "pt-LU" = "Portuguese (Luxembourg)"; 
+        "pt-MO" = "Portuguese (Macao SAR)"; "pt-MZ" = "Portuguese (Mozambique)"; "pt-PT" = "Portuguese (Portugal)"; 
+        "pt-ST" = "Portuguese (São Tomé and Príncipe)"; "pt-TL" = "Portuguese (Timor-Leste)"; "quc" = "K'iche'"; 
+        "quc-Latn" = "K'iche'"; "quc-Latn-GT" = "K'iche' (Guatemala)"; "quz" = "Quechua"; 
+        "quz-BO" = "Quechua (Bolivia)"; "quz-EC" = "Quechua (Ecuador)"; "quz-PE" = "Quechua (Peru)"; 
+        "rm" = "Romansh"; "rm-CH" = "Romansh (Switzerland)"; "rn" = "Rundi"; 
+        "rn-BI" = "Rundi (Burundi)"; "ro" = "Romanian"; "ro-MD" = "Romanian (Moldova)"; 
+        "ro-RO" = "Romanian (Romania)"; "rof" = "Rombo"; "rof-TZ" = "Rombo (Tanzania)"; 
+        "ru" = "Russian"; "ru-BY" = "Russian (Belarus)"; "ru-KG" = "Russian (Kyrgyzstan)"; 
+        "ru-KZ" = "Russian (Kazakhstan)"; "ru-MD" = "Russian (Moldova)"; "ru-RU" = "Russian (Russia)"; 
+        "ru-UA" = "Russian (Ukraine)"; "rw" = "Kinyarwanda"; "rw-RW" = "Kinyarwanda (Rwanda)"; 
+        "rwk" = "Rwa"; "rwk-TZ" = "Rwa (Tanzania)"; "sa" = "Sanskrit"; 
+        "sa-IN" = "Sanskrit (India)"; "sah" = "Sakha"; "sah-RU" = "Sakha (Russia)"; 
+        "saq" = "Samburu"; "saq-KE" = "Samburu (Kenya)"; "sbp" = "Sangu"; 
+        "sbp-TZ" = "Sangu (Tanzania)"; "sd" = "Sindhi"; "sd-Arab" = "Sindhi (Arabic)"; 
+        "sd-Arab-PK" = "Sindhi (Islamic Republic of Pakistan)"; "sd-Deva" = "Sindhi (Devanagari)"; "sd-Deva-IN" = "Sindhi (Devanagari, India)"; 
+        "se" = "Sami (Northern)"; "se-FI" = "Sami, Northern (Finland)"; "se-NO" = "Sami, Northern (Norway)"; 
+        "se-SE" = "Sami, Northern (Sweden)"; "seh" = "Sena"; "seh-MZ" = "Sena (Mozambique)"; 
+        "ses" = "Koyraboro Senni"; "ses-ML" = "Koyraboro Senni (Mali)"; "sg" = "Sango"; 
+        "sg-CF" = "Sango (Central African Republic)"; "shi" = "Tachelhit"; "shi-Latn" = "Tachelhit (Latin)"; 
+        "shi-Latn-MA" = "Tachelhit (Latin, Morocco)"; "shi-Tfng" = "Tachelhit (Tifinagh)"; "shi-Tfng-MA" = "Tachelhit (Tifinagh, Morocco)"; 
+        "si" = "Sinhala"; "si-LK" = "Sinhala (Sri Lanka)"; "sk" = "Slovak"; 
+        "sk-SK" = "Slovak (Slovakia)"; "sl" = "Slovenian"; "sl-SI" = "Slovenian (Slovenia)"; 
+        "sma" = "Sami (Southern)"; "sma-NO" = "Sami, Southern (Norway)"; "sma-SE" = "Sami, Southern (Sweden)"; 
+        "smj" = "Sami (Lule)"; "smj-NO" = "Sami, Lule (Norway)"; "smj-SE" = "Sami, Lule (Sweden)"; 
+        "smn" = "Sami (Inari)"; "smn-FI" = "Sami, Inari (Finland)"; "sms" = "Sami (Skolt)"; 
+        "sms-FI" = "Sami, Skolt (Finland)"; "sn" = "Shona"; "sn-Latn" = "Shona (Latin)"; 
+        "sn-Latn-ZW" = "Shona (Latin, Zimbabwe)"; "so" = "Somali"; "so-DJ" = "Somali (Djibouti)"; 
+        "so-ET" = "Somali (Ethiopia)"; "so-KE" = "Somali (Kenya)"; "so-SO" = "Somali (Somalia)"; 
+        "sq" = "Albanian"; "sq-AL" = "Albanian (Albania)"; "sq-MK" = "Albanian (Macedonia, FYRO)"; 
+        "sq-XK" = "Albanian (Kosovo)"; "sr" = "Serbian"; "sr-Cyrl" = "Serbian (Cyrillic)"; 
+        "sr-Cyrl-BA" = "Serbian (Cyrillic, Bosnia and Herzegovina)"; "sr-Cyrl-ME" = "Serbian (Cyrillic, Montenegro)"; "sr-Cyrl-RS" = "Serbian (Cyrillic, Serbia)"; 
+        "sr-Cyrl-XK" = "Serbian (Cyrillic, Kosovo)"; "sr-Latn" = "Serbian (Latin)"; "sr-Latn-BA" = "Serbian (Latin, Bosnia and Herzegovina)"; 
+        "sr-Latn-ME" = "Serbian (Latin, Montenegro)"; "sr-Latn-RS" = "Serbian (Latin, Serbia)"; "sr-Latn-XK" = "Serbian (Latin, Kosovo)"; 
+        "ss" = "Swati"; "ss-SZ" = "Swati (Eswatini former Swaziland)"; "ss-ZA" = "Swati (South Africa)"; 
+        "ssy" = "Saho"; "ssy-ER" = "Saho (Eritrea)"; "st" = "Southern Sotho"; 
+        "st-LS" = "Sesotho (Lesotho)"; "st-ZA" = "Southern Sotho (South Africa)"; "sv" = "Swedish"; 
+        "sv-AX" = "Swedish (Åland Islands)"; "sv-FI" = "Swedish (Finland)"; "sv-SE" = "Swedish (Sweden)"; 
+        "sw" = "Kiswahili"; "sw-CD" = "Kiswahili (Congo DRC)"; "sw-KE" = "Kiswahili (Kenya)"; 
+        "sw-TZ" = "Kiswahili (Tanzania)"; "sw-UG" = "Kiswahili (Uganda)"; "syr" = "Syriac"; 
+        "syr-SY" = "Syriac (Syria)"; "ta" = "Tamil"; "ta-IN" = "Tamil (India)"; 
+        "ta-LK" = "Tamil (Sri Lanka)"; "ta-MY" = "Tamil (Malaysia)"; "ta-SG" = "Tamil (Singapore)"; 
+        "te" = "Telugu"; "te-IN" = "Telugu (India)"; "teo" = "Teso"; 
+        "teo-KE" = "Teso (Kenya)"; "teo-UG" = "Teso (Uganda)"; "tg" = "Tajik"; 
+        "tg-Cyrl" = "Tajik (Cyrillic)"; "tg-Cyrl-TJ" = "Tajik (Cyrillic, Tajikistan)"; "th" = "Thai"; 
+        "th-TH" = "Thai (Thailand)"; "ti" = "Tigrinya"; "ti-ER" = "Tigrinya (Eritrea)"; 
+        "ti-ET" = "Tigrinya (Ethiopia)"; "tig" = "Tigre"; "tig-ER" = "Tigre (Eritrea)"; 
+        "tk" = "Turkmen"; "tk-TM" = "Turkmen (Turkmenistan)"; "tn" = "Setswana"; 
+        "tn-BW" = "Setswana (Botswana)"; "tn-ZA" = "Setswana (South Africa)"; "to" = "Tongan"; 
+        "to-TO" = "Tongan (Tonga)"; "tr" = "Turkish"; "tr-CY" = "Turkish (Cyprus)"; 
+        "tr-TR" = "Turkish (Turkey)"; "ts" = "Tsonga"; "ts-ZA" = "Tsonga (South Africa)"; 
+        "tt" = "Tatar"; "tt-RU" = "Tatar (Russia)"; "twq" = "Tasawaq"; 
+        "twq-NE" = "Tasawaq (Niger)"; "tzm" = "Tamazight"; "tzm-Arab" = "Central Atlas Tamazight (Arabic)"; 
+        "tzm-Arab-MA" = "Central Atlas Tamazight (Arabic, Morocco)"; "tzm-Latn" = "Tamazight (Latin)"; "tzm-Latn-DZ" = "Tamazight (Latin, Algeria)"; 
+        "tzm-Latn-MA" = "Central Atlas Tamazight (Latin, Morocco)"; "tzm-Tfng" = "Tamazight (Tifinagh)"; "tzm-Tfng-MA" = "Central Atlas Tamazight (Tifinagh, Morocco)"; 
+        "ug" = "Uyghur"; "ug-CN" = "Uyghur (PRC)"; "uk" = "Ukrainian"; 
+        "uk-UA" = "Ukrainian (Ukraine)"; "ur" = "Urdu"; "ur-IN" = "Urdu (India)"; 
+        "ur-PK" = "Urdu (Islamic Republic of Pakistan)"; "uz" = "Uzbek"; "uz-Arab" = "Uzbek (Perso-Arabic)"; 
+        "uz-Arab-AF" = "Uzbek (Perso-Arabic, Afghanistan)"; "uz-Cyrl" = "Uzbek (Cyrillic)"; "uz-Cyrl-UZ" = "Uzbek (Cyrillic, Uzbekistan)"; 
+        "uz-Latn" = "Uzbek (Latin)"; "uz-Latn-UZ" = "Uzbek (Latin, Uzbekistan)"; "vai" = "Vai"; 
+        "vai-Latn" = "Vai (Latin)"; "vai-Latn-LR" = "Vai (Latin, Liberia)"; "vai-Vaii" = "Vai (Vai)"; 
+        "vai-Vaii-LR" = "Vai (Vai, Liberia)"; "ve" = "Venda"; "ve-ZA" = "Venda (South Africa)"; 
+        "vi" = "Vietnamese"; "vi-VN" = "Vietnamese (Vietnam)"; "vo" = "Volapük"; 
+        "vo-001" = "Volapük (World)"; "vun" = "Vunjo"; "vun-TZ" = "Vunjo (Tanzania)"; 
+        "wae" = "Walser"; "wae-CH" = "Walser (Switzerland)"; "wal" = "Wolaytta"; 
+        "wal-ET" = "Wolaytta (Ethiopia)"; "wo" = "Wolof"; "wo-SN" = "Wolof (Senegal)"; 
+        "xh" = "isiXhosa"; "xh-ZA" = "isiXhosa (South Africa)"; "xog" = "Soga"; 
+        "xog-UG" = "Soga (Uganda)"; "yav" = "Yangben"; "yav-CM" = "Yangben (Cameroon)"; 
+        "yi" = "Yiddish"; "yi-001" = "Yiddish (World)"; "yo" = "Yoruba"; 
+        "yo-BJ" = "Yoruba (Benin)"; "yo-NG" = "Yoruba (Nigeria)"; "zgh" = "Standard Moroccan Tamazight"; 
+        "zgh-Tfng" = "Standard Moroccan Tamazight (Tifinagh)"; "zgh-Tfng-MA" = "Standard Moroccan Tamazight (Tifinagh, Morocco)"; "zh" = "Chinese"; 
+        "zh-CN" = "Chinese (Simplified, PRC)"; "zh-Hans" = "Chinese (Simplified)"; "zh-Hans-HK" = "Chinese (Simplified Han, Hong Kong SAR)"; 
+        "zh-Hans-MO" = "Chinese (Simplified Han, Macao SAR)"; "zh-Hant" = "Chinese (Traditional)"; "zh-HK" = "Chinese (Traditional, Hong Kong S.A.R.)"; 
+        "zh-MO" = "Chinese (Traditional, Macao S.A.R.)"; "zh-SG" = "Chinese (Simplified, Singapore)"; "zh-TW" = "Chinese (Traditional, Taiwan)"; 
+        "zu" = "isiZulu"; "zu-ZA" = "isiZulu (South Africa)"
     }
 
     # Get the current user's language and region using the registry
