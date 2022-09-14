@@ -703,12 +703,32 @@ function info_cpu {
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
     # Get list of GPUs from the Registry
-    $LastSeen = (Get-ItemProperty -path HKLM:\SOFTWARE\Microsoft\DirectX\).LastSeen
-    Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
-        if(($_.Description -ne "Microsoft Basic Render Driver") -and ($_.LastSeen -eq $LastSeen) -and ($lines.content -notcontains $_.Description)){
+    $RegDir = Get-ItemProperty -path HKLM:\SOFTWARE\Microsoft\DirectX\
+    $LastSeen = $RegDir.LastSeen
+    if($LastSeen){
+        Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
+            if(($_.Description -ne "Microsoft Basic Render Driver") -and ($_.LastSeen -eq $LastSeen)){
+                [void]$lines.Add(@{
+                    title   = "GPU"
+                    content = $_.Description
+                })
+            }
+        }
+    }elseif($RegDir){ # Alternative Method 1: Won't work properly if user has multiple of the same GPU
+        Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
+            if(($_.Description -ne "Microsoft Basic Render Driver") -and ($lines.content -notcontains $_.Description)){
+                [void]$lines.Add(@{
+                    title   = "GPU"
+                    content = $_.Description
+                })
+            }
+        }
+    }else{ # Alternative Method 2: Fallback onto previous implementation
+        # Loop through Win32_VideoController
+        foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
             [void]$lines.Add(@{
                 title   = "GPU"
-                content = $_.Description
+                content = $gpu.Name
             })
         }
     }
