@@ -1352,7 +1352,7 @@ function info_locale {
     # Get the current user's language and region using the registry
     $Region = $localeLookup[(Get-ItemProperty -Path "HKCU:Control Panel\International\Geo").Nation]
     # Iterate through registry key in case multiple languages are configured
-    (Get-ItemProperty -Path "HKCU:Control Panel\International\User Profile").Languages | ForEach-Object{
+    (Get-ItemProperty -Path "HKCU:Control Panel\International\User Profile").Languages | ForEach-Object {
         $Languages += " - $($languageLookup[$_])"
     }
 
