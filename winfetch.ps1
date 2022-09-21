@@ -618,10 +618,10 @@ function info_uptime {
 function info_resolution {
     Add-Type -AssemblyName System.Windows.Forms
     $monitors = [System.Windows.Forms.Screen]::AllScreens
-    $scale = (Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorBasicDisplayParams -CimSession $cimSession).DisplayTransferCharacteristic / 96
+    $scale = (Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorBasicDisplayParams -CimSession $cimSession).DisplayTransferCharacteristic
 
     $displays = for($i = 0;$i -lt $monitors.Length;$i++){
-        "$($monitors[$i].Bounds.Size.Width * $scale[$i])x$($monitors[$i].Bounds.Size.Height * $scale[$i])"
+        "$($monitors[$i].Bounds.Size.Width * ($scale[$i] / 96))x$($monitors[$i].Bounds.Size.Height * ($scale[$i] / 96))"
     }
 
     return @{
