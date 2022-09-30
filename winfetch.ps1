@@ -1365,13 +1365,52 @@ function info_locale {
 
 # ===== WEATHER =====
 function info_weather {
+    $conditionLookup = @{
+        # Group 2xx: Thunderstorm
+        200 = "Thunderstorms with Light Rain"; 201 = "Thunderstorms with Rain";          202 = "Thunderstorms with Heavy Rain";
+        210 = "Light Thunderstorms";           211 = "Thunderstorms";                    212 = "Heavy Thunderstorms";
+        221 = "Ragged Thunderstorms";          230 = "Thunderstorms with Light Drizzle"; 231 = "Thunderstorms with Drizzle";
+        232 = "Thunderstorm with Heavy Drizzle";
+        # Group 3xx: Drizzle
+        300 = "Light Drizzle";                 301 = "Drizzle";                         302 = "Heavy Drizzle";
+        310 = "Light Drizzle Rain";            311 = "Drizzle Rain";                    312 = "Heavy Drizzle Rain";
+        313 = "Shower Rain and Drizzle";       314 = "Heavy Shower Rain and Drizzle";   321 = "Shower Drizzle";
+        # Group 5xx: Rain
+        500 = "Light Rain";                    501 = "Moderate Rain";                   502 = "Heavy Rain";
+        503 = "Very Heavy Rain";               504 = "Extreme Rain";                    511 = "Freezing Rain";
+        520 = "Light Showers";                 521 = "Showers";                         522 = "Heavy Showers";
+        531 = "Ragged Showers";
+        # Group 6xx: Snow
+        600 = "Light Snow";                    601 = "Snow";                            602 = "Heavy Snow";
+        611 = "Sleet";                         612 = "Light Shower Sleet";              613 = "Shower Sleet";
+        615 = "Light Rain and Snow";           616 = "Rain and Snow";                   620 = "Light Shower Snow";
+        621 = "Shower Snow";                   622 = "Heavy Shower Snow";
+        # Group 7xx: Atmosphere
+        701 = "Mist";                          711 = "Smoke";                           721 = "Haze";
+        731 = "Sand/Dust Whirls";              741 = "Fog";                             751 = "Sand";
+        761 = "Dust";                          762 = "Volcanic Ash";                    771 = "Squalls";
+        781 = "Tornados";
+        # Group 800: Clear
+        800 = "Clear Skies";
+        # Group 80x: Clouds
+        801 = "Few Clouds"; <#11-25%#>         802 = "Scattered Clouds"; <#25-50%#>     803 = "Broken Clouds"; #51-84%
+        804 = "Overcast"; #85-100%
+    }
+    $authKey = 7783b2da70874d3e84836faf299dbffc # Auth Key for OpenWeatherMap API
+
     return @{
         title = "Weather"
         content = try {
-            (Invoke-RestMethod wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
-        } catch {
-            "$e[91m(Network Error)"
-        }
+                # Gets Location from IP using ip-api.com
+                $location = Invoke-RestMethod -Uri "http://ip-api.com/json/"
+                # Changes units used based on location
+                $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
+                # Get current weather from OpenWeatherMap API
+                $currentWeather = (Invoke-RestMethod "https://api.openweathermap.org/data/2.5/weather?lat=$($location.lat)&lon=$($location.lon)&appid=$authKey&units=$units")
+                "$($currentWeather.main.temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
+            } catch {
+                "$e[91m(Network Error)"
+            }
     }
 }
 
