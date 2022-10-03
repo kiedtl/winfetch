@@ -1365,6 +1365,7 @@ function info_locale {
 
 # ===== WEATHER =====
 function info_weather {
+    # Weather Conditions Lookup Hashtable
     $conditionLookup = @{
         # Group 2xx: Thunderstorm
         200 = "Thunderstorms with Light Rain"; 201 = "Thunderstorms with Rain";          202 = "Thunderstorms with Heavy Rain";
@@ -1396,7 +1397,7 @@ function info_weather {
         801 = "Few Clouds"; <#11-25%#>         802 = "Scattered Clouds"; <#25-50%#>     803 = "Broken Clouds"; #51-84%
         804 = "Overcast"; #85-100%
     }
-    $authKey = 7783b2da70874d3e84836faf299dbffc # Auth Key for OpenWeatherMap API
+    $authKey = "7783b2da70874d3e84836faf299dbffc" # Auth Key for OpenWeatherMap API
 
     return @{
         title = "Weather"
