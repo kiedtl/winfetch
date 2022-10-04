@@ -1404,9 +1404,9 @@ function info_weather {
         content = try {
                 # Gets Location from IP using ip-api.com
                 $location = Invoke-RestMethod -Uri "http://ip-api.com/json/"
-                # Changes units used based on location
+                # Change units used based on location
                 $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
-                # Get current weather from OpenWeatherMap API
+                # Get Current Weather from OpenWeatherMap API
                 $currentWeather = (Invoke-RestMethod "https://api.openweathermap.org/data/2.5/weather?lat=$($location.lat)&lon=$($location.lon)&appid=$authKey&units=$units")
                 "$($currentWeather.main.temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
             } catch {
