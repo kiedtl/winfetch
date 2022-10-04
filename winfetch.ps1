@@ -1379,8 +1379,22 @@ function info_weather {
 # ===== IP =====
 function info_local_ip {
     try {
-        $indexDefault = Get-NetRoute -DestinationPrefix 0.0.0.0/0 | Sort-Object -Property RouteMetric | Select-Object -First 1 | Select-Object -ExpandProperty ifIndex
-        $local_ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $indexDefault | Select-Object -ExpandProperty IPAddress
+        # Get all network adapters
+        foreach ($ni in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()){
+            # Get the IP information of each adapter
+            $properties = $ni.GetIPProperties()
+            # Check if the adapter is online, has a gateway address, and the adapter does not have a loopback address
+            if($ni.OperationalStatus -eq 'Up' -and !($null -eq $properties.GatewayAddresses[0]) -and !$properties.GatewayAddresses[0].Address.ToString().Equals("0.0.0.0")){
+                # Check if adapter is a WiFi or Ethernet adapter
+                if ($ni.NetworkInterfaceType -eq "Wireless80211" -or $ni.NetworkInterfaceType -eq "Ethernet"){
+                    foreach ($ip in $properties.UnicastAddresses){
+                        if ($ip.Address.AddressFamily -eq "InterNetwork"){
+                            if(!$local_ip){$local_ip = $ip.Address.ToString()}
+                        }
+                    }
+                }
+            }
+        }
     } catch {
     }
     return @{
