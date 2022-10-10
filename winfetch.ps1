@@ -715,11 +715,29 @@ function info_gpu {
 
 # ===== CPU USAGE =====
 function info_cpu_usage {
-    $loadpercent = (Get-CimInstance -ClassName Win32_Processor -Property LoadPercentage -CimSession $cimSession).LoadPercentage
-    $proccount = (Get-Process).Count
+    # Initialize the CPU counter
+    $cpuCounter = [System.Diagnostics.PerformanceCounter]::new("Processor", "% Processor Time", "_Total")
+    
+    # Getting the CPU usage requires multiple values to compare, so the first value is discarded
+    $null = $cpuCounter.NextValue()
+
+    # Wait 150ms so a more accurate value is retrieved
+    Start-Sleep -Milliseconds 150
+
+    # Check CPU usage value until proper value is obtained
+    Do {
+        $loadPercent = $cpuCounter.NextValue()
+    } Until(($loadPercent -lt 100) -and ($loadPercent -ne 0))
+    
+    # Round the CPU usage value to 1 decimal place
+    $loadPercent = ([int]($loadPercent * 10))/10
+
+    # Get process count
+    $procCount = ([diagnostics.process]::GetProcesses()).Count
+    
     return @{
         title   = "CPU Usage"
-        content = get_level_info "" $cpustyle $loadpercent "$proccount processes" -altstyle
+        content = get_level_info "" $cpustyle $loadPercent "$procCount processes" -altstyles
     }
 }
 
