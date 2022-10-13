@@ -156,7 +156,7 @@ $defaultConfig = @'
 
 # Configure which package managers are shown
 # disabling unused ones will improve speed
-# $ShowPkgs = @("winget", "scoop", "choco")
+# $ShowPkgs = @("winget", "scoop", "choco","system")
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -884,7 +884,7 @@ function info_pkgs {
         $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
 
         if ($wingetpkg) {
-            $pkgs += "$wingetpkg (system)"
+            $pkgs += "$wingetpkg (winget)"
         }
     }
 
@@ -906,6 +906,48 @@ function info_pkgs {
         if ($scooppkg) {
             $pkgs += "$scooppkg (scoop)"
         }
+    }
+
+    if ("system" -in $ShowPkgs) {
+        # Get all installed programs from the registry
+        $userPrograms = (Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall") -replace "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
+        $machinePrograms = (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall") -replace "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
+
+        # Create Variables
+        [hashtable]$programsHash = $null
+        [System.Collections.ArrayList]$programs = @()
+
+        # If programs installed for entire machine is greater than programs installed for current user
+        if ($machinePrograms.Count -gt $userPrograms.Count){
+            # Loop through all programs installed for entire machine
+            foreach($program in $machinePrograms){
+                # Add each program to hash table and arraylist
+                [void]($programsHash += @{$program = $true})
+                [void]($programs.Add($program))
+            }
+            # Loop through all programs installed for current user
+            foreach($program in $userPrograms){
+                # Checks hash table to prevent duplicates
+                if(!$programsHash[$program]){
+                    [void]($programs.Add($program))
+                }
+            }
+        }else{
+            # Loop through all programs installed for current user
+            foreach($program in $userPrograms){
+                # Add each program to hash table and arraylist
+                [void]($programsHash += @{$program = $true})
+                [void]($programs.Add($program))
+            }
+            foreach($program in $machinePrograms){
+                # Checks hash table to prevent duplicates
+                if(!$programsHash[$program]){
+                    [void]($programs.Add($program))
+                }
+            }
+        }
+
+        $pkgs += "$($programs.count) (system)"
     }
 
     foreach ($pkgitem in $CustomPkgs) {
