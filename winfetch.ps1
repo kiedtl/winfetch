@@ -910,42 +910,46 @@ function info_pkgs {
 
     if ("system" -in $ShowPkgs) {
         # Get all installed programs from the registry
-        $userPrograms = (Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall") -replace "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
-        $machinePrograms = (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall") -replace "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
+        if (Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $userPrograms = ((Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $userX64Programs = ((Get-ChildItem "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $machinePrograms = ((Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $machineX64Programs = ((Get-ChildItem "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
 
-        # Create Variables
-        [hashtable]$programsHash = $null
         [System.Collections.ArrayList]$programs = @()
 
-        # If programs installed for entire machine is greater than programs installed for current user
-        if ($machinePrograms.Count -gt $userPrograms.Count){
-            # Loop through all programs installed for entire machine
-            foreach($program in $machinePrograms){
-                # Add each program to hash table and arraylist
-                [void]($programsHash += @{$program = $true})
-                [void]($programs.Add($program))
-            }
-            # Loop through all programs installed for current user
-            foreach($program in $userPrograms){
-                # Checks hash table to prevent duplicates
-                if(!$programsHash[$program]){
-                    [void]($programs.Add($program))
-                }
-            }
-        }else{
-            # Loop through all programs installed for current user
-            foreach($program in $userPrograms){
-                # Add each program to hash table and arraylist
-                [void]($programsHash += @{$program = $true})
-                [void]($programs.Add($program))
-            }
-            foreach($program in $machinePrograms){
-                # Checks hash table to prevent duplicates
-                if(!$programsHash[$program]){
-                    [void]($programs.Add($program))
-                }
-            }
+        # Save current state of ErrorActionPreference
+        $tempErrorActionPreference = $ErrorActionPreference
+        # Set ErrorActionPreference to not print errors as there are upcoming errors that are expected
+        $ErrorActionPreference = 'SilentlyContinue'
+        
+        # Interate through found programs and add them to the array
+        # Will error whenever it attempts to add a duplicate program which is leveraged to prevent duplicates
+        foreach($program in $machinePrograms) {
+            [void]($programs.Add($program.ToLower()))
         }
+
+        foreach($program in $userPrograms) {
+            [void]($programs.Add($program.ToLower()))
+        }
+
+        foreach($program in $userX64Programs) {
+            [void]($programs.Add($program.ToLower()))
+        }
+
+        foreach($program in $machineX64Programs) {
+            [void]($programs.Add($program.ToLower()))
+        }
+
+        # Restore ErrorActionPreference to its original state
+        $ErrorActionPreference = $tempErrorActionPreference
 
         $pkgs += "$($programs.count) (system)"
     }
