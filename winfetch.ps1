@@ -923,29 +923,30 @@ function info_pkgs {
             $machineX64Programs = ((Get-ChildItem "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
         }
 
-        [System.Collections.ArrayList]$programs = @()
+        # Program list
+        [hashtable]$programs = @{}
 
         # Save current state of ErrorActionPreference
         $tempErrorActionPreference = $ErrorActionPreference
         # Set ErrorActionPreference to not print errors as there are upcoming errors that are expected
         $ErrorActionPreference = 'SilentlyContinue'
         
-        # Interate through found programs and add them to the array
-        # Will error whenever it attempts to add a duplicate program which is leveraged to prevent duplicates
+        # Interate through found programs and add them to the hashtable
+        # Hashtable is used because it doesn't allow duplicate entries, filtering them out by erroring
         foreach($program in $machinePrograms) {
-            [void]($programs.Add($program.ToLower()))
+            if($program){[void]($programs += @{$program = $true})}
         }
 
         foreach($program in $userPrograms) {
-            [void]($programs.Add($program.ToLower()))
+            if($program){[void]($programs += @{$program = $true})}
         }
 
         foreach($program in $userX64Programs) {
-            [void]($programs.Add($program.ToLower()))
+            if($program){[void]($programs += @{$program = $true})}
         }
 
         foreach($program in $machineX64Programs) {
-            [void]($programs.Add($program.ToLower()))
+            if($program){[void]($programs += @{$program = $true})}
         }
 
         # Restore ErrorActionPreference to its original state
