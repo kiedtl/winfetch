@@ -848,8 +848,24 @@ function info_pwsh {
 function info_ps_pkgs {
     $ps_pkgs = @()
 
-    $modulecount = (Get-InstalledModule).Length
-    $scriptcount = (Get-InstalledScript).Length
+    # Get all installed Packages
+    $pkgs = Get-Package
+
+    # Replicate the behavior of the PowerShellGet module, revoving other information gathering we don't need
+    $modulecount = ($pkgs.foreach{
+        foreach($swid in $_){
+            ($swid.Metadata["tags"] -split " ") | ForEach-Object {
+                $_.where({$_ -contains "PSModule"})
+            }
+        }
+    }).Count
+    $scriptcount = ($pkgs.foreach{
+        foreach($swid in $_){
+            ($swid.Metadata["tags"] -split " ") | ForEach-Object {
+                $_.where({$_ -contains "PSScript"})
+            }
+        }
+    }).Count
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }
