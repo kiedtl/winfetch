@@ -851,7 +851,7 @@ function info_ps_pkgs {
     # Get all installed Packages
     $pkgs = Get-Package
 
-    # Replicate the behavior of the PowerShellGet module, revoving other information gathering we don't need
+    # Replicate the behavior of the PowerShellGet module, removing other information gathering we don't need
     $modulecount = ($pkgs.foreach{
         ($_.Metadata["tags"] -split " ").foreach{
             $_.where({$_ -contains "PSModule"})
