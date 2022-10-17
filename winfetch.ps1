@@ -853,17 +853,13 @@ function info_ps_pkgs {
 
     # Replicate the behavior of the PowerShellGet module, revoving other information gathering we don't need
     $modulecount = ($pkgs.foreach{
-        foreach($swid in $_){
-            ($swid.Metadata["tags"] -split " ") | ForEach-Object {
-                $_.where({$_ -contains "PSModule"})
-            }
+        ($_.Metadata["tags"] -split " ").foreach{
+            $_.where({$_ -contains "PSModule"})
         }
     }).Count
     $scriptcount = ($pkgs.foreach{
-        foreach($swid in $_){
-            ($swid.Metadata["tags"] -split " ") | ForEach-Object {
-                $_.where({$_ -contains "PSScript"})
-            }
+        ($_.Metadata["tags"] -split " ").foreach{
+            $_.where({$_ -contains "PSScript"})
         }
     }).Count
 
