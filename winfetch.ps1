@@ -1403,11 +1403,11 @@ function info_weather {
         title = "Weather"
         content = try {
                 # Gets Location from IP using ip-api.com
-                $location = Invoke-RestMethod -Uri "http://ip-api.com/json/"
+                $location = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("http://ip-api.com/json/"))
                 # Change units used based on location
                 $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
                 # Get Current Weather from OpenWeatherMap API
-                $currentWeather = (Invoke-RestMethod "https://api.openweathermap.org/data/2.5/weather?lat=$($location.lat)&lon=$($location.lon)&appid=$authKey&units=$units")
+                $currentWeather = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("https://api.openweathermap.org/data/2.5/weather?lat=$($location.lat)&lon=$($location.lon)&appid=$authKey&units=$units"))
                 "$($currentWeather.main.temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
             } catch {
                 "$e[91m(Network Error)"
