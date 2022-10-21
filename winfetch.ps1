@@ -1411,7 +1411,7 @@ function info_public_ip {
     return @{
         title = "Public IP"
         content = try {
-            Invoke-RestMethod ifconfig.me/ip
+            [System.Net.WebClient]::new().DownloadString("http://ifconfig.me/ip")
         } catch {
             "$e[91m(Network Error)"
         }
