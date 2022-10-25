@@ -740,45 +740,6 @@ function info_memory {
 # ===== DISK USAGE =====
 function info_disk {
     [System.Collections.ArrayList]$lines = @()
-    Add-Type @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace WinAPI
-{
-    public class DiskMethods
-    {
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
-        private static extern int NativeGetLogicalDriveStringsW(
-            int nBufferLength,
-            char[] lpBuffer);
-
-        // Wrapper around the native function for error handling
-        public static char[] GetLogicalDriveStringsW()
-        {
-            int length = NativeGetLogicalDriveStringsW(0, null);
-            if (length == 0)
-                throw new Win32Exception();
-
-            char[] buffer = new char[length];
-            length = NativeGetLogicalDriveStringsW(length, buffer);
-            if (length == 0)
-                throw new Win32Exception();
-
-            return buffer;
-        }
-
-        [DllImport("Kernel32.dll", SetLastError = true)]
-        public static extern bool GetDiskFreeSpaceEx(
-            string lpDirectoryName,
-            out ulong lpFreeBytesAvailable,
-            out ulong lpTotalNumberOfBytes,
-            out ulong lpTotalNumberOfFreeBytes);
-    }
-}
-'@
 
     function to_units($value) {
         if ($value -gt 1tb) {
@@ -788,46 +749,27 @@ namespace WinAPI
         }
     }
 
-    # Convert System.String[] to System.Object[]
-    $rawDiskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()
-    $allDiskLetters = @()
-    foreach ($entry in $rawDiskLetters) {
-        if ($entry -ne ":" -and $entry -ne "\" -and $entry + ":" -ne ":") {
-            $allDiskLetters += $entry + ":"
-        }
-    }
+    [System.IO.DriveInfo]::GetDrives().ForEach{
+        $diskLetter = $_.Name.SubString(0,2)
 
-    # Verification stage
-    $diskLetters = @()
-    foreach ($diskLetter in $allDiskLetters) {
-        foreach ($showDiskLetter in $showDisks) {
-            if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
-                $diskLetters += $diskLetter
+        if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
+            try {
+                if ($_.TotalSize -gt 0) {
+                    $used = $_.TotalSize - $_.AvailableFreeSpace
+                    $usage = [math]::Floor(($used / $_.TotalSize * 100))
+    
+                    [void]$lines.Add(@{
+                        title   = "Disk ($diskLetter)"
+                        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $_.TotalSize)"
+                    })
+                }
             }
-        }
-    }
-
-    foreach ($diskLetter in $diskLetters) {
-        $lpFreeBytesAvailable = 0
-        $lpTotalNumberOfBytes = 0
-        $lpTotalNumberOfFreeBytes = 0
-        $success = [WinAPI.DiskMethods]::GetDiskFreeSpaceEx($diskLetter, [ref] $lpFreeBytesAvailable, [ref] $lpTotalNumberOfBytes, [ref] $lpTotalNumberOfFreeBytes)
-        $total = $lpTotalNumberOfBytes
-        $used = $total - $lpTotalNumberOfFreeBytes
-
-        if (-not $success) {
-            [void]$lines.Add(@{
-                title   = "Disk ($diskLetter)"
-                content = "(failed to get disk usage)"
-            })
-        }
-
-        if ($total -gt 0) {
-            $usage = [math]::floor(($used / $total * 100))
-            [void]$lines.Add(@{
-                title   = "Disk ($diskLetter)"
-                content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-            })
+            catch {
+                [void]$lines.Add(@{
+                    title   = "Disk ($diskLetter)"
+                    content = "(failed to get disk usage)"
+                })
+            }
         }
     }
 
