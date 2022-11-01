@@ -849,18 +849,15 @@ function info_ps_pkgs {
     $ps_pkgs = @()
 
     # Get all installed Packages
-    $pkgs = Get-Package
+    $pkgs = Get-Package -ProviderName NuGet,PowerShellGet
 
-    # Replicate the behavior of the PowerShellGet module, removing other information gathering we don't need
+    # Replicate the behavior of the PowerShellGet module, removing other information gathering and error checking we don't need
     $modulecount = 0
     $scriptcount = 0
 
-    $pkgs.foreach{
-        ($_.Metadata["tags"] -split " ").foreach{
-            $modulecount += ($_.where({$_ -contains "PSModule"})).Count
-            $scriptcount += ($_.where({$_ -contains "PSScript"})).Count
-        }
-    }
+    # Get the number of packages where the tags contains PSModule or PSScript
+    $modulecount = $pkgs.Where({$_.Metadata["tags"] -contains "*PSModule*"}).count
+    $scriptcount = $pkgs.Where({$_.Metadata["tags"] -contains "*PSScript*"}).count
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }
