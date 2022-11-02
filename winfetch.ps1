@@ -749,7 +749,7 @@ function info_disk {
         }
     }
 
-    [System.IO.DriveInfo]::GetDrives().ForEach{
+    [System.IO.DriveInfo]::GetDrives().ForEach {
         $diskLetter = $_.Name.SubString(0,2)
 
         if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
@@ -763,8 +763,7 @@ function info_disk {
                         content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $_.TotalSize)"
                     })
                 }
-            }
-            catch {
+            } catch {
                 [void]$lines.Add(@{
                     title   = "Disk ($diskLetter)"
                     content = "(failed to get disk usage)"
