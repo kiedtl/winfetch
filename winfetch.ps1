@@ -715,25 +715,28 @@ function info_gpu {
 
 # ===== CPU USAGE =====
 function info_cpu_usage {
-    # Initialize the CPU counter
-    $cpuCounter = [System.Diagnostics.PerformanceCounter]::new("Processor", "% Processor Time", "_Total")
-    
-    # Getting the CPU usage requires multiple values to compare, so the first value is discarded
-    $null = $cpuCounter.NextValue()
+    # Gets the number of logical processors in the system
+    $CPUs   = [System.Environment]::ProcessorCount
 
-    # Wait 150ms so a more accurate value is retrieved
-    Start-Sleep -Milliseconds 150
+    $loadPercent = 0
 
-    # Check CPU usage value until proper value is obtained
-    Do {
-        $loadPercent = $cpuCounter.NextValue()
-    } Until(($loadPercent -lt 100) -and ($loadPercent -ne 0))
-    
-    # Round the CPU usage value to 1 decimal place
-    $loadPercent = ([int]($loadPercent * 10))/10
+    if (!$Processes) {
+        # Get all running processes and assign to a variable to allow reuse
+        $Processes = [diagnostics.process]::GetProcesses()
+    }
 
-    # Get process count
-    $procCount = ([diagnostics.process]::GetProcesses()).Count
+    $Processes.ForEach{
+        if ($_.StartTime -gt 0) {
+            # Replicate the functionality of New-Timespan
+            $TimeSpan = (([datetime]::Now).Subtract($_.StartTime)).TotalSeconds
+
+            # Calculate the CPU usage of the process and add to the total
+            $loadPercent += $_.CPU * 100 / $TimeSpan / $CPUs
+        }
+    }
+
+    # Get count of running processes
+    $procCount = $Processes.Count
     
     return @{
         title   = "CPU Usage"
