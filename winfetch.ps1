@@ -200,7 +200,7 @@ $defaultConfig = @'
     # "theme"
     "cpu"
     "gpu"
-    # "cpu_usage"  # takes some time
+    # "cpu_usage"
     "memory"
     "disk"
     # "battery"
@@ -715,32 +715,27 @@ function info_gpu {
 
 # ===== CPU USAGE =====
 function info_cpu_usage {
-    # Gets the number of logical processors in the system
-    $CPUs   = [System.Environment]::ProcessorCount
+    # Get all running processes and assign to a variable to allow reuse
+    $processes = [System.Diagnostics.Process]::GetProcesses()
+    $loadpercent = 0
+    $proccount = $processes.Count
+    # Get the number of logical processors in the system
+    $CPUs = [System.Environment]::ProcessorCount
 
-    $loadPercent = 0
-
-    if (!$Processes) {
-        # Get all running processes and assign to a variable to allow reuse
-        $Processes = [diagnostics.process]::GetProcesses()
-    }
-
-    $Processes.ForEach{
+    $timenow = [System.Datetime]::Now
+    $processes.ForEach{
         if ($_.StartTime -gt 0) {
             # Replicate the functionality of New-Timespan
-            $TimeSpan = (([datetime]::Now).Subtract($_.StartTime)).TotalSeconds
+            $timespan = ($timenow.Subtract($_.StartTime)).TotalSeconds
 
             # Calculate the CPU usage of the process and add to the total
-            $loadPercent += $_.CPU * 100 / $TimeSpan / $CPUs
+            $loadpercent += $_.CPU * 100 / $timespan / $CPUs
         }
     }
 
-    # Get count of running processes
-    $procCount = $Processes.Count
-    
     return @{
         title   = "CPU Usage"
-        content = get_level_info "" $cpustyle $loadPercent "$procCount processes" -altstyles
+        content = get_level_info "" $cpustyle $loadpercent "$proccount processes" -altstyle
     }
 }
 
