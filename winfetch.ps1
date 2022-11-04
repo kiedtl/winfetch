@@ -284,7 +284,7 @@ foreach ($param in $PSBoundParameters.Keys) {
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
 $cimSession = New-CimSession
-$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
+$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
 
@@ -602,7 +602,7 @@ function info_kernel {
 function info_uptime {
     @{
         title   = "Uptime"
-        content = $(switch ((Get-Date) - (Get-CimInstance -ClassName Win32_OperatingSystem -Property LastBootUpTime -CimSession $cimSession).LastBootUpTime) {
+        content = $(switch ([System.DateTime]::Now - $os.LastBootUpTime) {
             ({ $PSItem.Days -eq 1 }) { '1 day' }
             ({ $PSItem.Days -gt 1 }) { "$($PSItem.Days) days" }
             ({ $PSItem.Hours -eq 1 }) { '1 hour' }
@@ -742,9 +742,8 @@ function info_cpu_usage {
 
 # ===== MEMORY =====
 function info_memory {
-    $m = Get-CimInstance -ClassName Win32_OperatingSystem -Property TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
-    $total = $m.TotalVisibleMemorySize / 1mb
-    $used = ($m.TotalVisibleMemorySize - $m.FreePhysicalMemory) / 1mb
+    $total = $os.TotalVisibleMemorySize / 1mb
+    $used = ($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / 1mb
     $usage = [math]::floor(($used / $total * 100))
     return @{
         title   = "Memory"
