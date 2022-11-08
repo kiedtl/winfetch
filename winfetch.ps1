@@ -688,7 +688,7 @@ function info_theme {
 # ===== CPU/GPU =====
 function info_cpu {
     # Get CPU Information
-    $cpu = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $Computername).OpenSubKey("HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+    $cpu = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $env:COMPUTERNAME).OpenSubKey("HARDWARE\DESCRIPTION\System\CentralProcessor\0")
     $cpuName = $cpu.GetValue("ProcessorNameString")
 
     # If the CPU name has the frequency in it, remove it
