@@ -687,16 +687,20 @@ function info_theme {
 
 # ===== CPU/GPU =====
 function info_cpu {
-    $cpu = Get-CimInstance -ClassName Win32_Processor -Property Name,MaxClockSpeed -CimSession $cimSession
-    $cpuname = if ($cpu.Name.Contains('@')) {
-        ($cpu.Name -Split ' @ ')[0].Trim()
+    # Get CPU Information
+    $cpu = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $Computername).OpenSubKey("HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+    $cpuName = $cpu.GetValue("ProcessorNameString")
+
+    # If the CPU name has the frequency in it, remove it
+    $cpuName = if ($cpuName -Contains '@') {
+        ($cpuName -Split ' @ ')[0].Trim()
     } else {
-        $cpu.Name.Trim()
+        $cpuName.Trim()
     }
-    $cpufreq = [math]::round((([int]$cpu.MaxClockSpeed)/1000), 2)
+
     return @{
         title   = "CPU"
-        content = "${cpuname} @ ${cpufreq}GHz"
+        content = "$cpuName @ $($cpu.GetValue("~MHz") / 1000)GHz" # [math]::Round($cpu.GetValue("~MHz") / 1000, 1) is 2-5ms slower
     }
 }
 
