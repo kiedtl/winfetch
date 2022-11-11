@@ -386,15 +386,29 @@ $img = if (-not $noimage) {
             for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
                 $currline = ""
                 for ($j = 0; $j -lt $Bitmap.Width; $j++) {
-                    $back = $Bitmap.GetPixel($j, $i)
+                    $pixel1 = $Bitmap.GetPixel($j, $i)
+                    $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        $foreVT = ""
+                        $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                        $backVT = ""
                     } else {
-                        $fore = $Bitmap.GetPixel($j, $i + 1)
-                        $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
+                        $pixel2 = $Bitmap.GetPixel($j, $i + 1)
+                        if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
+                            $backVT = "$e[49m"
+                            if ($pixel1.A -lt $alphathreshold -and $pixel2.A -lt $alphathreshold) {
+                                $char = [char]0x2800
+                            } elseif ($pixel1.A -lt $alphathreshold) {
+                                $char = [char]0x2584
+                                $foreVT = "$e[38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                            } else {
+                                $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                            }
+                        } else {
+                            $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                            $backVT = "$e[48;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                        }
                     }
-                    $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
-                    $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+                    $currline += "$backVT$foreVT$char$e[0m"
                 }
                 $currline
             }
