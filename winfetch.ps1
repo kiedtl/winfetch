@@ -38,6 +38,8 @@
     Sets the version of Windows to derive the logo from.
 .PARAMETER imgwidth
     Specify width for image/logo. Default is 35.
+.PARAMATER alphathreshold
+    Specify minimum alpha value for image pixels to be visible. Default is 50.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -82,6 +84,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
+    [ValidateScript({$_ -ge 0 -and $_ -le 255})][alias('t')][int]$alphathreshold = 50,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
 )
@@ -117,6 +120,9 @@ $defaultConfig = @'
 
 # Specify width for image/logo
 # $imgwidth = 24
+
+# Specify minimum alpha value for image pixels to be visible
+# $alphathreshold = 50
 
 # Custom ASCII Art
 # This should be an array of strings, with positive
