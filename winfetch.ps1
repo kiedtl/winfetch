@@ -293,6 +293,7 @@ $cimSession = New-CimSession
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
+$aMin = $alphathreshold
 
 # ===== UTILITY FUNCTIONS =====
 function get_percent_bar {
@@ -395,31 +396,29 @@ $img = if (-not $noimage) {
                     $pixel1 = $Bitmap.GetPixel($j, $i)
                     $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        if ($pixel1.A -lt $alphathreshold) {
+                        if ($pixel1.A -lt $aMin) {
                             $char = [char]0x2800
-                            $backVT = "$e[49m"
+                            $ansi = "$e[49m"
                         } else {
-                            $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
-                            $backVT = ""
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
                         }
                     } else {
                         $pixel2 = $Bitmap.GetPixel($j, $i + 1)
-                        if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
-                            $backVT = "$e[49m"
-                            if ($pixel1.A -lt $alphathreshold -and $pixel2.A -lt $alphathreshold) {
+                        if ($pixel1.A -lt $aMin -or $pixel2.A -lt $aMin) {
+                            if ($pixel1.A -lt $aMin -and $pixel2.A -lt $aMin) {
                                 $char = [char]0x2800
-                            } elseif ($pixel1.A -lt $alphathreshold) {
+                                $ansi = "$e[49m"
+                            } elseif ($pixel1.A -lt $aMin) {
                                 $char = [char]0x2584
-                                $foreVT = "$e[38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                                $ansi = "$e[49;38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
                             } else {
-                                $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                                $ansi = "$e[49;38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
                             }
                         } else {
-                            $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
-                            $backVT = "$e[48;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B);48;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
                         }
                     }
-                    $currline += "$backVT$foreVT$char$e[0m"
+                    $currline += "$ansi$char$e[0m"
                 }
                 $currline
             }
