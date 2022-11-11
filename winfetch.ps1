@@ -38,7 +38,7 @@
     Sets the version of Windows to derive the logo from.
 .PARAMETER imgwidth
     Specify width for image/logo. Default is 35.
-.PARAMATER alphathreshold
+.PARAMETER alphathreshold
     Specify minimum alpha value for image pixels to be visible. Default is 50.
 .PARAMETER blink
     Make the logo blink.
