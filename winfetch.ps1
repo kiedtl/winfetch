@@ -395,8 +395,13 @@ $img = if (-not $noimage) {
                     $pixel1 = $Bitmap.GetPixel($j, $i)
                     $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
-                        $backVT = ""
+                        if ($pixel1.A -lt $alphathreshold) {
+                            $char = [char]0x2800
+                            $backVT = "$e[49m"
+                        } else {
+                            $foreVT = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                            $backVT = ""
+                        }
                     } else {
                         $pixel2 = $Bitmap.GetPixel($j, $i + 1)
                         if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
