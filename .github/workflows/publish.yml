@@ -1,0 +1,13 @@
+name: Publish to PSGallery
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - shell: pwsh
+        run: Publish-Script -Path winfetch.ps1 -NuGetApiKey ${{ secrets.PSGALLERY_KEY }}
