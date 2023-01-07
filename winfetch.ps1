@@ -38,6 +38,8 @@
     Sets the version of Windows to derive the logo from.
 .PARAMETER imgwidth
     Specify width for image/logo. Default is 35.
+.PARAMETER alphathreshold
+    Specify minimum alpha value for image pixels to be visible. Default is 50.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -82,6 +84,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
+    [ValidateScript({$_ -ge 0 -and $_ -le 255})][alias('t')][int]$alphathreshold = 50,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco")
 )
@@ -117,6 +120,9 @@ $defaultConfig = @'
 
 # Specify width for image/logo
 # $imgwidth = 24
+
+# Specify minimum alpha value for image pixels to be visible
+# $alphathreshold = 50
 
 # Custom ASCII Art
 # This should be an array of strings, with positive
@@ -386,15 +392,32 @@ $img = if (-not $noimage) {
             for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
                 $currline = ""
                 for ($j = 0; $j -lt $Bitmap.Width; $j++) {
-                    $back = $Bitmap.GetPixel($j, $i)
+                    $pixel1 = $Bitmap.GetPixel($j, $i)
+                    $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        $foreVT = ""
+                        if ($pixel1.A -lt $alphathreshold) {
+                            $char = [char]0x2800
+                            $ansi = "$e[49m"
+                        } else {
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                        }
                     } else {
-                        $fore = $Bitmap.GetPixel($j, $i + 1)
-                        $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
+                        $pixel2 = $Bitmap.GetPixel($j, $i + 1)
+                        if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
+                            if ($pixel1.A -lt $alphathreshold -and $pixel2.A -lt $alphathreshold) {
+                                $char = [char]0x2800
+                                $ansi = "$e[49m"
+                            } elseif ($pixel1.A -lt $alphathreshold) {
+                                $char = [char]0x2584
+                                $ansi = "$e[49;38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                            } else {
+                                $ansi = "$e[49;38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                            }
+                        } else {
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B);48;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                        }
                     }
-                    $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
-                    $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+                    $currline += "$ansi$char$e[0m"
                 }
                 $currline
             }
