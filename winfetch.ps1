@@ -293,7 +293,6 @@ $cimSession = New-CimSession
 $os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
-$aMin = $alphathreshold
 
 # ===== UTILITY FUNCTIONS =====
 function get_percent_bar {
@@ -396,7 +395,7 @@ $img = if (-not $noimage) {
                     $pixel1 = $Bitmap.GetPixel($j, $i)
                     $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        if ($pixel1.A -lt $aMin) {
+                        if ($pixel1.A -lt $alphathreshold) {
                             $char = [char]0x2800
                             $ansi = "$e[49m"
                         } else {
@@ -404,11 +403,11 @@ $img = if (-not $noimage) {
                         }
                     } else {
                         $pixel2 = $Bitmap.GetPixel($j, $i + 1)
-                        if ($pixel1.A -lt $aMin -or $pixel2.A -lt $aMin) {
-                            if ($pixel1.A -lt $aMin -and $pixel2.A -lt $aMin) {
+                        if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
+                            if ($pixel1.A -lt $alphathreshold -and $pixel2.A -lt $alphathreshold) {
                                 $char = [char]0x2800
                                 $ansi = "$e[49m"
-                            } elseif ($pixel1.A -lt $aMin) {
+                            } elseif ($pixel1.A -lt $alphathreshold) {
                                 $char = [char]0x2584
                                 $ansi = "$e[49;38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
                             } else {
