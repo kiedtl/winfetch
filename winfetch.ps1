@@ -689,18 +689,18 @@ function info_theme {
 function info_cpu {
     # Get CPU Information
     $cpu = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $env:COMPUTERNAME).OpenSubKey("HARDWARE\DESCRIPTION\System\CentralProcessor\0")
-    $cpuName = $cpu.GetValue("ProcessorNameString")
+    $cpuname = $cpu.GetValue("ProcessorNameString")
 
     # If the CPU name has the frequency in it, remove it
-    $cpuName = if ($cpuName -Contains '@') {
-        ($cpuName -Split ' @ ')[0].Trim()
+    $cpuName = if ($cpuname -Contains '@') {
+        ($cpuname -Split '@')[0].Trim()
     } else {
-        $cpuName.Trim()
+        $cpuname.Trim()
     }
 
     return @{
         title   = "CPU"
-        content = "$cpuName @ $($cpu.GetValue("~MHz") / 1000)GHz" # [math]::Round($cpu.GetValue("~MHz") / 1000, 1) is 2-5ms slower
+        content = "$cpuname @ $($cpu.GetValue("~MHz") / 1000)GHz" # [math]::Round($cpu.GetValue("~MHz") / 1000, 1) is 2-5ms slower
     }
 }
 
