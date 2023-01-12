@@ -856,8 +856,8 @@ function info_ps_pkgs {
     $scriptcount = 0
 
     # Get the number of packages where the tags contains PSModule or PSScript
-    $modulecount = $pkgs.Where({$_.Metadata["tags"] -contains "*PSModule*"}).count
-    $scriptcount = $pkgs.Where({$_.Metadata["tags"] -contains "*PSScript*"}).count
+    $modulecount = $pkgs.Where({$_.Metadata["tags"] -like "*PSModule*"}).count
+    $scriptcount = $pkgs.Where({$_.Metadata["tags"] -like "*PSScript*"}).count
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }
