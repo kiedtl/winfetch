@@ -827,8 +827,11 @@ function info_pwsh {
 function info_ps_pkgs {
     $ps_pkgs = @()
 
-    $modulecount = (Get-InstalledModule).Length
-    $scriptcount = (Get-InstalledScript).Length
+    # Get all installed packages
+    $pgp = Get-Package -ProviderName PowerShellGet
+    # Get the number of packages where the tags contains PSModule or PSScript
+    $modulecount = $pgp.Where({$_.Metadata["tags"] -like "*PSModule*"}).count
+    $scriptcount = $pgp.Where({$_.Metadata["tags"] -like "*PSScript*"}).count
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }
