@@ -6,12 +6,12 @@
 <#PSScriptInfo
 .VERSION 2.4.1
 .GUID a9a07f39-87e7-4164-9395-27cb54d86656
-.AUTHOR Kied Llaentenn and contributers
-.PROJECTURI https://github.com/kiedtl/winfetch
+.AUTHOR Winfetch contributers
+.PROJECTURI https://github.com/lptstr/winfetch
 .COMPANYNAME
 .COPYRIGHT
 .TAGS neofetch screenfetch system-info commandline
-.LICENSEURI https://github.com/kiedtl/winfetch/blob/master/LICENSE
+.LICENSEURI https://github.com/lptstr/winfetch/blob/master/LICENSE
 .ICONURI https://lptstr.github.io/lptstr-images/proj/winfetch/logo.png
 .EXTERNALMODULEDEPENDENCIES
 .REQUIREDSCRIPTS
