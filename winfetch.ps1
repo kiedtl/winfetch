@@ -699,11 +699,12 @@ function info_terminal {
 # ===== THEME =====
 function info_theme {
     $themeinfo = Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name SystemUsesLightTheme, AppsUseLightTheme
+    $themename = (Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes' -Name CurrentTheme).CurrentTheme.Split('\')[-1].Replace('.theme', '')
     $systheme = if ($themeinfo.SystemUsesLightTheme) { "Light" } else { "Dark" }
     $apptheme = if ($themeinfo.AppsUseLightTheme) { "Light" } else { "Dark" }
     return @{
         title = "Theme"
-        content = "System - $systheme, Apps - $apptheme"
+        content = "$themename (System: $systheme, Apps: $apptheme)"
     }
 }
 
