@@ -179,6 +179,13 @@ $defaultConfig = @'
 # $diskstyle = 'bartext'
 # $batterystyle = 'bartext'
 
+# Configure whether to use Metric or Imperial units when fetching the weather
+# Default is Metric unless your location is in the US
+# $units = 'Metric'
+
+# Provide your own API key for OpenWeatherMap weather info
+$authKey = ""
+
 
 # Remove the '#' from any of the lines in
 # the following to **enable** their output.
@@ -1397,17 +1404,43 @@ function info_weather {
         801 = "Few Clouds"; <#11-25%#>         802 = "Scattered Clouds"; <#25-50%#>     803 = "Broken Clouds"; #51-84%
         804 = "Overcast"; #85-100%
     }
-    $authKey = "7783b2da70874d3e84836faf299dbffc" # Auth Key for OpenWeatherMap API
 
     return @{
         title = "Weather"
         content = try {
-                # Gets Location from IP using ip-api.com
-                $location = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("http://ip-api.com/json/"))
-                # Change units used based on location
-                $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
+                # Import System.Device.dll to get location from GPS
+                $null = [System.Reflection.Assembly]::LoadWithPartialName("System.Device")
+
+                $watcher = [System.Device.Location.GeoCoordinateWatcher]::new()
+                # Start monitoring GPS location
+                $watcher.Start()
+
+                if ($watcher.Permission -eq "Granted") {
+                    # Wait for the GPS watcher to initialize
+                    while ($watcher.Status -eq "Initializing") {}
+
+                    # Get coordinates
+                    $lat = $watcher.Position.Location.Latitude
+                    $lon = $watcher.Position.Location.Longitude
+
+                    # Change units based on locale
+                    if ([Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('CurrentUser', $Env:COMPUTERNAME).OpenSubKey("Control Panel\International\Geo").Nation -contains "US") {
+                        $units = "imperial"
+                    } else {
+                        $units = "metric"
+                    }
+                } else {
+                    # Gets Location from IP using ip-api.com
+                    $location = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("http://ip-api.com/json/"))
+                    $lat = $location.lat
+                    $lon = $location.lon
+
+                    # Change units based on location
+                    $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
+                }
+
                 # Get Current Weather from OpenWeatherMap API
-                $currentWeather = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("https://api.openweathermap.org/data/2.5/weather?lat=$($location.lat)&lon=$($location.lon)&appid=$authKey&units=$units"))
+                $currentWeather = ConvertFrom-Json ([System.Net.WebClient]::new().DownloadString("https://api.openweathermap.org/data/2.5/weather?lat=$($lat)&lon=$($lon)&appid=$authKey&units=$units"))
                 "$($currentWeather.main.temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
             } catch {
                 "$e[91m(Network Error)"
