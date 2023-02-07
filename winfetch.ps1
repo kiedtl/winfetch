@@ -1378,24 +1378,54 @@ function info_weather {
 
 # ===== IP =====
 function info_local_ip {
-    try {
-        # Get all network adapters
-        foreach ($ni in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
-            # Get the IP information of each adapter
-            $properties = $ni.GetIPProperties()
-            # Check if the adapter is online, has a gateway address, and the adapter does not have a loopback address
-            if ($ni.OperationalStatus -eq 'Up' -and !($null -eq $properties.GatewayAddresses[0]) -and !$properties.GatewayAddresses[0].Address.ToString().Equals("0.0.0.0")) {
-                # Check if adapter is a WiFi or Ethernet adapter
-                if ($ni.NetworkInterfaceType -eq "Wireless80211" -or $ni.NetworkInterfaceType -eq "Ethernet") {
-                    foreach ($ip in $properties.UnicastAddresses) {
-                        if ($ip.Address.AddressFamily -eq "InterNetwork") {
-                            if (!$local_ip) { $local_ip = $ip.Address.ToString() }
+    # Global variables are used so that the public ip can be used by info_public_ip
+    if (!$Global:local_ip) {
+        # Performs a DNS lookup and parses the output to get the returned IP addresses
+        # 2>&1 is used to redirect the console output so it isn't displayed
+        $ErrorActionPreference = "SilentlyContinue" # 2>&1 writes to the error stream before Powershell 7.2
+        $Global:public_ip, $Global:local_ip = (nslookup -type=a myip.opendns.com 2>&1 | Where-Object {($_ -split "`n") -match "(Address:\s\s([0-9]\.?)+)"}) -replace "Address:  "
+        $ErrorActionPreference = 'Continue'
+    }
+
+    # If local IP retrieval failed
+    if (!$Global:local_ip) {
+        try {
+            # Alternative Method 1
+            # This method is faster than the primary method, but only returns the local IP address
+            # Create a network socket
+            $socket = [System.Net.Sockets.Socket]::new([System.Net.Sockets.AddressFamily]::InterNetwork, [System.Net.Sockets.SocketType]::Dgram, 0)
+            # Connect to Google's DNS server
+            $socket.Connect("1.1.1.1", 65530)
+            # Get the local IP address
+            $local_ip = ([IPEndpoint]$socket.LocalEndPoint).Address.IPAddressToString
+            } catch {
+                try {
+                    # Alternative Method 2
+                    # Uses System.Net.Dns to perform a DNS lookup
+                    # myip.opendns.com will be directly processed by most routers and will return the local IP address
+                    $local_ip = [System.Net.Dns]::GetHostEntry("myip.opendns.com").AddressList.IPAddressToString
+                } catch {
+                    try {
+                        # Alternative Method 3
+                        # Get all network adapters
+                        foreach ($ni in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
+                            # Get the IP information of each adapter
+                            $properties = $ni.GetIPProperties()
+                            # Check if the adapter is online, has a gateway address, and the adapter does not have a loopback address
+                            if ($ni.OperationalStatus -eq 'Up' -and !($null -eq $properties.GatewayAddresses[0]) -and !$properties.GatewayAddresses[0].Address.ToString().Equals("0.0.0.0")) {
+                                # Check if adapter is a WiFi or Ethernet adapter
+                                if ($ni.NetworkInterfaceType -eq "Wireless80211" -or $ni.NetworkInterfaceType -eq "Ethernet") {
+                                    foreach ($ip in $properties.UnicastAddresses) {
+                                        if ($ip.Address.AddressFamily -eq "InterNetwork") {
+                                            if (!$local_ip) { $local_ip = $ip.Address.ToString() }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
+                    } catch {}
                 }
             }
-        }
-    } catch {
     }
     return @{
         title = "Local IP"
@@ -1410,11 +1440,31 @@ function info_local_ip {
 function info_public_ip {
     return @{
         title = "Public IP"
-        content = try {
-            [System.Net.WebClient]::new().DownloadString("http://ifconfig.me/ip")
-        } catch {
-            "$e[91m(Network Error)"
-        }
+        content = @(
+            # Global variables are used so that the local ip can be used by info_local_ip if it is executed after info_public_ip
+            if (!$Global:public_ip) {
+                # Performs a DNS lookup and parses the output to get the returned IP addresses
+                # 2>&1 is used to redirect the console output so it isn't displayed
+                $ErrorActionPreference = "SilentlyContinue" # 2>&1 writes to the error stream before Powershell 7.2
+                $Global:public_ip, $Global:local_ip = (
+                    nslookup -type=a myip.opendns.com 2>&1 | Where-Object {($_ -split "`n") -match "(Address:\s\s([0-9]\.?)+)"}
+                ) -replace "Address:  "
+                $ErrorActionPreference = 'Continue'
+            }
+
+            # Check if the public IP address was found
+            if ($Global:public_ip) {
+                $public_ip
+            } else {
+                # Alternative Method
+                # Gets the public IP address from ifconfig.me
+                try {
+                    [System.Net.WebClient]::new().DownloadString("http://ifconfig.me/ip")
+                } catch {
+                    "$e[91m(Network Error)"
+                }
+            }
+        )
     }
 }
 
