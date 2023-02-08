@@ -1452,7 +1452,7 @@ function info_public_ip {
                 $ErrorActionPreference = 'Continue'
             }
 
-            # Check if the public IP address was found
+            # Check if the public IP address was successfully retrieved
             if ($Global:public_ip) {
                 $public_ip
             } else {
