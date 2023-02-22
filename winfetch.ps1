@@ -1357,103 +1357,17 @@ function info_locale {
 
 # ===== WEATHER =====
 function info_weather {
-    $conditionLookup = @{
-        # Group 2xx: Thunderstorm
-        200 = "Thunderstorms with Light Rain"; 201 = "Thunderstorms with Rain";          202 = "Thunderstorms with Heavy Rain";
-        210 = "Light Thunderstorms";           211 = "Thunderstorms";                    212 = "Heavy Thunderstorms";
-        221 = "Ragged Thunderstorms";          230 = "Thunderstorms with Light Drizzle"; 231 = "Thunderstorms with Drizzle";
-        232 = "Thunderstorm with Heavy Drizzle";
-        # Group 3xx: Drizzle
-        300 = "Light Drizzle";                 301 = "Drizzle";                         302 = "Heavy Drizzle";
-        310 = "Light Drizzle Rain";            311 = "Drizzle Rain";                    312 = "Heavy Drizzle Rain";
-        313 = "Shower Rain and Drizzle";       314 = "Heavy Shower Rain and Drizzle";   321 = "Shower Drizzle";
-        # Group 5xx: Rain
-        500 = "Light Rain";                    501 = "Moderate Rain";                   502 = "Heavy Rain";
-        503 = "Very Heavy Rain";               504 = "Extreme Rain";                    511 = "Freezing Rain";
-        520 = "Light Showers";                 521 = "Showers";                         522 = "Heavy Showers";
-        531 = "Ragged Showers";
-        # Group 6xx: Snow
-        600 = "Light Snow";                    601 = "Snow";                            602 = "Heavy Snow";
-        611 = "Sleet";                         612 = "Light Shower Sleet";              613 = "Shower Sleet";
-        615 = "Light Rain and Snow";           616 = "Rain and Snow";                   620 = "Light Shower Snow";
-        621 = "Shower Snow";                   622 = "Heavy Shower Snow";
-        # Group 7xx: Atmosphere
-        701 = "Mist";                          711 = "Smoke";                           721 = "Haze";
-        731 = "Sand/Dust Whirls";              741 = "Fog";                             751 = "Sand";
-        761 = "Dust";                          762 = "Volcanic Ash";                    771 = "Squalls";
-        781 = "Tornados";
-        # Group 800: Clear
-        800 = "Clear Skies";
-        # Group 80x: Clouds
-        801 = "Few Clouds"; <#11-25%#>         802 = "Scattered Clouds"; <#25-50%#>     803 = "Broken Clouds"; #51-84%
-        804 = "Overcast"; #85-100%
-    }
-
     return @{
         title = "Weather"
         content = try {
-            if ($PSVersionTable.PSVersion.Major -eq 2) {
-                # Adding function ConvertFrom-Json
-                # https://stackoverflow.com/questions/28077854/
-                function Convert-Tree($jsonTree) {
-                    $result = @()
-                    foreach ($node in $jsonTree) {
-                        $nodeObj = New-Object psobject
-                        foreach ($property in $node.Keys) {
-                            if ($node[$property] -is [System.Collections.Generic.Dictionary[String, Object]] -or $node[$property] -is [Object[]]) {
-                                $inner = @()
-                                $inner += Convert-Tree $node[$property]
-                                $nodeObj  | Add-Member -MemberType NoteProperty -Name $property -Value $inner
-                            } else {
-                                $nodeObj  | Add-Member -MemberType NoteProperty -Name $property -Value $node[$property]
-                                #$nodeHash.Add($property, $node[$property])
-                            }
-                        }
-                        $result += $nodeObj
-                    }
-                    return $result
-                }
-
-                function ConvertFrom-Json{ 
-                    [cmdletbinding()]
-                    Param (
-                        [parameter(ValueFromPipeline=$true)][object] $PS_Object
-                    )
-
-                    Add-Type -assembly system.web.extensions
-                    $PS_JavascriptSerializer=new-object system.web.script.serialization.javascriptSerializer
-                    $PS_DeserializeObject = ,$PS_JavascriptSerializer.DeserializeObject($PS_Object) 
-
-                    #Convert Dictionary to Objects
-                    $PS_DeserializeObject = Convert-Tree $PS_DeserializeObject
-
-                    return $PS_DeserializeObject
-                }
-            }
             # Gets Location from IP using ip-api.com
-            $WebRequest = [System.Net.WebRequest]::Create("http://ip-api.com/json/")
+            $WebRequest = [System.Net.WebRequest]::Create('http://wttr.in/?format="%t+-+%C+(%l)"')
             $WebRequest.Method = "GET"
             $WebRequest.ContentType = "application/json"
             $Response = $WebRequest.GetResponse()
             $ResponseStream = $Response.GetResponseStream()
             $ReadStream = New-Object System.IO.StreamReader $ResponseStream
-            $location = ConvertFrom-Json ($ReadStream.ReadToEnd())
-            $lat = $location.lat
-            $lon = $location.lon
-
-            # Change units based on location
-            $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
-
-            # Get Current Weather from OpenWeatherMap API
-            $WebRequest = [System.Net.WebRequest]::Create("https://api.openweathermap.org/data/2.5/weather?lat=$($lat)&lon=$($lon)&appid=$authKey&units=$units")
-            $WebRequest.Method = "GET"
-            $WebRequest.ContentType = "application/json"
-            $Response = $WebRequest.GetResponse()
-            $ResponseStream = $Response.GetResponseStream()
-            $ReadStream = New-Object System.IO.StreamReader $ResponseStream
-            $currentWeather = ConvertFrom-Json ($ReadStream.ReadToEnd())
-
-            "$(($currentWeather.main | Select-Object temp).temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
+            ($ReadStream.ReadToEnd()).Trim('"').TrimStart("+")
         } catch {
             "$e[91m(Network Error)"
         }
