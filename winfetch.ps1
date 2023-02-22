@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/env -S pwsh -nop
-#requires -version 5
+#requires -version 2
 
 # (!) This file must to be saved in UTF-8 with BOM encoding in order to work with legacy Powershell 5.x
 
@@ -89,14 +89,14 @@ param(
     [array]$showpkgs = @("scoop", "choco")
 )
 
-if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
+if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 7)) {
     Write-Error "Only supported on Windows."
     exit 1
 }
 
 # ===== DISPLAY HELP =====
 if ($help) {
-    if (Get-Command -Name less -ErrorAction Ignore) {
+    if (Get-Command -Name less -ErrorAction 'SilentlyContinue') {
         Get-Help ($MyInvocation.MyCommand.Definition) -Full | less
     } else {
         Get-Help ($MyInvocation.MyCommand.Definition) -Full
@@ -239,7 +239,7 @@ if ($genconf -and (Test-Path $configPath)) {
     if ($result -eq 0) { Remove-Item -Path $configPath } else { exit 1 }
 }
 
-if (-not (Test-Path $configPath) -or [String]::IsNullOrWhiteSpace((Get-Content $configPath))) {
+if (-not (Test-Path $configPath) -or [String]::IsNullOrEmpty((Get-Content $configPath))) {
     New-Item -Type File -Path $configPath -Value $defaultConfig -Force | Out-Null
     if ($genconf) {
         Write-Host "Saved default config to '$configPath'."
@@ -289,14 +289,13 @@ foreach ($param in $PSBoundParameters.Keys) {
 # ===== VARIABLES =====
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
-$cimSession = New-CimSession
-$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
+$os = Get-WmiObject Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
 
 # ===== UTILITY FUNCTIONS =====
 function get_percent_bar {
-    param ([Parameter(Mandatory)][ValidateRange(0, 100)][int]$percent)
+    param ([ValidateRange(0, 100)][int]$percent)
 
     $x = [char]9632
     $bar = $null
@@ -430,9 +429,9 @@ $img = if (-not $noimage) {
         $CustomAscii
     } else {
         if (-not $logo) {
-            if ($os -Like "*Windows 11 *") {
+            if ($os.Caption -Like "*Windows 11 *") {
                 $logo = "Windows 11"
-            } elseif ($os -Like "*Windows 10 *" -Or $os -Like "*Windows 8.1 *" -Or $os -Like "*Windows 8 *") {
+            } elseif ($os.Caption -Like "*Windows 10 *" -Or $os.Caption -Like "*Windows 8.1 *" -Or $os.Caption -Like "*Windows 8 *") {
                 $logo = "Windows 10"
             } else {
                 $logo = "Windows 7"
@@ -575,7 +574,7 @@ function info_os {
 
 # ===== MOTHERBOARD =====
 function info_motherboard {
-    $motherboard = Get-CimInstance Win32_BaseBoard -CimSession $cimSession -Property Manufacturer,Product
+    $motherboard = Get-WmiObject Win32_BaseBoard -Property Manufacturer,Product
     return @{
         title = "Motherboard"
         content = "{0} {1}" -f $motherboard.Manufacturer, $motherboard.Product
@@ -604,7 +603,7 @@ function info_dashes {
 
 # ===== COMPUTER =====
 function info_computer {
-    $compsys = Get-CimInstance -ClassName Win32_ComputerSystem -Property Manufacturer,Model -CimSession $cimSession
+    $compsys = Get-WmiObject Win32_ComputerSystem -Property Manufacturer,Model
     return @{
         title   = "Host"
         content = '{0} {1}' -f $compsys.Manufacturer, $compsys.Model
@@ -623,15 +622,21 @@ function info_kernel {
 
 # ===== UPTIME =====
 function info_uptime {
+    $uptime = if ($PSVersionTable.PSVersion.Major -le 5) {
+        [datetime]::Now - ($os | Select-Object @{LABEL='LastBootUpTime';EXPRESSION={$_.ConverttoDateTime($_.lastbootuptime)}}).LastBootUpTime
+    } else {
+        Get-Uptime
+    }
+
     @{
         title   = "Uptime"
-        content = $(switch ([System.DateTime]::Now - $os.LastBootUpTime) {
-            ({ $PSItem.Days -eq 1 }) { '1 day' }
-            ({ $PSItem.Days -gt 1 }) { "$($PSItem.Days) days" }
-            ({ $PSItem.Hours -eq 1 }) { '1 hour' }
-            ({ $PSItem.Hours -gt 1 }) { "$($PSItem.Hours) hours" }
-            ({ $PSItem.Minutes -eq 1 }) { '1 minute' }
-            ({ $PSItem.Minutes -gt 1 }) { "$($PSItem.Minutes) minutes" }
+        content = $(switch ($uptime) {
+            ({ $_.Days -eq 1 }) { '1 day' }
+            ({ $_.Days -gt 1 }) { "$($_.Days) days" }
+            ({ $_.Hours -eq 1 }) { '1 hour' }
+            ({ $_.Hours -gt 1 }) { "$($_.Hours) hours" }
+            ({ $_.Minutes -eq 1 }) { '1 minute' }
+            ({ $_.Minutes -gt 1 }) { "$($_.Minutes) minutes" }
         }) -join ' '
     }
 }
@@ -655,11 +660,11 @@ function info_resolution {
 # this section works by getting the parent processes of the current powershell instance.
 function info_terminal {
     $programs = 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash', 'fish', 'env', 'nu', 'elvish', 'csh', 'tcsh', 'python', 'xonsh'
-    if ($PSVersionTable.PSEdition.ToString() -ne 'Core') {
-        $parent = Get-Process -Id (Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $PID" -Property ParentProcessId -CimSession $cimSession).ParentProcessId -ErrorAction Ignore
+    if ([string]::IsNullOrEmpty($PSVersionTable.PSEdition) -or $PSVersionTable.PSEdition.ToString() -ne 'Core') {
+        $parent = Get-Process -Id (Get-WmiObject Win32_Process -Filter "ProcessId = $PID" -Property ParentProcessId).ParentProcessId -ErrorAction 'SilentlyContinue'
         for () {
-            if ($parent.ProcessName -in $programs) {
-                $parent = Get-Process -Id (Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $($parent.ID)" -Property ParentProcessId -CimSession $cimSession).ParentProcessId -ErrorAction Ignore
+            if ($programs -contains $parent.ProcessName) {
+                $parent = Get-Process -Id (Get-WmiObject Win32_Process -Filter "ProcessId = $($parent.ID)" -Property ParentProcessId).ParentProcessId -ErrorAction 'SilentlyContinue'
                 continue
             }
             break
@@ -667,7 +672,7 @@ function info_terminal {
     } else {
         $parent = (Get-Process -Id $PID).Parent
         for () {
-            if ($parent.ProcessName -in $programs) {
+            if ($programs -contains $parent.ProcessName) {
                 $parent = (Get-Process -Id $parent.ID).Parent
                 continue
             }
@@ -676,13 +681,13 @@ function info_terminal {
     }
 
     $terminal = switch ($parent.ProcessName) {
-        { $PSItem -in 'explorer', 'conhost' } { 'Windows Console' }
+        { 'explorer', 'conhost' -contains $_ } { 'Windows Console' }
         'Console' { 'Console2/Z' }
         'ConEmuC64' { 'ConEmu' }
         'WindowsTerminal' { 'Windows Terminal' }
         'FluentTerminal.SystemTray' { 'Fluent Terminal' }
         'Code' { 'Visual Studio Code' }
-        default { $PSItem }
+        default { $_ }
     }
 
     if (-not $terminal) {
@@ -727,7 +732,7 @@ function info_cpu {
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
     #loop through Win32_VideoController
-    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
+    foreach ($gpu in Get-WmiObject Win32_VideoController -Property Name) {
         [void]$lines.Add(@{
             title   = "GPU"
             content = $gpu.Name
@@ -747,7 +752,7 @@ function info_cpu_usage {
     $CPUs = [System.Environment]::ProcessorCount
 
     $timenow = [System.Datetime]::Now
-    $processes.ForEach{
+    $processes | ForEach-Object {
         if ($_.StartTime -gt 0) {
             # Replicate the functionality of New-Timespan
             $timespan = ($timenow.Subtract($_.StartTime)).TotalSeconds
@@ -788,10 +793,10 @@ function info_disk {
         }
     }
 
-    [System.IO.DriveInfo]::GetDrives().ForEach{
+    [System.IO.DriveInfo]::GetDrives() | ForEach-Object {
         $diskLetter = $_.Name.SubString(0,2)
 
-        if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
+        if ($showDisks -contains $diskLetter -or $showDisks -contains "*") {
             try {
                 if ($_.TotalSize -gt 0) {
                     $used = $_.TotalSize - $_.AvailableFreeSpace
@@ -828,11 +833,15 @@ function info_pwsh {
 function info_ps_pkgs {
     $ps_pkgs = @()
 
-    # Get all installed packages
-    $pgp = Get-Package -ProviderName PowerShellGet
-    # Get the number of packages where the tags contains PSModule or PSScript
-    $modulecount = $pgp.Where({$_.Metadata["tags"] -like "*PSModule*"}).count
-    $scriptcount = $pgp.Where({$_.Metadata["tags"] -like "*PSScript*"}).count
+    if ($PSVersionTable.PSVersion.Major -lt 5) {
+        $modulecount = Get-Module
+    } else {
+        # Get all installed packages
+        $pgp = Get-Package -ProviderName PowerShellGet
+        # Get the number of packages where the tags contains PSModule or PSScript
+        $modulecount = $pgp.Where({$_.Metadata["tags"] -like "*PSModule*"}).count
+        $scriptcount = $pgp.Where({$_.Metadata["tags"] -like "*PSScript*"}).count
+    }
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }
@@ -863,7 +872,7 @@ function info_ps_pkgs {
 function info_pkgs {
     $pkgs = @()
 
-    if ("winget" -in $ShowPkgs -and (Get-Command -Name winget -ErrorAction Ignore)) {
+    if ($ShowPkgs -contains "winget" -and (Get-Command -Name winget -ErrorAction 'SilentlyContinue')) {
         $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
 
         if ($wingetpkg) {
@@ -871,7 +880,7 @@ function info_pkgs {
         }
     }
 
-    if ("choco" -in $ShowPkgs -and (Get-Command -Name choco -ErrorAction Ignore)) {
+    if ($ShowPkgs -contains "choco" -and (Get-Command -Name choco -ErrorAction 'SilentlyContinue')) {
         $chocopkg = (& clist -l)[-1].Split(' ')[0] - 1
 
         if ($chocopkg) {
@@ -879,11 +888,11 @@ function info_pkgs {
         }
     }
 
-    if ("scoop" -in $ShowPkgs) {
+    if ($ShowPkgs -contains "scoop") {
         $scoopdir = if ($Env:SCOOP) { "$Env:SCOOP\apps" } else { "$Env:UserProfile\scoop\apps" }
 
         if (Test-Path $scoopdir) {
-            $scooppkg = (Get-ChildItem -Path $scoopdir -Directory).Count - 1
+            $scooppkg = (Get-ChildItem -Path $scoopdir).Count - 1
         }
 
         if ($scooppkg) {
@@ -1348,10 +1357,103 @@ function info_locale {
 
 # ===== WEATHER =====
 function info_weather {
+    $conditionLookup = @{
+        # Group 2xx: Thunderstorm
+        200 = "Thunderstorms with Light Rain"; 201 = "Thunderstorms with Rain";          202 = "Thunderstorms with Heavy Rain";
+        210 = "Light Thunderstorms";           211 = "Thunderstorms";                    212 = "Heavy Thunderstorms";
+        221 = "Ragged Thunderstorms";          230 = "Thunderstorms with Light Drizzle"; 231 = "Thunderstorms with Drizzle";
+        232 = "Thunderstorm with Heavy Drizzle";
+        # Group 3xx: Drizzle
+        300 = "Light Drizzle";                 301 = "Drizzle";                         302 = "Heavy Drizzle";
+        310 = "Light Drizzle Rain";            311 = "Drizzle Rain";                    312 = "Heavy Drizzle Rain";
+        313 = "Shower Rain and Drizzle";       314 = "Heavy Shower Rain and Drizzle";   321 = "Shower Drizzle";
+        # Group 5xx: Rain
+        500 = "Light Rain";                    501 = "Moderate Rain";                   502 = "Heavy Rain";
+        503 = "Very Heavy Rain";               504 = "Extreme Rain";                    511 = "Freezing Rain";
+        520 = "Light Showers";                 521 = "Showers";                         522 = "Heavy Showers";
+        531 = "Ragged Showers";
+        # Group 6xx: Snow
+        600 = "Light Snow";                    601 = "Snow";                            602 = "Heavy Snow";
+        611 = "Sleet";                         612 = "Light Shower Sleet";              613 = "Shower Sleet";
+        615 = "Light Rain and Snow";           616 = "Rain and Snow";                   620 = "Light Shower Snow";
+        621 = "Shower Snow";                   622 = "Heavy Shower Snow";
+        # Group 7xx: Atmosphere
+        701 = "Mist";                          711 = "Smoke";                           721 = "Haze";
+        731 = "Sand/Dust Whirls";              741 = "Fog";                             751 = "Sand";
+        761 = "Dust";                          762 = "Volcanic Ash";                    771 = "Squalls";
+        781 = "Tornados";
+        # Group 800: Clear
+        800 = "Clear Skies";
+        # Group 80x: Clouds
+        801 = "Few Clouds"; <#11-25%#>         802 = "Scattered Clouds"; <#25-50%#>     803 = "Broken Clouds"; #51-84%
+        804 = "Overcast"; #85-100%
+    }
+
     return @{
         title = "Weather"
         content = try {
-            (Invoke-RestMethod wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
+            if ($PSVersionTable.PSVersion.Major -eq 2) {
+                # Adding function ConvertFrom-Json
+                # https://stackoverflow.com/questions/28077854/
+                function Convert-Tree($jsonTree) {
+                    $result = @()
+                    foreach ($node in $jsonTree) {
+                        $nodeObj = New-Object psobject
+                        foreach ($property in $node.Keys) {
+                            if ($node[$property] -is [System.Collections.Generic.Dictionary[String, Object]] -or $node[$property] -is [Object[]]) {
+                                $inner = @()
+                                $inner += Convert-Tree $node[$property]
+                                $nodeObj  | Add-Member -MemberType NoteProperty -Name $property -Value $inner
+                            } else {
+                                $nodeObj  | Add-Member -MemberType NoteProperty -Name $property -Value $node[$property]
+                                #$nodeHash.Add($property, $node[$property])
+                            }
+                        }
+                        $result += $nodeObj
+                    }
+                    return $result
+                }
+
+                function ConvertFrom-Json{ 
+                    [cmdletbinding()]
+                    Param (
+                        [parameter(ValueFromPipeline=$true)][object] $PS_Object
+                    )
+
+                    Add-Type -assembly system.web.extensions
+                    $PS_JavascriptSerializer=new-object system.web.script.serialization.javascriptSerializer
+                    $PS_DeserializeObject = ,$PS_JavascriptSerializer.DeserializeObject($PS_Object) 
+
+                    #Convert Dictionary to Objects
+                    $PS_DeserializeObject = Convert-Tree $PS_DeserializeObject
+
+                    return $PS_DeserializeObject
+                }
+            }
+            # Gets Location from IP using ip-api.com
+            $WebRequest = [System.Net.WebRequest]::Create("http://ip-api.com/json/")
+            $WebRequest.Method = "GET"
+            $WebRequest.ContentType = "application/json"
+            $Response = $WebRequest.GetResponse()
+            $ResponseStream = $Response.GetResponseStream()
+            $ReadStream = New-Object System.IO.StreamReader $ResponseStream
+            $location = ConvertFrom-Json ($ReadStream.ReadToEnd())
+            $lat = $location.lat
+            $lon = $location.lon
+
+            # Change units based on location
+            $units = if($location.country -eq "United States"){"imperial"}else{"metric"}
+
+            # Get Current Weather from OpenWeatherMap API
+            $WebRequest = [System.Net.WebRequest]::Create("https://api.openweathermap.org/data/2.5/weather?lat=$($lat)&lon=$($lon)&appid=$authKey&units=$units")
+            $WebRequest.Method = "GET"
+            $WebRequest.ContentType = "application/json"
+            $Response = $WebRequest.GetResponse()
+            $ResponseStream = $Response.GetResponseStream()
+            $ReadStream = New-Object System.IO.StreamReader $ResponseStream
+            $currentWeather = ConvertFrom-Json ($ReadStream.ReadToEnd())
+
+            "$(($currentWeather.main | Select-Object temp).temp)$(if($units -eq "imperial"){"°F"}else{"°C"}) - $($conditionLookup[[int]$currentWeather.weather.id]) ($($location.city), $($location.regionName), $($location.country))"
         } catch {
             "$e[91m(Network Error)"
         }
@@ -1394,7 +1496,9 @@ function info_public_ip {
     return @{
         title = "Public IP"
         content = try {
-            Invoke-RestMethod ifconfig.me/ip
+            $WebRequest = [System.Net.WebRequest]::Create("http://ifconfig.me/ip")
+            $WebRequest.Method = "GET"
+            (New-Object System.IO.StreamReader (($WebRequest.GetResponse()).GetResponseStream())).ReadToEnd()
         } catch {
             "$e[91m(Network Error)"
         }
