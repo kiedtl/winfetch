@@ -83,7 +83,8 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [array]$showdisks = @($env:SystemDrive),
-    [array]$showpkgs = @("scoop", "choco")
+    [array]$showpkgs = @("scoop", "choco", "system"),
+    [bool]$CacheWinget = $true
 )
 
 if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
@@ -155,8 +156,15 @@ $defaultConfig = @'
 # $ShowDisks = @("*")
 
 # Configure which package managers are shown
-# disabling unused ones will improve speed
 # $ShowPkgs = @("winget", "scoop", "choco","system")
+
+# Configure whether to cache winget's package count
+# This will speed up the scripts execution time, but the returned package count might be outdated
+$CacheWinget = $true
+
+# Winget Package Count Cache
+# 0 Means no value is cached yet
+$WingetCache = 0
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -881,7 +889,46 @@ function info_pkgs {
     $pkgs = @()
 
     if ("winget" -in $ShowPkgs -and (Get-Command -Name winget -ErrorAction Ignore)) {
-        $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
+        if ($CacheWinget) {
+            $wingetpkg = if ($null -ne $WingetCache) {
+                # Set the package count to the cached value
+                $WingetCache
+            }
+
+            $scriptblock = {
+                param($configpath, $wingetpkg)
+
+                # Get the number of packages
+                $newwingetpkg = (winget list | Where-Object {$_.Trim('`n`r`t`b-\\|/ ').Length -ne 0} | Measure-Object).Count - 1
+
+                # Get the text from the config file
+                $configtext = [System.IO.File]::ReadAllText($configpath)
+
+                # Check if the cache variable exists in the config file
+                if ($null -ne $wingetpkg) {
+                    # Replace the cached value with the new one
+                    $configtext = $configtext -replace '(?<=\s*\$WingetCache\s*=\s*)\d+', $newwingetpkg
+                } else {
+                    # If the cache variable doesn't exist, append it to the config file
+                    $configtext += "`n# Winget Package Count Cache`n`$WingetCache = $newwingetpkg"
+                }
+
+                # Overwrite the config file with the new text
+                $configtext | Out-File $configpath -Encoding utf8 -NoNewline
+            }
+
+            # Check if the caching script already exists
+            if (-not (Test-Path "$env:TEMP\wingetcache.ps1")) {
+                # Create the caching script
+                $scriptblock | Out-File "$env:TEMP\wingetcache.ps1"
+            }
+
+            # Start the caching script
+            Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoLogo -NoProfile -File ""$env:TEMP\wingetcache.ps1"" ""$configpath"" $wingetpkg"
+        } else {
+            # Get the number of winget packages
+            $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
+        }
 
         if ($wingetpkg) {
             $pkgs += "$wingetpkg (winget)"
@@ -930,7 +977,7 @@ function info_pkgs {
         $tempErrorActionPreference = $ErrorActionPreference
         # Set ErrorActionPreference to not print errors as there are upcoming errors that are expected
         $ErrorActionPreference = 'SilentlyContinue'
-        
+
         # Interate through found programs and add them to the hashtable
         # Hashtable is used because it doesn't allow duplicate entries, filtering them out by erroring
         foreach($program in $machinePrograms) {
