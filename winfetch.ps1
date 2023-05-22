@@ -368,8 +368,8 @@ $img = if (-not $noimage) {
         }
 
         Add-Type -AssemblyName 'System.Drawing'
-        $OldImage = if (Test-Path $image -PathType Leaf) {
-            [Drawing.Bitmap]::FromFile((Resolve-Path $image))
+        $OldImage = if (Test-Path -LiteralPath $image -PathType Leaf) {
+            [Drawing.Bitmap]::FromFile((Resolve-Path -LiteralPath $image))
         } else {
             [Drawing.Bitmap]::FromStream((Invoke-WebRequest $image -UseBasicParsing).RawContentStream)
         }
