@@ -4,8 +4,8 @@
 # (!) This file must to be saved in UTF-8 with BOM encoding in order to work with legacy Powershell 5.x
 
 <#PSScriptInfo
-.VERSION 2.5.0
-.GUID 11f3ca46-2401-45e4-b2f0-e439640df1c3
+.VERSION 2.5.1
+.GUID 27c6f0dd-dbf2-4a3e-90df-a23c3c6c630d
 .AUTHOR Winfetch contributers
 .PROJECTURI https://github.com/lptstr/winfetch
 .COMPANYNAME
