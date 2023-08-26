@@ -872,7 +872,9 @@ function info_pkgs {
     }
 
     if ("choco" -in $ShowPkgs -and (Get-Command -Name choco -ErrorAction Ignore)) {
-        $chocopkg = (& choco list -l)[-1].Split(' ')[0] - 1
+        $chocopkg = Invoke-Expression $(
+            "(& choco list" + $(if([version](& choco --version).Split('-')[0]`
+            -lt [version]'2.0.0'){" --local-only"}) + ")[-1].Split(' ')[0] - 1")
 
         if ($chocopkg) {
             $pkgs += "$chocopkg (choco)"
