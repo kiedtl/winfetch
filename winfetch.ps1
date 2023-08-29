@@ -4,14 +4,14 @@
 # (!) This file must to be saved in UTF-8 with BOM encoding in order to work with legacy Powershell 5.x
 
 <#PSScriptInfo
-.VERSION 2.4.1
-.GUID a9a07f39-87e7-4164-9395-27cb54d86656
-.AUTHOR Kied Llaentenn and contributers
-.PROJECTURI https://github.com/kiedtl/winfetch
+.VERSION 2.5.1
+.GUID 27c6f0dd-dbf2-4a3e-90df-a23c3c6c630d
+.AUTHOR Winfetch contributers
+.PROJECTURI https://github.com/lptstr/winfetch
 .COMPANYNAME
 .COPYRIGHT
 .TAGS neofetch screenfetch system-info commandline
-.LICENSEURI https://github.com/kiedtl/winfetch/blob/master/LICENSE
+.LICENSEURI https://github.com/lptstr/winfetch/blob/master/LICENSE
 .ICONURI https://lptstr.github.io/lptstr-images/proj/winfetch/logo.png
 .EXTERNALMODULEDEPENDENCIES
 .REQUIREDSCRIPTS
@@ -38,6 +38,8 @@
     Sets the version of Windows to derive the logo from.
 .PARAMETER imgwidth
     Specify width for image/logo. Default is 35.
+.PARAMETER alphathreshold
+    Specify minimum alpha value for image pixels to be visible. Default is 50.
 .PARAMETER blink
     Make the logo blink.
 .PARAMETER stripansi
@@ -82,6 +84,7 @@ param(
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$diskstyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$batterystyle = "text",
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
+    [ValidateScript({$_ -ge 0 -and $_ -le 255})][alias('t')][int]$alphathreshold = 50,
     [array]$showdisks = @($env:SystemDrive),
     [array]$showpkgs = @("scoop", "choco", "system"),
     [bool]$CacheWinget = $true
@@ -118,6 +121,9 @@ $defaultConfig = @'
 
 # Specify width for image/logo
 # $imgwidth = 24
+
+# Specify minimum alpha value for image pixels to be visible
+# $alphathreshold = 50
 
 # Custom ASCII Art
 # This should be an array of strings, with positive
@@ -208,7 +214,7 @@ $WingetCache = 0
     # "theme"
     "cpu"
     "gpu"
-    # "cpu_usage"  # takes some time
+    # "cpu_usage"
     "memory"
     "disk"
     # "battery"
@@ -292,7 +298,7 @@ foreach ($param in $PSBoundParameters.Keys) {
 $e = [char]0x1B
 $ansiRegex = '([\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-ntqry=><~])))'
 $cimSession = New-CimSession
-$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture -CimSession $cimSession
+$os = Get-CimInstance -ClassName Win32_OperatingSystem -Property Caption,OSArchitecture,LastBootUpTime,TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
 $t = if ($blink) { "5" } else { "1" }
 $COLUMNS = $imgwidth
 
@@ -394,15 +400,32 @@ $img = if (-not $noimage) {
             for ($i = 0; $i -lt $Bitmap.Height; $i += 2) {
                 $currline = ""
                 for ($j = 0; $j -lt $Bitmap.Width; $j++) {
-                    $back = $Bitmap.GetPixel($j, $i)
+                    $pixel1 = $Bitmap.GetPixel($j, $i)
+                    $char = [char]0x2580
                     if ($i -ge $Bitmap.Height - 1) {
-                        $foreVT = ""
+                        if ($pixel1.A -lt $alphathreshold) {
+                            $char = [char]0x2800
+                            $ansi = "$e[49m"
+                        } else {
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                        }
                     } else {
-                        $fore = $Bitmap.GetPixel($j, $i + 1)
-                        $foreVT = "$e[48;2;$($fore.R);$($fore.G);$($fore.B)m"
+                        $pixel2 = $Bitmap.GetPixel($j, $i + 1)
+                        if ($pixel1.A -lt $alphathreshold -or $pixel2.A -lt $alphathreshold) {
+                            if ($pixel1.A -lt $alphathreshold -and $pixel2.A -lt $alphathreshold) {
+                                $char = [char]0x2800
+                                $ansi = "$e[49m"
+                            } elseif ($pixel1.A -lt $alphathreshold) {
+                                $char = [char]0x2584
+                                $ansi = "$e[49;38;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                            } else {
+                                $ansi = "$e[49;38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B)m"
+                            }
+                        } else {
+                            $ansi = "$e[38;2;$($pixel1.R);$($pixel1.G);$($pixel1.B);48;2;$($pixel2.R);$($pixel2.G);$($pixel2.B)m"
+                        }
                     }
-                    $backVT = "$e[38;2;$($back.R);$($back.G);$($back.B)m"
-                    $currline += "$backVT$foreVT$([char]0x2580)$e[0m"
+                    $currline += "$ansi$char$e[0m"
                 }
                 $currline
             }
@@ -610,7 +633,7 @@ function info_kernel {
 function info_uptime {
     @{
         title   = "Uptime"
-        content = $(switch ((Get-Date) - (Get-CimInstance -ClassName Win32_OperatingSystem -Property LastBootUpTime -CimSession $cimSession).LastBootUpTime) {
+        content = $(switch ([System.DateTime]::Now - $os.LastBootUpTime) {
             ({ $PSItem.Days -eq 1 }) { '1 day' }
             ({ $PSItem.Days -gt 1 }) { "$($PSItem.Days) days" }
             ({ $PSItem.Hours -eq 1 }) { '1 hour' }
@@ -684,27 +707,28 @@ function info_terminal {
 # ===== THEME =====
 function info_theme {
     $themeinfo = Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name SystemUsesLightTheme, AppsUseLightTheme
+    $themename = (Get-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes' -Name CurrentTheme).CurrentTheme.Split('\')[-1].Replace('.theme', '')
     $systheme = if ($themeinfo.SystemUsesLightTheme) { "Light" } else { "Dark" }
     $apptheme = if ($themeinfo.AppsUseLightTheme) { "Light" } else { "Dark" }
     return @{
         title = "Theme"
-        content = "System - $systheme, Apps - $apptheme"
+        content = "$themename (System: $systheme, Apps: $apptheme)"
     }
 }
 
 
 # ===== CPU/GPU =====
 function info_cpu {
-    $cpu = Get-CimInstance -ClassName Win32_Processor -Property Name,MaxClockSpeed -CimSession $cimSession
-    $cpuname = if ($cpu.Name.Contains('@')) {
-        ($cpu.Name -Split ' @ ')[0].Trim()
+    $cpu = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $Env:COMPUTERNAME).OpenSubKey("HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+    $cpuname = $cpu.GetValue("ProcessorNameString")
+    $cpuname = if ($cpuname.Contains('@')) {
+        ($cpuname -Split '@')[0].Trim()
     } else {
-        $cpu.Name.Trim()
+        $cpuname.Trim()
     }
-    $cpufreq = [math]::round((([int]$cpu.MaxClockSpeed)/1000), 2)
     return @{
         title   = "CPU"
-        content = "${cpuname} @ ${cpufreq}GHz"
+        content = "$cpuname @ $($cpu.GetValue("~MHz") / 1000)GHz" # [math]::Round($cpu.GetValue("~MHz") / 1000, 1) is 2-5ms slower
     }
 }
 
@@ -723,8 +747,24 @@ function info_gpu {
 
 # ===== CPU USAGE =====
 function info_cpu_usage {
-    $loadpercent = (Get-CimInstance -ClassName Win32_Processor -Property LoadPercentage -CimSession $cimSession).LoadPercentage
-    $proccount = (Get-Process).Count
+    # Get all running processes and assign to a variable to allow reuse
+    $processes = [System.Diagnostics.Process]::GetProcesses()
+    $loadpercent = 0
+    $proccount = $processes.Count
+    # Get the number of logical processors in the system
+    $CPUs = [System.Environment]::ProcessorCount
+
+    $timenow = [System.Datetime]::Now
+    $processes.ForEach{
+        if ($_.StartTime -gt 0) {
+            # Replicate the functionality of New-Timespan
+            $timespan = ($timenow.Subtract($_.StartTime)).TotalSeconds
+
+            # Calculate the CPU usage of the process and add to the total
+            $loadpercent += $_.CPU * 100 / $timespan / $CPUs
+        }
+    }
+
     return @{
         title   = "CPU Usage"
         content = get_level_info "" $cpustyle $loadpercent "$proccount processes" -altstyle
@@ -734,9 +774,8 @@ function info_cpu_usage {
 
 # ===== MEMORY =====
 function info_memory {
-    $m = Get-CimInstance -ClassName Win32_OperatingSystem -Property TotalVisibleMemorySize,FreePhysicalMemory -CimSession $cimSession
-    $total = $m.TotalVisibleMemorySize / 1mb
-    $used = ($m.TotalVisibleMemorySize - $m.FreePhysicalMemory) / 1mb
+    $total = $os.TotalVisibleMemorySize / 1mb
+    $used = ($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / 1mb
     $usage = [math]::floor(($used / $total * 100))
     return @{
         title   = "Memory"
@@ -748,45 +787,6 @@ function info_memory {
 # ===== DISK USAGE =====
 function info_disk {
     [System.Collections.ArrayList]$lines = @()
-    Add-Type @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace WinAPI
-{
-    public class DiskMethods
-    {
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetLogicalDriveStringsW", SetLastError = true)]
-        private static extern int NativeGetLogicalDriveStringsW(
-            int nBufferLength,
-            char[] lpBuffer);
-
-        // Wrapper around the native function for error handling
-        public static char[] GetLogicalDriveStringsW()
-        {
-            int length = NativeGetLogicalDriveStringsW(0, null);
-            if (length == 0)
-                throw new Win32Exception();
-
-            char[] buffer = new char[length];
-            length = NativeGetLogicalDriveStringsW(length, buffer);
-            if (length == 0)
-                throw new Win32Exception();
-
-            return buffer;
-        }
-
-        [DllImport("Kernel32.dll", SetLastError = true)]
-        public static extern bool GetDiskFreeSpaceEx(
-            string lpDirectoryName,
-            out ulong lpFreeBytesAvailable,
-            out ulong lpTotalNumberOfBytes,
-            out ulong lpTotalNumberOfFreeBytes);
-    }
-}
-'@
 
     function to_units($value) {
         if ($value -gt 1tb) {
@@ -796,46 +796,26 @@ namespace WinAPI
         }
     }
 
-    # Convert System.String[] to System.Object[]
-    $rawDiskLetters = [WinAPI.DiskMethods]::GetLogicalDriveStringsW()
-    $allDiskLetters = @()
-    foreach ($entry in $rawDiskLetters) {
-        if ($entry -ne ":" -and $entry -ne "\" -and $entry + ":" -ne ":") {
-            $allDiskLetters += $entry + ":"
-        }
-    }
+    [System.IO.DriveInfo]::GetDrives().ForEach{
+        $diskLetter = $_.Name.SubString(0,2)
 
-    # Verification stage
-    $diskLetters = @()
-    foreach ($diskLetter in $allDiskLetters) {
-        foreach ($showDiskLetter in $showDisks) {
-            if ($diskLetter -eq $showDiskLetter -or $showDiskLetter -eq "*") {
-                $diskLetters += $diskLetter
+        if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
+            try {
+                if ($_.TotalSize -gt 0) {
+                    $used = $_.TotalSize - $_.AvailableFreeSpace
+                    $usage = [math]::Floor(($used / $_.TotalSize * 100))
+    
+                    [void]$lines.Add(@{
+                        title   = "Disk ($diskLetter)"
+                        content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $_.TotalSize)"
+                    })
+                }
+            } catch {
+                [void]$lines.Add(@{
+                    title   = "Disk ($diskLetter)"
+                    content = "(failed to get disk usage)"
+                })
             }
-        }
-    }
-
-    foreach ($diskLetter in $diskLetters) {
-        $lpFreeBytesAvailable = 0
-        $lpTotalNumberOfBytes = 0
-        $lpTotalNumberOfFreeBytes = 0
-        $success = [WinAPI.DiskMethods]::GetDiskFreeSpaceEx($diskLetter, [ref] $lpFreeBytesAvailable, [ref] $lpTotalNumberOfBytes, [ref] $lpTotalNumberOfFreeBytes)
-        $total = $lpTotalNumberOfBytes
-        $used = $total - $lpTotalNumberOfFreeBytes
-
-        if (-not $success) {
-            [void]$lines.Add(@{
-                title   = "Disk ($diskLetter)"
-                content = "(failed to get disk usage)"
-            })
-        }
-
-        if ($total -gt 0) {
-            $usage = [math]::floor(($used / $total * 100))
-            [void]$lines.Add(@{
-                title   = "Disk ($diskLetter)"
-                content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $total)"
-            })
         }
     }
 
@@ -856,8 +836,11 @@ function info_pwsh {
 function info_ps_pkgs {
     $ps_pkgs = @()
 
-    $modulecount = (Get-InstalledModule).Length
-    $scriptcount = (Get-InstalledScript).Length
+    # Get all installed packages
+    $pgp = Get-Package -ProviderName PowerShellGet
+    # Get the number of packages where the tags contains PSModule or PSScript
+    $modulecount = $pgp.Where({$_.Metadata["tags"] -like "*PSModule*"}).count
+    $scriptcount = $pgp.Where({$_.Metadata["tags"] -like "*PSScript*"}).count
 
     if ($modulecount) {
         if ($modulecount -eq 1) { $modulestring = "1 Module" }

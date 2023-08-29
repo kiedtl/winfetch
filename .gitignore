@@ -1,0 +1,14 @@
+### VSCode ###
+
+# Configuration folder
+.vscode
+
+### Windows ###
+
+# Folder config file
+[Dd]esktop.ini
+
+### MacOS ###
+
+# General
+.DS_Store
