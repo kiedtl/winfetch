@@ -1353,7 +1353,7 @@ function info_weather {
     return @{
         title = "Weather"
         content = try {
-            (Invoke-RestMethod -TimeoutSec 3 wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
+            (Invoke-RestMethod -TimeoutSec 5 wttr.in/?format="%t+-+%C+(%l)").TrimStart("+")
         } catch {
             "$e[91m(Network Error)"
         }
@@ -1396,7 +1396,7 @@ function info_public_ip {
     return @{
         title = "Public IP"
         content = try {
-            Invoke-RestMethod -TimeoutSec 3 ifconfig.me/ip
+            Invoke-RestMethod -TimeoutSec 5 ifconfig.me/ip
         } catch {
             "$e[91m(Network Error)"
         }
