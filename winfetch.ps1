@@ -296,7 +296,10 @@ $COLUMNS = $imgwidth
 
 # ===== UTILITY FUNCTIONS =====
 function get_percent_bar {
-    param ([Parameter(Mandatory)][ValidateRange(0, 100)][int]$percent)
+    param ([Parameter(Mandatory)][int]$percent)
+
+    if ($percent -gt 100) { $percent = 100 }
+    elseif ($percent -lt 0) { $percent = 0 }
 
     $x = [char]9632
     $bar = $null
