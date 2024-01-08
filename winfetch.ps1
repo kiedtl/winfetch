@@ -86,7 +86,8 @@ param(
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [ValidateScript({$_ -ge 0 -and $_ -le 255})][alias('t')][int]$alphathreshold = 50,
     [array]$showdisks = @($env:SystemDrive),
-    [array]$showpkgs = @("scoop", "choco")
+    [array]$showpkgs = @("scoop", "choco", "system"),
+    [bool]$CacheWinget = $true
 )
 
 if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
@@ -161,8 +162,15 @@ $defaultConfig = @'
 # $ShowDisks = @("*")
 
 # Configure which package managers are shown
-# disabling unused ones will improve speed
-# $ShowPkgs = @("winget", "scoop", "choco")
+# $ShowPkgs = @("winget", "scoop", "choco","system")
+
+# Configure whether to cache winget's package count
+# This will speed up the scripts execution time, but the returned package count might be outdated
+$CacheWinget = $true
+
+# Winget Package Count Cache
+# 0 Means no value is cached yet
+$WingetCache = 0
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -867,17 +875,54 @@ function info_pkgs {
     $pkgs = @()
 
     if ("winget" -in $ShowPkgs -and (Get-Command -Name winget -ErrorAction Ignore)) {
-        $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
+        if ($CacheWinget) {
+            $wingetpkg = if ($null -ne $WingetCache) {
+                # Set the package count to the cached value
+                $WingetCache
+            }
+
+            $scriptblock = {
+                param($configpath, $wingetpkg)
+
+                # Get the number of packages
+                $newwingetpkg = (winget list | Where-Object {$_.Trim('`n`r`t`b-\\|/ ').Length -ne 0} | Measure-Object).Count - 1
+
+                # Get the text from the config file
+                $configtext = [System.IO.File]::ReadAllText($configpath)
+
+                # Check if the cache variable exists in the config file
+                if ($null -ne $wingetpkg) {
+                    # Replace the cached value with the new one
+                    $configtext = $configtext -replace '(?<=\s*\$WingetCache\s*=\s*)\d+', $newwingetpkg
+                } else {
+                    # If the cache variable doesn't exist, append it to the config file
+                    $configtext += "`n# Winget Package Count Cache`n`$WingetCache = $newwingetpkg"
+                }
+
+                # Overwrite the config file with the new text
+                $configtext | Out-File $configpath -Encoding utf8 -NoNewline
+            }
+
+            # Check if the caching script already exists
+            if (-not (Test-Path "$env:TEMP\wingetcache.ps1")) {
+                # Create the caching script
+                $scriptblock | Out-File "$env:TEMP\wingetcache.ps1"
+            }
+
+            # Start the caching script
+            Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoLogo -NoProfile -File ""$env:TEMP\wingetcache.ps1"" ""$configpath"" $wingetpkg"
+        } else {
+            # Get the number of winget packages
+            $wingetpkg = (winget list | Where-Object {$_.Trim("`n`r`t`b-\|/ ").Length -ne 0} | Measure-Object).Count - 1
+        }
 
         if ($wingetpkg) {
-            $pkgs += "$wingetpkg (system)"
+            $pkgs += "$wingetpkg (winget)"
         }
     }
 
     if ("choco" -in $ShowPkgs -and (Get-Command -Name choco -ErrorAction Ignore)) {
-        $chocopkg = Invoke-Expression $(
-            "(& choco list" + $(if([version](& choco --version).Split('-')[0]`
-            -lt [version]'2.0.0'){" --local-only"}) + ")[-1].Split(' ')[0] - 1")
+        $chocopkg = (Get-ChildItem -Path "$env:ChocolateyInstall\lib").count - 1
 
         if ($chocopkg) {
             $pkgs += "$chocopkg (choco)"
@@ -894,6 +939,53 @@ function info_pkgs {
         if ($scooppkg) {
             $pkgs += "$scooppkg (scoop)"
         }
+    }
+
+    if ("system" -in $ShowPkgs) {
+        # Get all installed programs from the registry
+        if (Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $userPrograms = ((Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $userX64Programs = ((Get-ChildItem "HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $machinePrograms = ((Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+        if (Test-Path "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall") {
+            $machineX64Programs = ((Get-ChildItem "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty).DisplayName)
+        }
+
+        # Program list
+        [hashtable]$programs = @{}
+
+        # Save current state of ErrorActionPreference
+        $tempErrorActionPreference = $ErrorActionPreference
+        # Set ErrorActionPreference to not print errors as there are upcoming errors that are expected
+        $ErrorActionPreference = 'SilentlyContinue'
+
+        # Interate through found programs and add them to the hashtable
+        # Hashtable is used because it doesn't allow duplicate entries, filtering them out by erroring
+        foreach($program in $machinePrograms) {
+            if($program){[void]($programs += @{$program = $true})}
+        }
+
+        foreach($program in $userPrograms) {
+            if($program){[void]($programs += @{$program = $true})}
+        }
+
+        foreach($program in $userX64Programs) {
+            if($program){[void]($programs += @{$program = $true})}
+        }
+
+        foreach($program in $machineX64Programs) {
+            if($program){[void]($programs += @{$program = $true})}
+        }
+
+        # Restore ErrorActionPreference to its original state
+        $ErrorActionPreference = $tempErrorActionPreference
+
+        $pkgs += "$($programs.count) (system)"
     }
 
     foreach ($pkgitem in $CustomPkgs) {
