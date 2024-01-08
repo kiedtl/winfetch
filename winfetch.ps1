@@ -657,7 +657,7 @@ function info_resolution {
 # ===== TERMINAL =====
 # this section works by getting the parent processes of the current powershell instance.
 function info_terminal {
-    $programs = 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'bash', 'fish', 'env', 'nu', 'elvish', 'csh', 'tcsh', 'python', 'xonsh'
+    $programs = 'powershell', 'pwsh', 'winpty-agent', 'cmd', 'zsh', 'sh', 'bash', 'fish', 'env', 'nu', 'elvish', 'csh', 'tcsh', 'python', 'xonsh'
     if ($PSVersionTable.PSEdition.ToString() -ne 'Core') {
         $parent = Get-Process -Id (Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $PID" -Property ParentProcessId -CimSession $cimSession).ParentProcessId -ErrorAction Ignore
         for () {
