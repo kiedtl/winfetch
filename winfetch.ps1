@@ -729,12 +729,38 @@ function info_cpu {
 
 function info_gpu {
     [System.Collections.ArrayList]$lines = @()
-    #loop through Win32_VideoController
-    foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
-        [void]$lines.Add(@{
-            title   = "GPU"
-            content = $gpu.Name
-        })
+    # Get list of GPUs from the Registry
+    if($LastSeen = (Get-ItemProperty -path HKLM:\SOFTWARE\Microsoft\DirectX\ -ErrorAction SilentlyContinue).LastSeen) {
+        Get-ChildItem -path HKLM:\SOFTWARE\Microsoft\DirectX\ | Get-ItemProperty | ForEach-Object {
+            if(($_.Description -ne "Microsoft Basic Render Driver") -and ($_.LastSeen -eq $LastSeen)){
+                [void]$lines.Add(@{
+                    title   = "GPU"
+                    content = $_.Description
+                })
+            }
+        }
+    }elseif($Devices = Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Enum\PCI\ -Depth 1 -ErrorAction SilentlyContinue) { # Alternative Method 1: Get GPUs from Device Manager's Registry Keys, slightly slower
+        ($Devices | Get-ItemProperty).DeviceDesc | ForEach-Object {
+            $Device = $_.Substring($_.IndexOf(';') + 1)
+            if(
+                $Device -match "NVIDIA GeForce" -or $Device -match "NVIDIA Quadro" -or $Device -match "NVIDIA Tesla" -or $Device -match "NVIDIA GRID" -or`
+                $Device -match "Radeon" -or`
+                $Device -match "Intel(R) UHD" -or $Device -match "Intel(R) HD" -or $Device -match "Intel(R) Iris" -or $Device -match "Intel(R) Arc"
+            ){
+                [void]$lines.Add(@{
+                    title   = "GPU"
+                    content = $Device
+                })
+            }
+        }
+    }else{ # Alternative Method 2: Fallback onto previous implementation
+        # Loop through Win32_VideoController
+        foreach ($gpu in Get-CimInstance -ClassName Win32_VideoController -Property Name -CimSession $cimSession) {
+            [void]$lines.Add(@{
+                title   = "GPU"
+                content = $gpu.Name
+            })
+        }
     }
     return $lines
 }
