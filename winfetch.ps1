@@ -60,6 +60,8 @@
     Configure which disks are shown, use '-showdisks *' to show all.
 .PARAMETER showpkgs
     Configure which package managers are shown, e.g. '-showpkgs winget,scoop,choco'.
+.PARAMETER runspaces
+    Configure whether to run commands in multiple threads using Runspaces.
 .INPUTS
     System.String
 .OUTPUTS
@@ -86,7 +88,8 @@ param(
     [ValidateScript({$_ -gt 1 -and $_ -lt $Host.UI.RawUI.WindowSize.Width-1})][alias('w')][int]$imgwidth = 35,
     [ValidateScript({$_ -ge 0 -and $_ -le 255})][alias('t')][int]$alphathreshold = 50,
     [array]$showdisks = @($env:SystemDrive),
-    [array]$showpkgs = @("scoop", "choco")
+    [array]$showpkgs = @("scoop", "choco"),
+    [bool]$runspaces = $true
 )
 
 if (-not ($IsWindows -or $PSVersionTable.PSVersion.Major -eq 5)) {
@@ -163,6 +166,41 @@ $defaultConfig = @'
 # Configure which package managers are shown
 # disabling unused ones will improve speed
 # $ShowPkgs = @("winget", "scoop", "choco")
+
+# Configure whether to run in multiple threads using runspaces
+# Disabling might cause a speed decrease or increase, depending on your system and configuration
+# Disabling will make debugging easier
+$runspaces = $true
+
+# Operations to execute in runspaces
+$RunspaceOps = @(
+    "title"
+    "dashes"
+    "os"
+    "computer"
+    "kernel"
+    "motherboard"
+    "custom_time"
+    "uptime"
+    "ps_pkgs"
+    "pkgs"
+    "pwsh"
+    "resolution"
+    "terminal"
+    "theme"
+    "cpu"
+    "gpu"
+    "cpu_usage"
+    #"memory" # Causes Errors
+    "disk"
+    #"battery" # Causes Errors
+    "locale"
+    "weather"
+    "local_ip"
+    "public_ip"
+    "blank"
+    "colorbar"
+)
 
 # Use the following option to specify custom package managers.
 # Create a function with that name as suffix, and which returns
@@ -1435,10 +1473,118 @@ if ($img -and -not $stripansi) {
 }
 
 
+# Create Variable Array and Function Array to Pass into Runspaces
+$Vars = @(
+    # Flags
+    @{
+        Name = "stripansi"
+        Value = $stripansi
+    },
+    @{
+        Name = "cpustyle"
+        Value = $cpustyle
+    },
+    @{
+        Name = "memorystyle"
+        Value = $memorystyle
+    },
+    @{
+        Name = "diskstyle"
+        Value = $diskstyle
+    },
+    @{
+        Name = "batterystyle"
+        Value = $batterystyle
+    },
+    @{
+        Name = "showdisks"
+        Value = $showdisks
+    },
+    @{
+        Name = "showpkgs"
+        Value = $showpkgs
+    },
+    # Variables
+    @{
+        Name = "e"
+        Value = $e
+    },
+    @{# truncate_line
+        Name = "ansiRegex"
+        Value = $ansiRegex
+    },
+    @{# info_motherboard, info_computer, info_uptime, info_terminal, info_cpu, info_cpu_usage
+        Name = "cimSession"
+        Value = $cimSession
+    },
+    @{
+        Name = "os"
+        Value = $os
+    }
+)
+$Funcs = @(
+    @{
+        Name = "get_percent_bar"
+        Value = $Function:get_percent_bar
+    },
+    @{
+        Name = "get_level_info"
+        Value = $Function:get_level_info
+    },
+    @{
+        Name = "truncate_line"
+        Value = $Function:truncate_line
+    }
+)
+
+
+# Check if Runspace config option is enabled
+if ($Runspaces){
+    # Create Runspace Pool
+    $RunspacePool = [runspacefactory]::CreateRunspacePool(1, [int]$env:NUMBER_OF_PROCESSORS+1)
+    $RunspacePool.Open()
+    $Jobs = New-Object System.Collections.ArrayList
+
+    # Create and Execute Runspaces
+    foreach ($Op in $RunspaceOps){
+        if($config -like $Op){
+            $PowerShell = [powershell]::Create()
+            $PowerShell.RunspacePool = $RunspacePool
+            # Add Helper Script to Runspace
+            $null = $PowerShell.AddScript({
+                param($Vars, $Funcs)
+                # Import Variables
+                foreach ($Var in $Vars){
+                    Set-Variable -Name $Var.Name -Value $Var.Value
+                }
+
+                # Import Functions
+                foreach ($Func in $Funcs){
+                    Set-Item -Path "Function:$($Func.Name)" -Value $Func.Value
+                }
+            }).AddArgument($Vars).AddArgument($Funcs)
+            $null = $PowerShell.AddScript((Get-ChildItem Function:"info_$Op").ScriptBlock)
+            $null = $Jobs.Add([PSCustomObject]@{Name = $Op; Runspace = $PowerShell; Status = $PowerShell.BeginInvoke()})
+        }
+    }
+}
+
+
 # write info
 foreach ($item in $config) {
     if (Test-Path Function:"info_$item") {
-        $info = & "info_$item"
+        if ($Runspaces -and $item -in $RunspaceOps){
+            # Get Runspace from $item
+            $Job = $Jobs | Where-Object { $_.name -eq $item }
+            # Wait for Runspace to finish
+            while ($Job.IsCompleted -eq $false){}
+            # Get Runspace Output
+            $info = $Job.Runspace.EndInvoke($Job.Status)
+            # Close Runspace
+            $Job.Runspace.Dispose()
+        }else{
+            $info = & "info_$item"
+        }
     } else {
         $info = @{ title = "$e[31mfunction 'info_$item' not found" }
     }
@@ -1505,6 +1651,12 @@ if (-not $stripansi) {
     Write-Output "$e[?25h"
 } else {
     Write-Output "`n"
+}
+
+if($runspaces){
+    # Close and Dispose Runspace Pool
+    $RunspacePool.Close()
+    $RunspacePool.Dispose()
 }
 
 #  ___ ___  ___
