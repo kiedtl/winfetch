@@ -58,6 +58,8 @@
     Specify how to show information level for battery
 .PARAMETER showdisks
     Configure which disks are shown, use '-showdisks *' to show all.
+.PARAMETER extradiskinfo
+    Show extra information about disks, such as the volume label and total disk size (if more than one disk is shown)
 .PARAMETER showpkgs
     Configure which package managers are shown, e.g. '-showpkgs winget,scoop,choco'.
 .INPUTS
@@ -78,6 +80,7 @@ param(
     [switch][alias('b')]$blink,
     [switch][alias('s')]$stripansi,
     [switch][alias('a')]$all,
+    [switch][alias('e')]$extradiskinfo,
     [switch][alias('h')]$help,
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$cpustyle = "text",
     [ValidateSet("text", "bar", "textbar", "bartext")][string]$memorystyle = "text",
@@ -791,8 +794,12 @@ function info_disk {
         }
     }
 
+    $totalDisksSize = 0
+    $totalDisksUsage = 0
+
     [System.IO.DriveInfo]::GetDrives().ForEach{
         $diskLetter = $_.Name.SubString(0,2)
+        $volumeLabel = $_.VolumeLabel
 
         if ($showDisks.Contains($diskLetter) -or $showDisks.Contains("*")) {
             try {
@@ -800,8 +807,11 @@ function info_disk {
                     $used = $_.TotalSize - $_.AvailableFreeSpace
                     $usage = [math]::Floor(($used / $_.TotalSize * 100))
     
+                    $totalDisksSize += $_.TotalSize
+		    $totalDisksUsed += $used
+
                     [void]$lines.Add(@{
-                        title   = "Disk ($diskLetter)"
+                        title = "Disk ($diskLetter" + $(If ($extradiskinfo) {" - $volumeLabel"} Else {""}) + ")"
                         content = get_level_info "" $diskstyle $usage "$(to_units $used) / $(to_units $_.TotalSize)"
                     })
                 }
@@ -812,6 +822,13 @@ function info_disk {
                 })
             }
         }
+    }
+
+    if ($extradiskinfo -and $lines.Count -gt 1) { 
+        [void]$lines.Add(@{
+	    title = "Total Disk Usage"
+	    content = get_level_info "" $diskstyle ($totalDisksUsed / $totalDisksSize * 100)  "$(to_units $totalDisksUsed) / $(to_units $totalDisksSize)"
+	})
     }
 
     return $lines
