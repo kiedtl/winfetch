@@ -296,21 +296,33 @@ $COLUMNS = $imgwidth
 
 # ===== UTILITY FUNCTIONS =====
 function get_percent_bar {
-    param ([Parameter(Mandatory)][int]$percent)
+    param (
+        [Parameter(Mandatory)][int]$percent,
+        [bool]$reverseColor
+    )
 
     if ($percent -gt 100) { $percent = 100 }
     elseif ($percent -lt 0) { $percent = 0 }
 
     $x = [char]9632
     $bar = $null
+    $barValue = ([math]::round($percent / 10))
 
-    $bar += "$e[97m[ $e[0m"
-    for ($i = 1; $i -le ($barValue = ([math]::round($percent / 10))); $i++) {
-        if ($i -le 6) { $bar += "$e[32m$x$e[0m" }
-        elseif ($i -le 8) { $bar += "$e[93m$x$e[0m" }
-        else { $bar += "$e[91m$x$e[0m" }
+    $bar += "$e[97m[ "
+    if ($reverseColor) {
+        if ($barValue -le 2) { $bar += "$e[91m" }
+        elseif ($barValue -le 4) { $bar += "$e[93m" }
+        else { $bar += "$e[32m" }
+        for ($i = 1; $i -le $barValue; $i++) { $bar += "$x" }
+    } else {
+        for ($i = 1; $i -le $barValue; $i++) {
+            if ($i -le 6) { $bar += "$e[32m$x$e[0m" }
+            elseif ($i -le 8) { $bar += "$e[93m$x$e[0m" }
+            else { $bar += "$e[91m$x$e[0m" }
+        }
     }
-    for ($i = 1; $i -le (10 - $barValue); $i++) { $bar += "$e[97m-$e[0m" }
+    $bar += "$e[97m"
+    for ($i = 1; $i -le (10 - $barValue); $i++) { $bar += "-" }
     $bar += "$e[97m ]$e[0m"
 
     return $bar
@@ -322,13 +334,14 @@ function get_level_info {
         [string]$style,
         [int]$percentage,
         [string]$text,
-        [switch]$altstyle
+        [switch]$altstyle,
+        [switch]$reverseColor
     )
 
     switch ($style) {
-        'bar' { return "$barprefix$(get_percent_bar $percentage)" }
-        'textbar' { return "$text $(get_percent_bar $percentage)" }
-        'bartext' { return "$barprefix$(get_percent_bar $percentage) $text" }
+        'bar' { return "$barprefix$(get_percent_bar $percentage $reverseColor)" }
+        'textbar' { return "$text $(get_percent_bar $percentage $reverseColor)" }
+        'bartext' { return "$barprefix$(get_percent_bar $percentage $reverseColor) $text" }
         default { if ($altstyle) { return "$percentage% ($text)" } else { return "$text ($percentage%)" }}
     }
 }
@@ -944,7 +957,7 @@ function info_battery {
 
     return @{
         title = "Battery"
-        content = get_level_info "  " $batterystyle "$([math]::round($battery.BatteryLifePercent * 100))" "$status$timeFormatted" -altstyle
+        content = get_level_info "  " $batterystyle "$([math]::round($battery.BatteryLifePercent * 100))" "$status$timeFormatted" -altstyle -reverseColor
     }
 }
 
